@@ -1,12 +1,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChalkboardTeacher, Code, PenTool, FileText } from "lucide-react";
+import { BookOpen, Code, PenTool, FileText } from "lucide-react";
 
 const services = [
   {
     title: "Technical Mentorship",
     description: "One-on-one guidance to help you advance your programming skills and career in software development.",
-    icon: ChalkboardTeacher,
+    icon: BookOpen,
   },
   {
     title: "Code Reviews & Consulting",
