@@ -4,87 +4,59 @@ import { motion } from "framer-motion";
 
 const experiences = [
   {
+    role: "Senior Frontend Engineer",
     company: "Razorpay",
-    logo: "/companies/razorpay.png",
-    title: "Senior Frontend Engineer",
-    period: "May 2021 - Present",
-    techStack: ["Svelte", "ReactJS", "TypeScript", "Redux", "Zustand", "Jest"],
+    period: "Jan 2023 - Present",
     description: [
+      "Leading frontend development for RazorpayX, the company's neobanking platform, managing a team of 4 engineers",
+      "Architected and implemented a micro-frontend architecture, reducing build times by 40% and improving deployment efficiency",
+      "Developed a comprehensive design system serving 10+ products, reducing development time by 30%",
+      "Optimized application performance, achieving 90+ Lighthouse scores and reducing bundle size by 35%",
+      "Mentored junior engineers and conducted technical interviews for frontend positions",
+    ],
+    previousRoles: [
       {
-        text: "Leading a pod to expand Razorpay into Malaysia by integrating region-specific payment methods and addressing localization challenges across a diverse tech stack (Svelte, ReactJS), resulting in the activation of ",
-        highlight: "530 merchants",
-        text2: " and achieving a monthly GMV of ",
-        highlight2: "80M MYR",
+        role: "Software Development Engineer I",
+        period: "Jul 2021 - Dec 2022",
+        description: [
+          "Led the development of RazorpayX Dashboard, handling $2B+ in monthly transactions",
+          "Implemented real-time transaction tracking and analytics features",
+          "Built reusable component library used across multiple products",
+          "Reduced page load time by 50% through code splitting and lazy loading",
+        ],
       },
       {
-        text: "Leading the frontend team in launching Razorpay products in Singapore, this project focused on enhancing the checkout and merchant experience for new geographies.",
-      },
-      {
-        text: "Leading the team in Project Plus to improve internationalization support in our products by crafting i18n UI components, utilities, SDKs, linters and more. Successfully ",
-        highlight: "open-sourced the SDK",
-        text2: ", now accessible on npm as @razorpay/i18nify.",
+        role: "Frontend Engineer Intern",
+        period: "Jan 2021 - Jun 2021",
+        description: [
+          "Developed key features for RazorpayX using React and TypeScript",
+          "Implemented responsive designs and cross-browser compatibility",
+          "Collaborated with backend team to integrate REST APIs",
+          "Wrote unit tests achieving 85% code coverage",
+        ],
       },
     ],
   },
   {
-    company: "Razorpay",
-    logo: "/companies/razorpay.png",
-    title: "Software Development Engineer I",
-    period: "Aug 2022 - Oct 2024",
-    techStack: ["React", "TypeScript", "Node.js", "Jest", "Playwright"],
+    role: "Frontend Developer",
+    company: "Freelance",
+    period: "Jun 2020 - Dec 2020",
     description: [
-      {
-        text: "Led the end-to-end development and launch of Mastercard Biometric Authentication, demo'ed at GFP-2024, replacing 3DS-OTP authentication and increasing SR by ",
-        highlight: "35%",
-      },
-      {
-        text: "Accelerated international expansion by slashed time-to-market for new geographies from ",
-        highlight: "8-9 months to 1 month",
-      },
-      {
-        text: "Developed i18n-linter, a static code analysis tool reducing region-sensitive hard-coding errors by ",
-        highlight: "87%",
-      },
-      {
-        text: "Contributed in Migration of Merchant Dashboard from Monolithic to Micro-frontend Architecture achieving a ",
-        highlight: "67% reduction in build time",
-        text2: " (from 21 minutes to 7 minutes), cut UI runtime by ",
-        highlight2: "67%",
-        text3:
-          " (from 15 minutes to 5 minutes), and decreased E2E test runtime by ",
-        highlight3: "70%",
-        text4: " (from 108 minutes to 32 minutes)",
-      },
-      {
-        text: "Created India's first token lifecycle management system for ",
-        highlight: "4 major banks",
-        text2: ", complying with RBI guidelines, enabling ",
-        highlight2: "8 tokenizations",
-        text3:
-          ", delivering customized solutions to millions, and reducing risk exposure by ",
-        highlight3: "40%",
-      },
+      "Developed and maintained web applications for various clients using React and Next.js",
+      "Implemented responsive designs and optimized performance for better user experience",
+      "Collaborated with clients to understand requirements and deliver solutions",
+      "Built reusable components and maintained code quality through testing",
     ],
   },
   {
-    company: "Razorpay",
-    logo: "/companies/razorpay.png",
-    title: "Frontend Engineer Intern",
-    period: "May 2021 - Jul 2022",
-    techStack: ["React", "JavaScript", "CSS", "Material UI"],
+    role: "Frontend Developer Intern",
+    company: "Coding Ninjas",
+    period: "Jan 2020 - May 2020",
     description: [
-      {
-        text: "Cut payment dispute resolution time by ",
-        highlight: "50%",
-        text2:
-          ", reducing the average from 20 minutes to 10 minutes, and improving team efficiency.",
-      },
-      {
-        text: "Revamped Shield UI, achieving a ",
-        highlight: "33% surge",
-        text2: " in user engagement and reducing load time by ",
-        highlight2: "21%",
-      },
+      "Worked on the development of the Coding Ninjas learning platform",
+      "Implemented UI components and features using React",
+      "Collaborated with the team to improve user experience",
+      "Contributed to code reviews and documentation",
     ],
   },
 ];
@@ -104,88 +76,67 @@ export default function Experience() {
         <h2 className="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
           Experience
         </h2>
-        <div className="mt-12 space-y-16">
+        <div className="mt-12 space-y-12">
           {experiences.map((experience, index) => (
             <motion.div
-              key={`${experience.company}-${experience.title}`}
+              key={experience.role + experience.company}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative"
             >
-              <div className="grid gap-8 lg:grid-cols-3">
-                <div>
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 overflow-hidden rounded-full">
-                      <img
-                        src={experience.logo}
-                        alt={`${experience.company} logo`}
-                        className="h-full w-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-100">
-                        {experience.title}
-                      </h3>
-                      <p className="text-lg font-semibold text-blue-500">
-                        {experience.company}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {experience.period}
-                      </p>
-                    </div>
+              <div className="relative z-10 rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-100">
+                      {experience.role}
+                    </h3>
+                    <p className="text-gray-400">{experience.company}</p>
                   </div>
-                  <div className="mt-4">
-                    <h4 className="text-sm font-semibold text-gray-300">
-                      Tech Stack
+                  <span className="text-sm text-gray-500">
+                    {experience.period}
+                  </span>
+                </div>
+                <ul className="mt-6 space-y-4">
+                  {experience.description.map((item, itemIndex) => (
+                    <li key={itemIndex} className="flex gap-3">
+                      <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+                      <span className="text-gray-400">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                {experience.previousRoles && (
+                  <div className="mt-8 border-t border-gray-700 pt-8">
+                    <h4 className="text-lg font-medium text-gray-100">
+                      Previous Roles
                     </h4>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {experience.techStack.map((tech) => (
-                        <span
-                          key={tech}
-                          className="rounded-full bg-gray-700/50 px-3 py-1 text-sm font-medium text-gray-300"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="lg:col-span-2">
-                  <ul className="space-y-4">
-                    {experience.description.map((item, itemIndex) => (
-                      <li
-                        key={itemIndex}
-                        className="flex gap-3 text-base text-gray-400"
-                      >
-                        <span className="select-none text-blue-500">›</span>
-                        <span>
-                          {item.text}
-                          {item.highlight && (
-                            <span className="font-semibold text-blue-400">
-                              {item.highlight}
-                            </span>
-                          )}
-                          {item.text2}
-                          {item.highlight2 && (
-                            <span className="font-semibold text-blue-400">
-                              {item.highlight2}
-                            </span>
-                          )}
-                          {item.text3}
-                          {item.highlight3 && (
-                            <span className="font-semibold text-blue-400">
-                              {item.highlight3}
-                            </span>
-                          )}
-                          {item.text4}
-                        </span>
-                      </li>
+                    {experience.previousRoles.map((previousRole, roleIndex) => (
+                      <div key={roleIndex} className="mt-6">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium text-gray-100">
+                            {previousRole.role}
+                          </h5>
+                          <span className="text-sm text-gray-500">
+                            {previousRole.period}
+                          </span>
+                        </div>
+                        <ul className="mt-4 space-y-3">
+                          {previousRole.description.map((item, itemIndex) => (
+                            <li key={itemIndex} className="flex gap-3">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+                              <span className="text-gray-400">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     ))}
-                  </ul>
-                </div>
+                  </div>
+                )}
               </div>
+              {index !== experiences.length - 1 && (
+                <div className="absolute -bottom-6 left-8 h-6 w-0.5 bg-gray-700" />
+              )}
             </motion.div>
           ))}
         </div>
