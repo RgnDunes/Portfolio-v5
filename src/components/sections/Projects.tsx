@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { FaGithub, FaNpm, FaExternalLinkAlt } from "react-icons/fa";
 import { IconType } from "react-icons";
+import { projects } from "@/data/projects";
 
 interface ProjectLink {
   label: string;
@@ -13,45 +14,10 @@ interface ProjectLink {
 interface Project {
   title: string;
   description: string;
-  techStack: string[];
+  technologies: string[];
   links: ProjectLink[];
   stats?: string;
 }
-
-const projects: Project[] = [
-  {
-    title: "i18nify-js",
-    description:
-      "A powerful internationalization library for JavaScript applications, featuring automated translations, locale management, and more.",
-    techStack: ["TypeScript", "React", "Node.js"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/RgnDunes/i18nify-js",
-        icon: FaGithub,
-      },
-      {
-        label: "npm",
-        href: "https://www.npmjs.com/package/i18nify-js",
-        icon: FaNpm,
-      },
-    ],
-    stats: "1 lac+ weekly downloads",
-  },
-  {
-    title: "Full Spectrum JavaScript",
-    description:
-      "Authored and sold 200+ copies of the book Full Spectrum JavaScript on Gumroad, covering comprehensive JavaScript concepts and best practices.",
-    techStack: ["JavaScript", "Web Development", "Programming"],
-    links: [
-      {
-        label: "Gumroad",
-        href: "https://gumroad.com",
-        icon: FaExternalLinkAlt,
-      },
-    ],
-  },
-];
 
 export default function Projects() {
   return (
@@ -66,9 +32,9 @@ export default function Projects() {
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
-          Projects
+          Featured Projects
         </h2>
-        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+        <div className="mt-12 grid gap-8 sm:grid-cols-2">
           {projects.map((project, index) => (
             <motion.div
               key={project.title}
@@ -83,7 +49,7 @@ export default function Projects() {
               </h3>
               <p className="mt-4 text-gray-400">{project.description}</p>
               <div className="mt-6 flex flex-wrap gap-2">
-                {project.techStack.map((tech) => (
+                {project.technologies.map((tech: string) => (
                   <span
                     key={tech}
                     className="rounded-full bg-blue-500/10 px-3 py-1 text-sm font-medium text-blue-400"
