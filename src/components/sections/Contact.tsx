@@ -1,26 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-
-const socialLinks = [
-  {
-    name: "GitHub",
-    href: "https://github.com/RgnDunes",
-    icon: FaGithub,
-  },
-  {
-    name: "LinkedIn",
-    href: "https://linkedin.com/in/rgndunes",
-    icon: FaLinkedin,
-  },
-  {
-    name: "Email",
-    href: "mailto:rgndunes@gmail.com",
-    icon: MdEmail,
-  },
-];
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
 
 export default function Contact() {
   return (
@@ -33,90 +14,88 @@ export default function Contact() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="grid gap-12 lg:grid-cols-2"
       >
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
-            Get in Touch
-          </h2>
-          <p className="mt-4 text-lg text-gray-400">
-            I'm always open to discussing new projects, creative ideas, or
-            opportunities to be part of your visions.
-          </p>
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold text-gray-100">
-              Connect with me
+        <h2 className="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
+          Get in Touch
+        </h2>
+        <p className="mt-4 text-lg text-gray-400">
+          I'm always open to discussing new projects, creative ideas, or
+          opportunities to be part of your vision.
+        </p>
+
+        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+          {/* Contact Information */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm"
+          >
+            <h3 className="text-xl font-semibold text-gray-100">
+              Contact Information
             </h3>
-            <div className="mt-4 flex gap-4">
-              {socialLinks.map((link) => (
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center gap-4">
+                <FaEnvelope className="h-5 w-5 text-blue-500" />
                 <a
-                  key={link.name}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-800 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
-                  aria-label={link.name}
+                  href="mailto:contact@example.com"
+                  className="text-gray-400 hover:text-gray-100"
                 >
-                  <link.icon className="h-6 w-6" />
+                  contact@example.com
                 </a>
-              ))}
+              </div>
+              <p className="text-gray-400">
+                Feel free to reach out through email or any of the social
+                platforms below. I typically respond within 24-48 hours.
+              </p>
             </div>
-          </div>
-        </div>
-        <div className="rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm">
-          <form className="space-y-6">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-100"
+          </motion.div>
+
+          {/* Social Links */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm"
+          >
+            <h3 className="text-xl font-semibold text-gray-100">
+              Connect With Me
+            </h3>
+            <div className="mt-6 flex flex-wrap gap-4">
+              <a
+                href="https://github.com/yourusername"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
+                aria-label="GitHub"
               >
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                className="mt-1 block w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-100"
+                <FaGithub className="h-5 w-5" />
+                <span>GitHub</span>
+              </a>
+              <a
+                href="https://linkedin.com/in/yourusername"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
+                aria-label="LinkedIn"
               >
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                className="mt-1 block w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="message"
-                className="block text-sm font-medium text-gray-100"
+                <FaLinkedin className="h-5 w-5" />
+                <span>LinkedIn</span>
+              </a>
+              <a
+                href="https://twitter.com/yourusername"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
+                aria-label="Twitter"
               >
-                Message
-              </label>
-              <textarea
-                name="message"
-                id="message"
-                rows={4}
-                className="mt-1 block w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="Your message"
-              />
+                <FaTwitter className="h-5 w-5" />
+                <span>Twitter</span>
+              </a>
             </div>
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-            >
-              Send Message
-            </button>
-          </form>
+          </motion.div>
         </div>
       </motion.div>
     </section>
