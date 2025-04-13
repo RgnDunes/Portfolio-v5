@@ -7,45 +7,137 @@ const skillCategories = [
   {
     name: "Frontend Development",
     skills: [
-      "ReactJS",
-      "TypeScript",
-      "JavaScript",
-      "Redux",
-      "Zustand",
-      "Svelte",
-      "Blade UI",
-      "MUI",
-      "Chakra UI",
-      "HTML",
-      "CSS",
+      {
+        name: "ReactJS",
+        image: "/skills/react.svg",
+        experience: "3+ years",
+      },
+      {
+        name: "TypeScript",
+        image: "/skills/typescript.svg",
+        experience: "3+ years",
+      },
+      {
+        name: "JavaScript",
+        image: "/skills/javascript.svg",
+        experience: "4+ years",
+      },
+      {
+        name: "Redux",
+        image: "/skills/redux.svg",
+        experience: "3+ years",
+      },
+      {
+        name: "Zustand",
+        image: "/skills/zustand.png",
+        experience: "2+ years",
+      },
+      {
+        name: "Svelte",
+        image: "/skills/svelte.svg",
+        experience: "1+ year",
+      },
     ],
   },
   {
     name: "Backend Development",
-    skills: ["Flask"],
+    skills: [
+      {
+        name: "Flask",
+        image: "/skills/flask.svg",
+        experience: "1+ year",
+      },
+    ],
   },
   {
     name: "Testing Tools",
     skills: [
-      "Jest",
-      "React Testing Library",
-      "Mock Service Worker (MSW)",
-      "Playwright",
+      {
+        name: "Jest",
+        image: "/skills/jest.svg",
+        experience: "3+ years",
+      },
+      {
+        name: "React Testing Library",
+        image: "/skills/rtl.png",
+        experience: "3+ years",
+      },
+      {
+        name: "Mock Service Worker",
+        image: "/skills/msw.svg",
+        experience: "2+ years",
+      },
+      {
+        name: "Playwright",
+        image: "/skills/playwright.svg",
+        experience: "1+ year",
+      },
     ],
   },
   {
     name: "UI Libraries & Frameworks",
     skills: [
-      "Chakra UI",
-      "Blade UI",
-      "Semantic UI",
-      "Material UI",
-      "Styled Components",
+      {
+        name: "Chakra UI",
+        image: "/skills/chakra.svg",
+        experience: "2+ years",
+      },
+      {
+        name: "Material UI",
+        image: "/skills/mui.svg",
+        experience: "3+ years",
+      },
+      {
+        name: "Blade UI",
+        image: "/skills/blade.svg",
+        experience: "1+ year",
+      },
+      {
+        name: "Semantic UI",
+        image: "/skills/semantic.svg",
+        experience: "2+ years",
+      },
+      {
+        name: "Styled Components",
+        image: "/skills/styled-components.svg",
+        experience: "2+ years",
+      },
     ],
   },
   {
     name: "Other Tools & Platforms",
-    skills: ["Firebase", "Git", "GitHub", "npm", "Webpack", "Rollup", "Vite"],
+    skills: [
+      {
+        name: "Git",
+        image: "/skills/git.svg",
+        experience: "4+ years",
+      },
+      {
+        name: "GitHub",
+        image: "/skills/github.svg",
+        experience: "4+ years",
+      },
+      {
+        name: "npm",
+        image: "/skills/npm.svg",
+        experience: "4+ years",
+      },
+      {
+        name: "Webpack",
+        image: "/skills/webpack.svg",
+        experience: "3+ years",
+      },
+      {
+        name: "Rollup",
+        image: "/skills/rollup.svg",
+        experience: "2+ years",
+      },
+      {
+        name: "Vite",
+        image: "/skills/vite.svg",
+        experience: "2+ years",
+      },
+    ],
   },
 ];
 
@@ -97,7 +189,7 @@ export default function Skills() {
                 >
                   {category.skills.map((skill, index) => (
                     <motion.div
-                      key={skill}
+                      key={skill.name}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{
@@ -106,18 +198,21 @@ export default function Skills() {
                       }}
                       className="group relative overflow-hidden rounded-lg bg-gray-800/50 p-6 backdrop-blur-sm transition-all hover:bg-gray-800/70"
                     >
-                      <div className="relative z-10">
-                        <h3 className="text-lg font-semibold text-gray-100">
-                          {skill}
-                        </h3>
-                        <div className="mt-2 h-1 w-full rounded-full bg-gray-700">
-                          <motion.div
-                            className="h-1 rounded-full bg-blue-500"
-                            initial={{ width: 0 }}
-                            whileInView={{ width: "100%" }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, delay: index * 0.1 }}
+                      <div className="relative z-10 flex items-center gap-4">
+                        <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-700/50 p-2">
+                          <img
+                            src={skill.image}
+                            alt={`${skill.name} logo`}
+                            className="h-full w-full object-contain"
                           />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-100">
+                            {skill.name}
+                          </h3>
+                          <p className="text-sm font-medium text-blue-400">
+                            {skill.experience}
+                          </p>
                         </div>
                       </div>
                       <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 transition-opacity group-hover:opacity-100" />

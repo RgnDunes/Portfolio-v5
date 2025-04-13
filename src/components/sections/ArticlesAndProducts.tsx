@@ -1,20 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaBook, FaExternalLinkAlt, FaMedium, FaDev } from "react-icons/fa";
+import { FaExternalLinkAlt, FaMedium, FaDev } from "react-icons/fa";
 
 const articles = [
-  {
-    title: "Full Spectrum JavaScript",
-    type: "Book",
-    description:
-      "A comprehensive guide to JavaScript, covering everything from basics to advanced concepts, design patterns, and best practices.",
-    image: "/articles/javascript-book.jpg",
-    link: "https://gumroad.com",
-    icon: FaBook,
-    date: "2023",
-    stats: "200+ copies sold",
-  },
   {
     title: "Building Scalable i18n Solutions",
     type: "Technical Article",
@@ -39,13 +28,14 @@ const articles = [
 
 const products = [
   {
-    title: "i18nify-js",
-    type: "Open Source Library",
+    title: "Full Spectrum JavaScript",
+    type: "Book",
     description:
-      "A powerful internationalization library for JavaScript applications, featuring automated translations, locale management, and more.",
-    link: "https://github.com/RgnDunes/i18nify-js",
-    stats: "1 lac+ weekly downloads",
-    techStack: ["TypeScript", "React", "Node.js"],
+      "A comprehensive guide to JavaScript, covering everything from basics to advanced concepts, design patterns, and best practices.",
+    image: "/articles/javascript-book.jpg",
+    link: "https://gumroad.com",
+    stats: "200+ copies sold",
+    techStack: ["JavaScript", "Web Development", "Programming"],
   },
   {
     title: "React Component Library",
@@ -79,7 +69,7 @@ export default function ArticlesAndProducts() {
           <h3 className="text-xl font-semibold text-gray-100">
             Featured Articles
           </h3>
-          <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid gap-8 sm:grid-cols-2">
             {articles.map((article, index) => (
               <motion.div
                 key={article.title}
