@@ -1,4 +1,21 @@
-export const experiences = [
+interface PreviousRole {
+  position: string;
+  duration: string;
+  description: string;
+  achievements: string[];
+}
+
+interface Experience {
+  company: string;
+  position: string;
+  duration: string;
+  description: string;
+  achievements: string[];
+  previousRoles?: PreviousRole[];
+  logo: string;
+}
+
+export const experiences: Experience[] = [
   {
     company: "Razorpay",
     position: "Senior Frontend Engineer",
@@ -6,24 +23,60 @@ export const experiences = [
     description:
       "Leading frontend development for international expansion, focusing on Southeast Asian markets. Spearheading i18n initiatives and performance optimizations.",
     achievements: [
-      "Led frontend team to expand into Malaysia, achieving monthly GMV of 80M MYR",
-      "Developed i18n-linter reducing region-sensitive hard-coding errors by 87%",
-      "Improved API response time by 67% through microservices architecture",
-      "Created India's first token lifecycle management system for major banks",
+      "Reduced page load time by 50% through code splitting and lazy loading",
+      "Implemented real-time transaction tracking handling $2B+ in monthly transactions",
+      "Developed a comprehensive design system serving 10+ products",
     ],
-    technologies: ["React", "TypeScript", "Next.js", "GraphQL", "Node.js"],
+    logo: "/images/logos/razorpay.png",
+    previousRoles: [
+      {
+        position: "Software Development Engineer I",
+        duration: "2021 - 2022",
+        description:
+          "Led the development of RazorpayX Dashboard, handling $2B+ in monthly transactions",
+        achievements: [
+          "Implemented real-time transaction tracking and analytics features",
+          "Built reusable component library used across multiple products",
+          "Reduced page load time by 50% through code splitting and lazy loading",
+        ],
+      },
+      {
+        position: "Frontend Engineer Intern",
+        duration: "2021",
+        description:
+          "Developed key features for RazorpayX using React and TypeScript",
+        achievements: [
+          "Implemented responsive designs and cross-browser compatibility",
+          "Collaborated with backend team to integrate REST APIs",
+          "Wrote unit tests achieving 85% code coverage",
+        ],
+      },
+    ],
   },
   {
-    company: "Previous Experience",
+    company: "Freelance",
     position: "Frontend Developer",
-    duration: "2019 - 2021",
+    duration: "2020",
     description:
-      "Worked on building scalable web applications and improving user experiences.",
+      "Developed and maintained web applications for various clients using React and Next.js",
     achievements: [
-      "Reduced application load time by 40% through code splitting and lazy loading",
-      "Implemented automated testing reducing bug reports by 60%",
-      "Led migration from legacy codebase to modern React architecture",
+      "Implemented responsive designs and optimized performance for better user experience",
+      "Collaborated with clients to understand requirements and deliver solutions",
+      "Built reusable components and maintained code quality through testing",
     ],
-    technologies: ["React", "JavaScript", "Redux", "Jest", "Webpack"],
+    logo: "/images/logos/freelance.png",
+  },
+  {
+    company: "Coding Ninjas",
+    position: "Frontend Developer Intern",
+    duration: "2020",
+    description:
+      "Worked on the development of the Coding Ninjas learning platform",
+    achievements: [
+      "Implemented UI components and features using React",
+      "Collaborated with the team to improve user experience",
+      "Contributed to code reviews and documentation",
+    ],
+    logo: "/images/logos/coding-ninjas.png",
   },
 ] as const;
