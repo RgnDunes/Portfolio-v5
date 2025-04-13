@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
+import Link from "next/link";
 
 const navigation = [
   { name: "About", href: "#about" },
   { name: "Experience", href: "#experience" },
   { name: "Projects", href: "#projects" },
-  { name: "Articles & Products", href: "#articles-products" },
-  { name: "Testimonials", href: "#testimonials" },
+  { name: "Skills", href: "#skills" },
   { name: "Contact", href: "#contact" },
 ];
 
@@ -31,34 +31,41 @@ export default function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed left-0 right-0 top-0 z-50 ${
-        scrolled ? "bg-gray-900/80 backdrop-blur-sm" : "bg-transparent"
+      className={`fixed left-0 right-0 top-0 z-40 ${
+        scrolled ? "bg-[#0F172A]/80 backdrop-blur-sm" : "bg-transparent"
       }`}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <a
+            <Link
               href="#"
-              className="text-xl font-bold text-gray-100 transition-colors hover:text-blue-500"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-xl font-bold text-transparent hover:opacity-80"
             >
-              Divyansh Singh
-            </a>
+              DS
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="flex items-center space-x-8">
-              {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium text-gray-400 transition-colors hover:text-gray-100"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
+          <div className="hidden items-center gap-8 md:flex">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm font-medium text-gray-300 transition-colors hover:text-gray-100"
+              >
+                {item.name}
+              </Link>
+            ))}
+            <Link
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 rounded-md border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800"
+            >
+              Resume
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -80,30 +87,54 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Navigation */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden"
-          >
-            <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-gray-100"
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-[#0F172A]/95 backdrop-blur-md md:hidden">
+          <div className="fixed inset-0 flex h-full flex-col overflow-y-auto bg-[#0F172A]">
+            {/* Mobile menu header */}
+            <div className="flex items-center justify-between border-b border-gray-800 px-4 py-4">
+              <Link
+                href="#"
+                className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-xl font-bold text-transparent"
+                onClick={() => setIsOpen(false)}
+              >
+                DS
+              </Link>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="rounded-md p-2 text-gray-400 hover:bg-gray-800 hover:text-gray-100 focus:outline-none"
+                aria-label="Close menu"
+              >
+                <FaTimes className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
+            {/* Mobile menu content */}
+            <div className="flex-1 px-4 pb-6 pt-4">
+              <div className="space-y-4">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="block rounded-lg px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-gray-100"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+                <Link
+                  href="/resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 flex items-center gap-1 rounded-lg border border-gray-700 px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800"
                   onClick={() => setIsOpen(false)}
                 >
-                  {item.name}
-                </a>
-              ))}
+                  Resume
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </motion.nav>
   );
 }
