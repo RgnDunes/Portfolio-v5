@@ -47,7 +47,7 @@ export default function Experience() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-white/10 p-2">
+                  <div className="relative h-12 w-12 overflow-hidden rounded-lg p-2">
                     <Image
                       src={experience.logo}
                       alt={`${experience.company} logo`}

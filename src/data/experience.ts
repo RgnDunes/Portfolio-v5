@@ -10,7 +10,7 @@ interface Experience {
   position: string;
   duration: string;
   description: string;
-  achievements: string[];
+  achievements?: string[];
   previousRoles?: PreviousRole[];
   logo: string;
 }
@@ -23,60 +23,44 @@ export const experiences: Experience[] = [
     description:
       "Leading frontend development for international expansion, focusing on Southeast Asian markets. Spearheading i18n initiatives and performance optimizations.",
     achievements: [
-      "Reduced page load time by 50% through code splitting and lazy loading",
-      "Implemented real-time transaction tracking handling $2B+ in monthly transactions",
-      "Developed a comprehensive design system serving 10+ products",
+      "Led a team to launch Razorpay in Malaysia by adding local payment options and solving language and region-related challenges, helping 530 businesses go live with 80M MYR in monthly transactions.",
+      "Contributed to Razorpay's Singapore launch, processing 88K SGD in the first week of April and projecting 3x growth over March, with 4 new merchants onboarded and 10 MTUs live — led by Golftripz at 62K SGD.",
+      "Leading the development of i18nify-js, an open-source internationalization SDK by Razorpay, designed to simplify locale handling across web applications.",
+      "Awarded with `Esprit De Corps` award twice for my contribution to the company.",
     ],
-    logo: "/images/logos/razorpay.png",
+    logo: "/images/logos/razorpay-logo.png",
     previousRoles: [
       {
         position: "Software Development Engineer I",
-        duration: "2021 - 2022",
+        duration: "2022 - 2024",
         description:
-          "Led the development of RazorpayX Dashboard, handling $2B+ in monthly transactions",
+          "From OTP to Biometric, 8L+ Tokens & 1-Month Global Launches",
         achievements: [
-          "Implemented real-time transaction tracking and analytics features",
-          "Built reusable component library used across multiple products",
-          "Reduced page load time by 50% through code splitting and lazy loading",
+          "Led the end-to-end development and launch of Mastercard Biometric Authentication, demo'ed at GFF-2024, replacing 3DS OTP authentication and increasing SR by 35%.",
+          "Accelerated international expansion by slashed time-to-market for new geographies from 8-9 months to 1 month.",
+          "Built India's first token lifecycle management system for 4 major banks, complying with RBI guidelines, enabling 8 lac tokenizations, delivering customized solutions to millions, and reducing risk exposure by 40%",
+          "Achieved 99.78% unit test coverage for i18nify-js.",
         ],
       },
       {
         position: "Frontend Engineer Intern",
-        duration: "2021",
+        duration: "2021 - 2022",
         description:
           "Developed key features for RazorpayX using React and TypeScript",
         achievements: [
-          "Implemented responsive designs and cross-browser compatibility",
-          "Collaborated with backend team to integrate REST APIs",
-          "Wrote unit tests achieving 85% code coverage",
+          "Cut payment dispute resolution time by 50% , reducing the average from 20 minutes to 10 minutes, and improving team efficiency.",
+          "Revamped Shield UI, achieving a 33% surge in user engagement and reducing load time by 21%",
         ],
       },
     ],
   },
   {
-    company: "Freelance",
-    position: "Frontend Developer",
-    duration: "2020",
+    company: "GeeksforGeeks",
+    position: "Technical Content Writer Intern",
+    duration: "Oct 2020 - Aug 2021",
     description:
-      "Developed and maintained web applications for various clients using React and Next.js",
-    achievements: [
-      "Implemented responsive designs and optimized performance for better user experience",
-      "Collaborated with clients to understand requirements and deliver solutions",
-      "Built reusable components and maintained code quality through testing",
-    ],
-    logo: "/images/logos/freelance.png",
-  },
-  {
-    company: "Coding Ninjas",
-    position: "Frontend Developer Intern",
-    duration: "2020",
-    description:
-      "Worked on the development of the Coding Ninjas learning platform",
-    achievements: [
-      "Implemented UI components and features using React",
-      "Collaborated with the team to improve user experience",
-      "Contributed to code reviews and documentation",
-    ],
-    logo: "/images/logos/coding-ninjas.png",
+      "Published 11+ technical articles and enhanced 2 existing ones on GeeksforGeeks covering Linked Lists, Python, Git, ReactJS, Firestore, Flask, and more.",
+    achievements: undefined,
+    logo: "/images/logos/gfg-logo.png",
   },
 ] as const;

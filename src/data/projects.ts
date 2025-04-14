@@ -1,4 +1,4 @@
-import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
+import { FaGithub, FaExternalLinkAlt, FaNpm } from "react-icons/fa";
 
 export interface ProjectLink {
   label: string;
@@ -17,38 +17,23 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    title: "Full Spectrum JavaScript",
+    title: "i18nify-js",
     description:
-      "A comprehensive guide to modern JavaScript development, covering everything from basics to advanced patterns and best practices.",
+      "It is an open-source internationalization SDK designed to simplify locale-based formatting, translations, and region-aware UI rendering across web apps. Published on npm with 100k+ weekly downloads.",
     image: "/images/projects/js-book.jpg",
-    technologies: ["JavaScript", "TypeScript", "Node.js", "React"],
+    technologies: ["JavaScript", "Rollup"],
     links: [
       {
         label: "Book",
-        href: "https://fullspectrumjs.com",
-        icon: FaExternalLinkAlt,
+        href: "https://www.npmjs.com/package/@razorpay/i18nify-js",
+        icon: FaNpm,
       },
       {
         label: "GitHub",
-        href: "https://github.com/rgndunes/full-spectrum-js",
+        href: "https://github.com/razorpay/i18nify",
         icon: FaGithub,
       },
     ],
-    stats: "200+ copies sold",
-  },
-  {
-    title: "i18n Linter",
-    description:
-      "Custom ESLint plugin for detecting internationalization issues in React applications, helping teams maintain consistent localization.",
-    image: "/images/projects/i18n-linter.jpg",
-    technologies: ["TypeScript", "ESLint", "AST", "Node.js"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/rgndunes/i18n-linter",
-        icon: FaGithub,
-      },
-    ],
-    stats: "50k+ downloads",
+    stats: "86K+ weekly downloads",
   },
 ];

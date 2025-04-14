@@ -42,7 +42,7 @@ export default function Contact() {
                   href="mailto:contact@example.com"
                   className="text-gray-400 hover:text-gray-100"
                 >
-                  contact@example.com
+                  rgndunes@gmail.com
                 </a>
               </div>
               <p className="text-gray-400">
@@ -65,7 +65,7 @@ export default function Contact() {
             </h3>
             <div className="mt-6 flex flex-wrap gap-4">
               <a
-                href="https://github.com/yourusername"
+                href="https://github.com/RgnDunes"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
@@ -75,7 +75,7 @@ export default function Contact() {
                 <span>GitHub</span>
               </a>
               <a
-                href="https://linkedin.com/in/yourusername"
+                href="https://linkedin.com/in/rgndunes"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
@@ -85,7 +85,7 @@ export default function Contact() {
                 <span>LinkedIn</span>
               </a>
               <a
-                href="https://twitter.com/yourusername"
+                href="https://twitter.com/RgnDunes"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"

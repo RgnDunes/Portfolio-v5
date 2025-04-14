@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaExternalLinkAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
 const socialLinks = [
@@ -39,16 +39,31 @@ export default function About() {
             About Me
           </h2>
           <p className="mt-4 text-lg text-gray-400">
-            Senior Frontend Engineer with expertise in building scalable web
-            applications and leading frontend teams. Currently at Razorpay,
-            focusing on expanding payment solutions across Southeast Asia and
-            improving internationalization support.
+            👋 Hey there! I’m Divyansh — a full-time Senior Frontend Engineer at
+            Razorpay, part-time code whisperer, and full-time fan of dark mode.{" "}
+            <br />
           </p>
           <p className="mt-4 text-lg text-gray-400">
-            I specialize in React.js, TypeScript, and modern frontend
-            technologies, with a track record of reducing development time and
-            improving application performance. My work has contributed to
-            significant improvements in user engagement and system efficiency.
+            By day, I lead Razorpay’s global frontend efforts (hello Malaysia
+            and Singapore 🌏). But come weekends and holidays, I switch gears —
+            mentoring bright minds at ProPeers and AccioJob, and occasionally
+            pretending I have a social life (spoiler: it’s usually with code).
+          </p>
+          <p className="mt-4 text-lg text-gray-400">
+            I was also recently invited by Airtribe as a Jury Member for an AI
+            Tech Hackathon in Bangalore — because apparently, I now judge things
+            other than bad variable names 😄
+          </p>
+          <p className="mt-4 text-lg text-gray-400">
+            I’m passionate about clean code, clever UI, and helping devs level
+            up their frontend game — all while debugging like a caffeine-fueled
+            detective 🕵️‍♂️
+          </p>
+
+          <p className="mt-4 text-lg text-gray-400">
+            Let’s connect if you want to geek out over React, discuss
+            internationalization (I might’ve open-sourced a thing 👀), or debate
+            why undefined shows up only when you're on a roll.
           </p>
           <div className="mt-8 flex gap-4">
             {socialLinks.map((link) => (
@@ -78,24 +93,34 @@ export default function About() {
             </h3>
             <ul className="mt-2 list-inside list-disc space-y-2">
               <li>
-                Led frontend team to expand Razorpay into Malaysia, achieving
-                monthly GMV of 80M MYR
-              </li>
-              <li>
-                Developed i18n-linter reducing region-sensitive hard-coding
-                errors by 87%
-              </li>
-              <li>
-                Improved API response time by 67% through microservices
-                architecture
+                Built Industry’s First Biometric Authentication: An OTP-Free
+                Payment Checkout.
+                <a
+                  href="https://razorpay.com/blog/biometric-authentication-easy-card-payments-checkout/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300"
+                  aria-label={`Read`}
+                >
+                  <FaExternalLinkAlt className="h-4 w-4" />
+                </a>
               </li>
               <li>
                 Created India's first token lifecycle management system for
-                major banks
+                major banks.
               </li>
               <li>
                 Published a book "Full Spectrum JavaScript" with 200+ copies
-                sold
+                sold.
+                <a
+                  href="https://rgndunes.gumroad.com/l/full-spectrum-javascript"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300"
+                  aria-label={`Buy Book`}
+                >
+                  <FaExternalLinkAlt className="h-4 w-4" />
+                </a>
               </li>
             </ul>
           </div>
@@ -104,7 +129,7 @@ export default function About() {
             <p className="mt-2">
               Bachelor of Technology in Computer Science Engineering
               <br />
-              Kalinga Institute of Industrial Technology (CGPA: 9.4/10)
+              Kalinga Institute of Industrial Technology (CGPA: 9.24/10)
               <br />
               2018 - 2022
             </p>

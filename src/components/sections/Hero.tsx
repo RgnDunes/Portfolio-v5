@@ -76,8 +76,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-200"
           >
-            Building exceptional digital experiences with modern web
-            technologies.
+            Engineer | Mentor | Speaker | Author | Instructor
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
