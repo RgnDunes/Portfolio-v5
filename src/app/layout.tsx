@@ -6,7 +6,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Divyansh Singh - Senior Frontend Engineer",
-  description: "Senior Frontend Engineer with expertise in React, TypeScript, and modern web technologies",
+  description:
+    "Senior Frontend Engineer with expertise in React, TypeScript, and modern web technologies",
   keywords: [
     "Frontend Engineer",
     "React Developer",
@@ -15,6 +16,14 @@ export const metadata: Metadata = {
     "Web Development",
     "Software Engineer",
   ],
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+      { url: "/apple-icon.png", type: "image/png", sizes: "180x180" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
@@ -24,7 +33,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-gray-900 text-gray-100 antialiased`}>
+      <body
+        className={`${inter.className} bg-gray-900 text-gray-100 antialiased`}
+      >
         {children}
       </body>
     </html>
