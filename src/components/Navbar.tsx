@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { FaBars, FaTimes } from "react-icons/fa";
 import Image from "next/image";
+import portfolioLogo from "../assets/images/portfolio-logo.png";
 
 const navigation = [
   { name: "About", href: "#about" },
@@ -12,6 +13,9 @@ const navigation = [
   { name: "Projects", href: "#projects" },
   { name: "Contact", href: "#contact" },
 ];
+
+// For resume, use the direct path
+const resumePath = "/resume.pdf";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,7 +27,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="#" className="relative h-8 w-8">
               <Image
-                src="/images/portfolio-logo.png"
+                src={portfolioLogo}
                 alt="DS Logo"
                 fill
                 className="object-contain"

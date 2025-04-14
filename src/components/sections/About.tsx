@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin, FaExternalLinkAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import KiitLogo from "../../assets/images/logos/kiit-logo.png";
+import Image from "next/image";
 
 const socialLinks = [
   {
@@ -131,10 +133,12 @@ export default function About() {
             <h3 className="text-lg font-semibold text-gray-100">Education</h3>
             <div className="mt-2 flex items-center gap-4">
               <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-700/50 p-2">
-                <img
-                  src="/images/logos/kiit-logo.png"
+                <Image
+                  src={KiitLogo}
                   alt="KIIT Logo"
                   className="h-full w-full object-contain"
+                  width={48}
+                  height={48}
                 />
               </div>
               <div>

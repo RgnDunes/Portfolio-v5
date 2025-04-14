@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaLinkedin } from "react-icons/fa";
 import { testimonials } from "@/data/testimonials";
+import Image from "next/image";
 
 export default function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,11 +43,13 @@ export default function Testimonials() {
                 className="rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm"
               >
                 <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 overflow-hidden rounded-full bg-gray-700">
-                    <img
+                  <div className="h-16 w-16 overflow-hidden rounded-full bg-gray-700 relative">
+                    <Image
                       src={testimonials[currentIndex].image}
                       alt={testimonials[currentIndex].name}
-                      className="h-full w-full object-cover"
+                      className="object-cover"
+                      fill
+                      sizes="64px"
                     />
                   </div>
                   <div>

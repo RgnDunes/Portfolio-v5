@@ -1,3 +1,7 @@
+import { StaticImageData } from "next/image";
+import razorpayLogo from "../assets/images/logos/razorpay-logo.png";
+import gfgLogo from "../assets/images/logos/gfg-logo.png";
+
 interface PreviousRole {
   position: string;
   duration: string;
@@ -12,7 +16,7 @@ interface Experience {
   description: string;
   achievements?: string[];
   previousRoles?: PreviousRole[];
-  logo: string;
+  logo: string | StaticImageData;
 }
 
 export const experiences: Experience[] = [
@@ -28,7 +32,7 @@ export const experiences: Experience[] = [
       "Leading the development of i18nify-js, an open-source internationalization SDK by Razorpay, designed to simplify locale handling across web applications.",
       "Awarded with `Esprit De Corps` award twice for my contribution to the company.",
     ],
-    logo: "/images/logos/razorpay-logo.png",
+    logo: razorpayLogo,
     previousRoles: [
       {
         position: "Software Development Engineer I",
@@ -61,6 +65,6 @@ export const experiences: Experience[] = [
     description:
       "Published 11+ technical articles and enhanced 2 existing ones on GeeksforGeeks covering Linked Lists, Python, Git, ReactJS, Firestore, Flask, and more.",
     achievements: undefined,
-    logo: "/images/logos/gfg-logo.png",
+    logo: gfgLogo,
   },
 ] as const;

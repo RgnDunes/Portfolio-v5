@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { skillCategories } from "@/data/skills";
+import Image from "next/image";
 
 export default function Skills() {
   const [selectedCategory, setSelectedCategory] = useState(
@@ -62,11 +63,13 @@ export default function Skills() {
                       className="group relative overflow-hidden rounded-lg bg-gray-800/50 p-6 backdrop-blur-sm transition-all hover:bg-gray-800/70"
                     >
                       <div className="relative z-10 flex items-center gap-4">
-                        <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-700/50 p-2">
-                          <img
+                        <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-gray-700/50 p-2">
+                          <Image
                             src={skill.image}
                             alt={`${skill.name} logo`}
-                            className="h-full w-full object-contain"
+                            fill
+                            sizes="48px"
+                            className="object-contain"
                           />
                         </div>
                         <div>

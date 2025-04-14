@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import heroBg from "../../assets/images/hero-bg.JPG";
 
 const roles = ["Engineer", "Mentor", "Speaker", "Author", "Instructor"];
 
@@ -24,7 +25,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <div className="relative h-full w-full">
           <Image
-            src="/images/hero-bg.jpg"
+            src={heroBg}
             alt="Background"
             fill
             priority

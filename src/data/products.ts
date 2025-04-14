@@ -1,10 +1,13 @@
 import { FaExternalLinkAlt } from "react-icons/fa";
+import { StaticImageData } from "next/image";
+import jsBookImg from "../assets/images/digital-products/javascript-book.jpg";
+import hldBookImg from "../assets/images/digital-products/hld-book.jpg";
 
 export interface Product {
   title: string;
   type: string;
   description: string;
-  image?: string;
+  image?: string | StaticImageData;
   link: string;
   stats: string;
   techStack: string[];
@@ -20,7 +23,7 @@ export const products: Product[] = [
         • Backend Developers who want to expand their expertise into JavaScript and Node.js for full-stack development.
         • Intermediate Developers who want to fill in the gaps in their knowledge, dive deeper into JavaScript's advanced features, and improve their coding techniques.
         No matter where you are in your coding journey, this book has something to offer.`,
-    image: "/images/digital-products/javascript-book.jpg",
+    image: jsBookImg,
     link: "https://rgndunes.gumroad.com/l/full-spectrum-javascript",
     stats: "200+ copies sold",
     techStack: ["JavaScript", "Web Development", "Programming"],
@@ -38,7 +41,7 @@ export const products: Product[] = [
         • Perfect for frontend engineers preparing for system design interviews
         • Great for curious learners and seasoned devs looking for inspiration
         • Get practical insights and patterns that go way beyond tutorials`,
-    image: "/images/digital-products/hld-book.jpg",
+    image: hldBookImg,
     link: "https://www.linkedin.com/posts/activity-7305530469465395200-Y_TM?utm_source=share&utm_medium=member_desktop&rcm=ACoAAC9y2o8BaDk7N25xcrxhEmqqai4Wo9F4yKA",
     stats: "Launching Soon...",
     techStack: ["System Design", "Frontend", "HLD"],

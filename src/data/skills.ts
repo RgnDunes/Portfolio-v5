@@ -1,6 +1,23 @@
+// Import skill icons
+import reactIcon from "../assets/images/skills/react.png";
+import tsIcon from "../assets/images/skills/ts.png";
+import reduxIcon from "../assets/images/skills/redux.png";
+import zustandIcon from "../assets/images/skills/zustand.png";
+import jsIcon from "../assets/images/skills/js.png";
+import htmlIcon from "../assets/images/skills/html.png";
+import cssIcon from "../assets/images/skills/css.png";
+import muiIcon from "../assets/images/skills/mui.png";
+import bladeUiIcon from "../assets/images/skills/blade-ui.png";
+import semanticUiIcon from "../assets/images/skills/semantic-ui.png";
+import chakraUiIcon from "../assets/images/skills/chakra-ui.png";
+import flaskIcon from "../assets/images/skills/flask.png";
+import firebaseIcon from "../assets/images/skills/firebase.png";
+import gitIcon from "../assets/images/skills/git.png";
+import { StaticImageData } from "next/image";
+
 export interface Skill {
   name: string;
-  image: string;
+  image: string | StaticImageData;
   experience: string;
 }
 
@@ -15,37 +32,37 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       {
         name: "ReactJS",
-        image: "/images/skills/react.png",
+        image: reactIcon,
         experience: "4+ years",
       },
       {
         name: "TypeScript",
-        image: "/images/skills/ts.png",
+        image: tsIcon,
         experience: "3+ years",
       },
       {
         name: "Redux",
-        image: "/images/skills/redux.png",
+        image: reduxIcon,
         experience: "4+ years",
       },
       {
         name: "Zustand",
-        image: "/images/skills/zustand.png",
+        image: zustandIcon,
         experience: "3+ years",
       },
       {
         name: "JavaScript",
-        image: "/images/skills/js.png",
+        image: jsIcon,
         experience: "4+ years",
       },
       {
         name: "HTML",
-        image: "/images/skills/html.png",
+        image: htmlIcon,
         experience: "6+ years",
       },
       {
         name: "CSS",
-        image: "/images/skills/css.png",
+        image: cssIcon,
         experience: "6+ years",
       },
     ],
@@ -55,22 +72,22 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       {
         name: "Material-UI",
-        image: "/images/skills/mui.png",
+        image: muiIcon,
         experience: "3+ years",
       },
       {
         name: "Blade UI",
-        image: "/images/skills/blade-ui.png",
+        image: bladeUiIcon,
         experience: "2+ years",
       },
       {
         name: "Semantic UI",
-        image: "/images/skills/semantic-ui.png",
+        image: semanticUiIcon,
         experience: "2+ years",
       },
       {
         name: "Chakra UI",
-        image: "/images/skills/chakra-ui.png",
+        image: chakraUiIcon,
         experience: "2+ years",
       },
     ],
@@ -80,12 +97,12 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       {
         name: "Flask",
-        image: "/images/skills/flask.png",
+        image: flaskIcon,
         experience: "2+ years",
       },
       {
         name: "Firebase",
-        image: "/images/skills/firebase.png",
+        image: firebaseIcon,
         experience: "3+ years",
       },
     ],
@@ -95,12 +112,12 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       {
         name: "Git",
-        image: "/images/skills/git.png",
+        image: gitIcon,
         experience: "5+ years",
       },
       {
         name: "Firebase",
-        image: "/images/skills/firebase.png",
+        image: firebaseIcon,
         experience: "3+ years",
       },
     ],
