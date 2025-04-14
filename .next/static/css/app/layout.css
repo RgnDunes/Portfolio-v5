@@ -813,6 +813,9 @@ video {
 .list-disc {
   list-style-type: disc;
 }
+.list-none {
+  list-style-type: none;
+}
 .flex-col {
   flex-direction: column;
 }
@@ -970,6 +973,10 @@ video {
 }
 .bg-white\/50 {
   background-color: rgb(255 255 255 / 0.5);
+}
+.bg-gray-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity, 1));
 }
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));

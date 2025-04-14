@@ -39,15 +39,15 @@ export default function About() {
             About Me
           </h2>
           <p className="mt-4 text-lg text-gray-400">
-            👋 Hey there! I’m Divyansh — a full-time Senior Frontend Engineer at
+            👋 Hey there! I'm Divyansh — a full-time Senior Frontend Engineer at
             Razorpay, part-time code whisperer, and full-time fan of dark mode.{" "}
             <br />
           </p>
           <p className="mt-4 text-lg text-gray-400">
-            By day, I lead Razorpay’s global frontend efforts (hello Malaysia
+            By day, I lead Razorpay's global frontend efforts (hello Malaysia
             and Singapore 🌏). But come weekends and holidays, I switch gears —
             mentoring bright minds at ProPeers and AccioJob, and occasionally
-            pretending I have a social life (spoiler: it’s usually with code).
+            pretending I have a social life (spoiler: it's usually with code).
           </p>
           <p className="mt-4 text-lg text-gray-400">
             I was also recently invited by Airtribe as a Jury Member for an AI
@@ -55,14 +55,14 @@ export default function About() {
             other than bad variable names 😄
           </p>
           <p className="mt-4 text-lg text-gray-400">
-            I’m passionate about clean code, clever UI, and helping devs level
+            I'm passionate about clean code, clever UI, and helping devs level
             up their frontend game — all while debugging like a caffeine-fueled
             detective 🕵️‍♂️
           </p>
 
           <p className="mt-4 text-lg text-gray-400">
-            Let’s connect if you want to geek out over React, discuss
-            internationalization (I might’ve open-sourced a thing 👀), or debate
+            Let's connect if you want to geek out over React, discuss
+            internationalization (I might've open-sourced a thing 👀), or debate
             why undefined shows up only when you're on a roll.
           </p>
           <div className="mt-8 flex gap-4">
@@ -91,25 +91,28 @@ export default function About() {
             <h3 className="text-lg font-semibold text-gray-100">
               Key Achievements
             </h3>
-            <ul className="mt-2 list-inside list-disc space-y-2">
-              <li>
-                Built Industry’s First Biometric Authentication: An OTP-Free
+            <ul className="mt-2 list-none space-y-2">
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                Built Industry's First Biometric Authentication: An OTP-Free
                 Payment Checkout.
                 <a
                   href="https://razorpay.com/blog/biometric-authentication-easy-card-payments-checkout/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-400 hover:text-blue-300"
-                  aria-label={`Read`}
+                  aria-label="Read"
                 >
                   <FaExternalLinkAlt className="h-4 w-4" />
                 </a>
               </li>
-              <li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
                 Created India's first token lifecycle management system for
                 major banks.
               </li>
-              <li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
                 Published a book "Full Spectrum JavaScript" with 200+ copies
                 sold.
                 <a
@@ -117,7 +120,7 @@ export default function About() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-400 hover:text-blue-300"
-                  aria-label={`Buy Book`}
+                  aria-label="Buy Book"
                 >
                   <FaExternalLinkAlt className="h-4 w-4" />
                 </a>
@@ -126,13 +129,24 @@ export default function About() {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-100">Education</h3>
-            <p className="mt-2">
-              Bachelor of Technology in Computer Science Engineering
-              <br />
-              Kalinga Institute of Industrial Technology (CGPA: 9.24/10)
-              <br />
-              2018 - 2022
-            </p>
+            <div className="mt-2 flex items-center gap-4">
+              <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-700/50 p-2">
+                <img
+                  src="/images/logos/kiit-logo.png"
+                  alt="KIIT Logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <div>
+                <p>
+                  Bachelor of Technology in Computer Science Engineering
+                  <br />
+                  Kalinga Institute of Industrial Technology (CGPA: 9.24/10)
+                  <br />
+                  2018 - 2022
+                </p>
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
