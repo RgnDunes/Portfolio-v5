@@ -3,8 +3,21 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
+
+const roles = ["Engineer", "Mentor", "Speaker", "Author", "Instructor"];
 
 export default function Hero() {
+  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="relative mt-20 flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center bg-[#0F172A]">
       {/* Background image */}
@@ -70,14 +83,31 @@ export default function Hero() {
           >
             Senior Frontend Engineer
           </motion.p>
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-200"
+            className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-lg leading-8 text-gray-200"
           >
-            Engineer | Mentor | Speaker | Author | Instructor
-          </motion.p>
+            {roles.map((role, index) => (
+              <motion.span
+                key={role}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{
+                  opacity: currentRoleIndex === index ? 1 : 0.3,
+                  scale: currentRoleIndex === index ? 1 : 0.8,
+                }}
+                transition={{ duration: 0.3 }}
+                className={`rounded-full px-4 py-1 ${
+                  currentRoleIndex === index
+                    ? "bg-blue-500/20 text-blue-400"
+                    : "bg-gray-800/50 text-gray-400"
+                }`}
+              >
+                {role}
+              </motion.span>
+            ))}
+          </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
