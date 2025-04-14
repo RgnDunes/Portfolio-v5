@@ -1,41 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { useState } from "react";
 import Link from "next/link";
-import { navigation } from "@/data/navigation";
+import { FaBars, FaTimes } from "react-icons/fa";
+import Image from "next/image";
+
+const navigation = [
+  { name: "About", href: "#about" },
+  { name: "Experience", href: "#experience" },
+  { name: "Skills", href: "#skills" },
+  { name: "Projects", href: "#projects" },
+  { name: "Contact", href: "#contact" },
+];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 0);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed left-0 right-0 top-0 z-40 ${
-        scrolled ? "bg-[#0F172A]/80 backdrop-blur-sm" : "bg-transparent"
-      }`}
-    >
+    <nav className="fixed top-0 z-50 w-full border-b border-gray-800 bg-[#0F172A]/80 backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link
-              href="#"
-              className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-xl font-bold text-transparent hover:opacity-80"
-            >
-              DS
+            <Link href="#" className="relative h-8 w-8">
+              <Image
+                src="/images/portfolio-logo.png"
+                alt="DS Logo"
+                fill
+                className="object-contain"
+              />
             </Link>
           </div>
 
@@ -81,53 +73,33 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-[#0F172A]/95 backdrop-blur-md md:hidden">
-          <div className="fixed inset-0 flex h-full flex-col overflow-y-auto bg-[#0F172A]">
-            {/* Mobile menu header */}
-            <div className="flex items-center justify-between border-b border-gray-800 px-4 py-4">
-              <Link
-                href="#"
-                className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-xl font-bold text-transparent"
-                onClick={() => setIsOpen(false)}
-              >
-                DS
-              </Link>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="rounded-md p-2 text-gray-400 hover:bg-gray-800 hover:text-gray-100 focus:outline-none"
-                aria-label="Close menu"
-              >
-                <FaTimes className="h-6 w-6" aria-hidden="true" />
-              </button>
-            </div>
-            {/* Mobile menu content */}
-            <div className="flex-1 px-4 pb-6 pt-4">
-              <div className="space-y-4">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="block rounded-lg px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-gray-100"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+        <div className="md:hidden">
+          <div className="flex-1 px-4 pb-6 pt-4">
+            <div className="space-y-4">
+              {navigation.map((item) => (
                 <Link
-                  href="/resume.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 flex items-center gap-1 rounded-lg border border-gray-700 px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800"
+                  key={item.name}
+                  href={item.href}
+                  className="block rounded-lg px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-gray-100"
                   onClick={() => setIsOpen(false)}
                 >
-                  Resume
-                  <span aria-hidden="true">→</span>
+                  {item.name}
                 </Link>
-              </div>
+              ))}
+              <Link
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center gap-1 rounded-lg border border-gray-700 px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800"
+                onClick={() => setIsOpen(false)}
+              >
+                Resume
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
         </div>
       )}
-    </motion.nav>
+    </nav>
   );
 }
