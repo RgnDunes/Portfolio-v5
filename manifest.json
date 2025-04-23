@@ -1,6 +1,6 @@
 {
-  "short_name": "Divyansh Singh",
-  "name": "Divyansh Singh - Senior Frontend Engineer",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,18 +8,18 @@
       "type": "image/x-icon"
     },
     {
-      "src": "portfolio-logo.png",
+      "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "apple-icon.png",
+      "src": "logo512.png",
       "type": "image/png",
-      "sizes": "180x180"
+      "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#0F172A",
-  "background_color": "#0F172A"
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
 }
