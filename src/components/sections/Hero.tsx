@@ -10,6 +10,7 @@ const roles = ["Engineer", "Mentor", "Speaker", "Author", "Instructor"];
 
 export default function Hero() {
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -30,8 +31,10 @@ export default function Hero() {
             fill
             priority
             className="object-cover object-center opacity-50"
-            quality={100}
+            quality={75}
             sizes="100vw"
+            onLoad={() => setIsLoaded(true)}
+            loading="eager"
           />
         </div>
       </div>
