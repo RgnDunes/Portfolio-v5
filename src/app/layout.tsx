@@ -46,8 +46,12 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link
+          rel="shortcut icon"
+          href="/Portfolio-v5/favicon.ico"
+          type="image/x-icon"
+        />
+        <link rel="icon" href="/Portfolio-v5/favicon.ico" type="image/x-icon" />
       </head>
       <body
         className={`${inter.className} bg-gray-900 text-gray-100 antialiased`}
