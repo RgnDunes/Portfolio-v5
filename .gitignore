@@ -48,6 +48,11 @@ coverage
 .eslintcache
 .stylelintcache
 
+# Git pack files
+.git/objects/pack/*.pack
+.git/objects/pack/*.idx
+.git/objects/pack/*.pack.gz
+
 # Misc
 .DS_Store
 *.pem
