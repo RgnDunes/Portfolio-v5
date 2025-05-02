@@ -2,6 +2,7 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 import { StaticImageData } from "next/image";
 import jsBookImg from "../assets/images/digital-products/javascript-book.jpg";
 import hldBookImg from "../assets/images/digital-products/hld-book.jpg";
+import cssUnmaskedBookImg from "../assets/images/digital-products/css-unmasked-book.png";
 
 export interface Product {
   title: string;
@@ -27,6 +28,26 @@ export const products: Product[] = [
     link: "https://rgndunes.gumroad.com/l/full-spectrum-javascript",
     stats: "200+ copies sold",
     techStack: ["JavaScript", "Web Development", "Programming"],
+  },
+  {
+    title: "CSS Unmasked -- Styling Secrets They Never Told You",
+    type: "Ebook",
+    description: `This book is for:
+        • Curious Beginners who have dabbled with HTML and want to finally understand how CSS actually works — without copy-pasting random snippets.
+        • Junior Developers who are tired of fighting with layout bugs, specificity wars, and mystery margins that won't behave.
+        • Frontend Engineers who want to go beyond the basics and learn how to write scalable, performant, and maintainable CSS at a professional level.
+        • Designers transitioning into code who want a fun, visual, and practical way to master the styling layer of the web.
+        • Senior Developers who secretly Google “how to center a div” and want to confidently teach or lead CSS decisions on large teams.`,
+    image: cssUnmaskedBookImg,
+    link: "https://rgndunes.gumroad.com/l/css-unmasked",
+    stats: "INR 250",
+    techStack: [
+      "JavaScript",
+      "Web Development",
+      "Programming",
+      "CSS",
+      "Frontend",
+    ],
   },
   {
     title: "Frontend HLD Playbook",
