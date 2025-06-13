@@ -1,6 +1,7 @@
 import { StaticImageData } from "next/image";
 import razorpayLogo from "../assets/images/logos/razorpay-logo.png";
 import gfgLogo from "../assets/images/logos/gfg-logo.png";
+import ripplingLogo from "../assets/images/logos/rippling-logo.png";
 
 interface PreviousRole {
   position: string;
@@ -21,9 +22,17 @@ interface Experience {
 
 export const experiences: Experience[] = [
   {
+    company: "Rippling",
+    position: "Senior Frontend Engineer - L6",
+    duration: "2025 - Present",
+    description: "Stay tuned...",
+    achievements: undefined,
+    logo: ripplingLogo,
+  },
+  {
     company: "Razorpay",
     position: "Senior Frontend Engineer",
-    duration: "2021 - Present",
+    duration: "2021 - 2025",
     description:
       "Leading frontend development for international expansion, focusing on Southeast Asian markets. Spearheading i18n initiatives and performance optimizations.",
     achievements: [
