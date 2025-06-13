@@ -1,6 +1,8 @@
-import { FaGithub, FaExternalLinkAlt, FaNpm } from "react-icons/fa";
+import { FaGithub, FaExternalLinkAlt, FaNpm, FaGoogle } from "react-icons/fa";
 import { StaticImageData } from "next/image";
 import i18nifyImg from "../assets/images/portfolio-logo.png";
+import compliqImg from "../assets/images/compliq-logo.png";
+import dominatorImg from "../assets/images/dominator-logo.png";
 
 export interface ProjectLink {
   label: string;
@@ -37,5 +39,45 @@ export const projects: Project[] = [
       },
     ],
     stats: "86K+ weekly downloads",
+  },
+  {
+    title: "CompliQ - Accessibility Simulator",
+    description:
+      "Simulate accessibility issues like color-blindness, keyboard navigation, and screen readers to build inclusive web experiences. A powerful Chrome extension that helps developers and designers visualize and test web accessibility issues in real-time.",
+    image: compliqImg,
+    technologies: ["JavaScript"],
+    links: [
+      {
+        label: "Extension",
+        href: "https://chromewebstore.google.com/detail/compliq-accessibility-sim/gjimcjigkhkbnhdfcbbdchoelfffdakl",
+        icon: FaGoogle,
+      },
+      {
+        label: "GitHub",
+        href: "https://github.com/RgnDunes/CompliQ-Extension",
+        icon: FaGithub,
+      },
+    ],
+    stats: "N/A",
+  },
+  {
+    title: "DOMinator",
+    description:
+      "DOMinator is a powerful Chrome extension designed for web developers that transforms how you interact with and analyze the Document Object Model (DOM). This developer tool provides an intuitive interface for visualizing, navigating, and modifying webpage structures with advanced features like AI-powered explanations and suggestions.",
+    image: dominatorImg,
+    technologies: ["JavaScript"],
+    links: [
+      {
+        label: "Extension (Under Review)",
+        href: "#",
+        icon: FaGoogle,
+      },
+      {
+        label: "GitHub",
+        href: "https://github.com/RgnDunes/DOMinator",
+        icon: FaGithub,
+      },
+    ],
+    stats: "N/A",
   },
 ];
