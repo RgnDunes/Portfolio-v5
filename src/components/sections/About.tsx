@@ -41,24 +41,25 @@ export default function About() {
             About Me
           </h2>
           <p className="mt-4 text-lg text-gray-400">
-            👋 Hey there! I'm Divyansh — a full-time Senior Frontend Engineer at
-            Razorpay, part-time code whisperer, and full-time fan of dark mode.{" "}
+            👋 Hey there! I'm Divyansh, a full-time Senior Frontend Engineer at
+            Rippling, part-time code whisperer, and full-time fan of dark mode.{" "}
             <br />
           </p>
           <p className="mt-4 text-lg text-gray-400">
-            By day, I lead Razorpay's global frontend efforts (hello Malaysia
-            and Singapore 🌏). But come weekends and holidays, I switch gears —
-            mentoring bright minds at ProPeers and AccioJob, and occasionally
-            pretending I have a social life (spoiler: it's usually with code).
+            Previously, I led Razorpay's global frontend efforts (hello
+            Malaysia, Singapore and US 🌏) before recently joining Rippling.
+            Come weekends and holidays, I switch gears, mentoring bright minds
+            at ProPeers and AccioJob, and occasionally pretending I have a
+            social life (spoiler: it's usually with code).
           </p>
           <p className="mt-4 text-lg text-gray-400">
             I was also recently invited by Airtribe as a Jury Member for an AI
-            Tech Hackathon in Bangalore — because apparently, I now judge things
+            Tech Hackathon in Bangalore, because apparently, I now judge things
             other than bad variable names 😄
           </p>
           <p className="mt-4 text-lg text-gray-400">
             I'm passionate about clean code, clever UI, and helping devs level
-            up their frontend game — all while debugging like a caffeine-fueled
+            up their frontend game, all while debugging like a caffeine-fueled
             detective 🕵️‍♂️
           </p>
 
