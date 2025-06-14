@@ -3,6 +3,7 @@ import { StaticImageData } from "next/image";
 import i18nifyImg from "../assets/images/portfolio-logo.png";
 import compliqImg from "../assets/images/compliq-logo.png";
 import dominatorImg from "../assets/images/dominator-logo.png";
+import reRouteImg from "../assets/images/reroute-logo.png";
 
 export interface ProjectLink {
   label: string;
@@ -75,6 +76,26 @@ export const projects: Project[] = [
       {
         label: "GitHub",
         href: "https://github.com/RgnDunes/DOMinator",
+        icon: FaGithub,
+      },
+    ],
+    stats: "N/A",
+  },
+  {
+    title: "ReRoute",
+    description:
+      "A modern Chrome Extension that allows you to define URL redirect rules and automatically apply them when matching URLs are visited.",
+    image: reRouteImg,
+    technologies: ["JavaScript"],
+    links: [
+      {
+        label: "Extension (Under Review)",
+        href: "#",
+        icon: FaGoogle,
+      },
+      {
+        label: "GitHub",
+        href: "https://github.com/RgnDunes/ReRoute",
         icon: FaGithub,
       },
     ],
