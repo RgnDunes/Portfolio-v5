@@ -69,8 +69,8 @@ export const projects: Project[] = [
     technologies: ["JavaScript"],
     links: [
       {
-        label: "Extension (Under Review)",
-        href: "#",
+        label: "Extension",
+        href: "https://chromewebstore.google.com/detail/dominator/oiiapedghomjfbefgbdaflgjpafeamda",
         icon: FaGoogle,
       },
       {
@@ -89,8 +89,8 @@ export const projects: Project[] = [
     technologies: ["JavaScript"],
     links: [
       {
-        label: "Extension (Under Review)",
-        href: "#",
+        label: "Extension",
+        href: "https://chromewebstore.google.com/detail/reroute/kcacpjogbigeelajjnmdpellcjjkpmbg",
         icon: FaGoogle,
       },
       {
