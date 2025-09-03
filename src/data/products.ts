@@ -1,7 +1,7 @@
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { StaticImageData } from "next/image";
 import jsBookImg from "../assets/images/digital-products/javascript-book.jpg";
-import hldBookImg from "../assets/images/digital-products/hld-book.jpg";
+import hldBookImg from "../assets/images/digital-products/hld-book.png";
 import cssUnmaskedBookImg from "../assets/images/digital-products/css-unmasked-book.png";
 
 export interface Product {
@@ -40,7 +40,7 @@ export const products: Product[] = [
         • Senior Developers who secretly Google “how to center a div” and want to confidently teach or lead CSS decisions on large teams.`,
     image: cssUnmaskedBookImg,
     link: "https://rgndunes.gumroad.com/l/css-unmasked",
-    stats: "INR 250",
+    stats: "50+ copies sold",
     techStack: [
       "JavaScript",
       "Web Development",
@@ -50,21 +50,21 @@ export const products: Product[] = [
     ],
   },
   {
-    title: "Frontend HLD Playbook",
+    title: "Frontend System Design Decoded",
     type: "Ebook",
-    description: `Ever wondered how platforms like Google Docs, Uber, or YouTube manage to feel so smooth, scale to millions of users, and never seem to break a sweat?
+    description: `How do apps like Twitter, Google Maps, or GitHub handle millions of users, deliver blazing-fast experiences, and stay reliable at scale?
 
-        Welcome to the Frontend HLD Playbook — a deep-dive into the frontend high-level design of some of the most iconic and complex web platforms in the world.
+        Welcome to "Frontend System Design Decoded" — a practical guide that unpacks the hidden architecture and design decisions behind the world’s most complex web platforms.
 
-        • This book breaks down real-world platforms like Uber, Airbnb, GitHub, Confluence, YouTube, Netflix, Instagram, Figma, and more
-        • Learn how these platforms are architected and optimized for performance
-        • Understand how they handle scale, caching, state, and user experience at a global level
-        • Perfect for frontend engineers preparing for system design interviews
-        • Great for curious learners and seasoned devs looking for inspiration
-        • Get practical insights and patterns that go way beyond tutorials`,
+        • Dive deep into the frontend system design of apps like Twitter, Google Maps, GitHub, Confluence, OneDrive and more  
+        • Learn the trade-offs that make these platforms scalable, performant, and resilient  
+        • Explore patterns around rendering, caching, state management, data flows, and global user experience  
+        • Designed for frontend engineers preparing for system design interviews  
+        • A great resource for developers who want to move from building features to understanding systems  
+        • Packed with practical breakdowns, diagrams, and insights you won’t find in tutorials`,
     image: hldBookImg,
-    link: "https://www.linkedin.com/posts/activity-7305530469465395200-Y_TM?utm_source=share&utm_medium=member_desktop&rcm=ACoAAC9y2o8BaDk7N25xcrxhEmqqai4Wo9F4yKA",
-    stats: "Launching Soon...",
+    link: "https://rgndunes.gumroad.com/l/frontend-system-design-decoded",
+    stats: "10+ copies sold",
     techStack: ["System Design", "Frontend", "HLD"],
   },
 ];
