@@ -25,6 +25,10 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
         const hasVisited = localStorage.getItem(localStorageKey);
         const isNewVisitor = !hasVisited;
 
+        console.log(`[ViewCounter] pageId: ${pageId}`);
+        console.log(`[ViewCounter] hasVisited: ${hasVisited}`);
+        console.log(`[ViewCounter] isNewVisitor: ${isNewVisitor}`);
+
         // Using CounterAPI.dev - CORS is only enabled on /up endpoint
         const namespace = "rgndunes-portfolio";
         const baseUrl = "https://api.counterapi.dev/v1";
@@ -40,10 +44,12 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
         }
 
         const totalData = await totalResponse.json();
+        console.log(`[ViewCounter] Total count: ${totalData.count}`);
 
         // Increment unique views only if new visitor
         let uniqueCount = 0;
         if (isNewVisitor) {
+          console.log(`[ViewCounter] New visitor - incrementing unique count`);
           const uniqueResponse = await fetch(
             `${baseUrl}/${namespace}/${pageId}-unique/up`,
             { method: "GET" }
@@ -59,16 +65,22 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
           // Store both the flag AND the count
           localStorage.setItem(localStorageKey, "true");
           localStorage.setItem(`${localStorageKey}_count`, uniqueCount.toString());
+          console.log(`[ViewCounter] Stored in localStorage: ${localStorageKey}=true, count=${uniqueCount}`);
         } else {
           // For returning visitors, use cached unique count
+          console.log(`[ViewCounter] Returning visitor - using cached count`);
           const cachedCount = localStorage.getItem(`${localStorageKey}_count`);
-          uniqueCount = cachedCount ? parseInt(cachedCount, 10) : totalData.count;
+          uniqueCount = cachedCount ? parseInt(cachedCount, 10) : 0;
+          console.log(`[ViewCounter] Cached unique count: ${uniqueCount}`);
         }
 
-        setStats({
+        const finalStats = {
           totalViews: totalData.count || 0,
           uniqueViews: uniqueCount,
-        });
+        };
+        console.log(`[ViewCounter] Final stats:`, finalStats);
+
+        setStats(finalStats);
         setLoading(false);
       } catch (error) {
         console.error("[ViewCounter] Failed to fetch view count:", error);
