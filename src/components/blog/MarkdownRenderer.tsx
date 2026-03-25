@@ -26,10 +26,18 @@ export default function MarkdownRenderer({
   useEffect(() => {
     if (contentPath) {
       setIsLoading(true);
-      fetch(contentPath)
+
+      // Add basePath for GitHub Pages deployment
+      // Check if we're on GitHub Pages by looking at hostname
+      const isGitHubPages = typeof window !== "undefined" &&
+        window.location.hostname.includes("github.io");
+      const basePath = isGitHubPages ? "/Portfolio-v5" : "";
+      const fullPath = `${basePath}${contentPath}`;
+
+      fetch(fullPath)
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`Failed to load content from ${contentPath}`);
+            throw new Error(`Failed to load content from ${fullPath}`);
           }
           return response.text();
         })
