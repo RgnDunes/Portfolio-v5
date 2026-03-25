@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ViewCounter from "../ViewCounter";
 
 interface Snowflake {
   id: number;
@@ -212,6 +213,16 @@ export default function Hero() {
         <p className="mt-1 text-xs italic text-muted">
           You have the right to perform your duty, but not to the fruits of your actions
         </p>
+      </motion.div>
+
+      {/* View Counter */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
+        className="relative z-10 mt-8 flex justify-center"
+      >
+        <ViewCounter pageId="homepage" showLabel={true} />
       </motion.div>
 
       {/* Scroll indicator */}

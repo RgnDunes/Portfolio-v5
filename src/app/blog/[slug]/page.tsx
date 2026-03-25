@@ -2,6 +2,7 @@ import { blogPosts } from "@/data/blogPosts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import MarkdownRenderer from "@/components/blog/MarkdownRenderer";
+import ViewCounter from "@/components/ViewCounter";
 import { Metadata } from "next";
 
 interface Props {
@@ -73,7 +74,7 @@ export default function BlogPostPage({ params }: Props) {
             {post.description}
           </p>
 
-          <div className="mt-8 flex items-center gap-4 border-t border-gray-200 pt-5 font-mono text-xs uppercase tracking-[0.12em] text-gray-600">
+          <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-gray-200 pt-5 font-mono text-xs uppercase tracking-[0.12em] text-gray-600">
             <span>By {post.author.name}</span>
             <span className="h-1 w-1 rounded-full bg-rule" />
             <span>
@@ -84,6 +85,8 @@ export default function BlogPostPage({ params }: Props) {
             </span>
             <span className="h-1 w-1 rounded-full bg-rule" />
             <span>{post.readingTime}</span>
+            <span className="h-1 w-1 rounded-full bg-rule" />
+            <ViewCounter pageId={`blog-${post.slug}`} showLabel={false} />
           </div>
         </header>
 
