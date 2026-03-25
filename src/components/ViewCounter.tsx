@@ -25,14 +25,14 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
         const hasVisited = localStorage.getItem(localStorageKey);
         const isNewVisitor = !hasVisited;
 
-        // Use a free counter API service
-        // We'll use api.countapi.xyz alternative: countapi.io or similar
+        // Using CounterAPI.dev as a free alternative to CountAPI.xyz
         const namespace = "rgndunes-portfolio";
-        const key = pageId;
+        const baseUrl = "https://api.counterapi.dev/v1";
 
         // Increment total views
         const totalResponse = await fetch(
-          `https://api.countapi.xyz/hit/${namespace}/${key}-total`
+          `${baseUrl}/${namespace}/${pageId}-total/up`,
+          { method: "GET" }
         );
         const totalData = await totalResponse.json();
 
@@ -40,20 +40,22 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
         let uniqueData;
         if (isNewVisitor) {
           const uniqueResponse = await fetch(
-            `https://api.countapi.xyz/hit/${namespace}/${key}-unique`
+            `${baseUrl}/${namespace}/${pageId}-unique/up`,
+            { method: "GET" }
           );
           uniqueData = await uniqueResponse.json();
           localStorage.setItem(localStorageKey, "true");
         } else {
           const uniqueResponse = await fetch(
-            `https://api.countapi.xyz/get/${namespace}/${key}-unique`
+            `${baseUrl}/${namespace}/${pageId}-unique`,
+            { method: "GET" }
           );
           uniqueData = await uniqueResponse.json();
         }
 
         setStats({
-          totalViews: totalData.value || 0,
-          uniqueViews: uniqueData.value || 0,
+          totalViews: totalData.count || 0,
+          uniqueViews: uniqueData.count || 0,
         });
         setLoading(false);
       } catch (error) {
