@@ -28,7 +28,7 @@ export default function Testimonials() {
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
+        <h2 className="font-serif text-3xl font-bold tracking-tight text-[#0f0e0c] sm:text-4xl">
           Testimonials
         </h2>
         <div className="mt-12">
@@ -36,14 +36,18 @@ export default function Testimonials() {
             <div className="relative">
               <motion.div
                 key={currentIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                whileHover={{
+                  scale: 1.01,
+                  boxShadow: "0 15px 40px rgba(0,0,0,0.1)"
+                }}
+                className="rounded-lg border-2 border-[#d4cdc0] bg-white p-8"
               >
                 <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 overflow-hidden rounded-full bg-gray-700 relative">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full bg-gray-50">
                     <Image
                       src={testimonials[currentIndex].image}
                       alt={testimonials[currentIndex].name}
@@ -53,10 +57,10 @@ export default function Testimonials() {
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-100">
+                    <h3 className="text-lg font-semibold text-[#0f0e0c]">
                       {testimonials[currentIndex].name}
                     </h3>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted">
                       {testimonials[currentIndex].role} at{" "}
                       {testimonials[currentIndex].company}
                     </p>
@@ -64,7 +68,7 @@ export default function Testimonials() {
                       href={testimonials[currentIndex].linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-1 inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
+                      className="mt-1 inline-flex items-center gap-1 text-sm text-accent hover:text-[#a03b25]"
                     >
                       <FaLinkedin className="h-4 w-4" />
                       <span>View Profile</span>
@@ -72,7 +76,7 @@ export default function Testimonials() {
                   </div>
                 </div>
                 <blockquote className="mt-6">
-                  <p className="text-lg italic text-gray-300">
+                  <p className="font-serif text-lg italic leading-relaxed text-[#0f0e0c]">
                     "{testimonials[currentIndex].testimonial}"
                   </p>
                 </blockquote>
@@ -84,7 +88,7 @@ export default function Testimonials() {
                   key={index}
                   onClick={() => setCurrentIndex(index)}
                   className={`h-2 w-2 rounded-full transition-colors ${
-                    currentIndex === index ? "bg-blue-500" : "bg-gray-600"
+                    currentIndex === index ? "bg-accent" : "bg-[#d4cdc0]"
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />

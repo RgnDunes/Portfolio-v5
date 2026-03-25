@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>I Had Two AIs Play My Board Game Until It Was Bug-Free</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* ── FLOW NODES ── */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* ── NUMBERED LIST ── */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Diaries &nbsp;·&nbsp; AI-Driven QA &nbsp;·&nbsp; Game Development</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Case Study · Board Game Engineering</div>
+  <h1>I Let Claude &amp; GPT-4 Play My Board Game <em>Until It Was Bug-Free</em></h1>
+  <p class="hero-sub">How I used two competing AI models as adversarial test players to stress-test a web version of Monopoly Deal and Scotland Yard — and what the simulation taught me about edge cases no human tester would ever find.</p>
+  <div class="byline">
+    <span>Written by the Builder</span>
+    <span class="byline-dot"></span>
+    <span>March 2026</span>
+    <span class="byline-dot"></span>
+    <span>~18 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">AI Testing</span>
+    <span class="tag">Game Dev</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- ── 1. ORIGIN ── -->
+  <section>
+    <div class="section-num">01 · Origin</div>
+    <h2>The Problem With Friends as Testers</h2>
+    <p>The itch started the way most hobby projects do — a rainy weekend, a group chat full of "we should meet up" messages that never materialised into plans, and a half-formed idea: <em>what if we could play Monopoly Deal online, just the four of us?</em></p>
+    <p>Months later I had working web implementations of both <strong>Monopoly Deal</strong> (the fast-paced card game version) and <strong>Scotland Yard</strong> (the asymmetric hidden-movement deduction game). The core mechanics worked. The UI was clean. I had even written a game simulator that ran thousands of automated playthroughs to verify turn sequencing and win conditions.</p>
+    <p>But every time we played with real people, something broke. Not dramatically — no crashes, no data corruption. It was subtler: a rent card applied twice because a player double-tapped on a laggy connection; a Scotland Yard move that was technically valid but left the board in a state the game had never anticipated; a "Just Say No" counter-play card chain that produced an outcome none of us could agree was correct.</p>
+    <p>The simulator couldn't catch these because it played <em>ideally</em>. Real players don't play ideally. They probe the edges. They do unusual sequences. They find the seams.</p>
+    <p>I needed testers who would do that systematically — and I needed them available at 2am when I had a free hour to code.</p>
+
+    <div class="pull-quote">
+      <p>"The simulator validated the happy path. What I needed was something that would actively try to break the game — intelligently, exhaustively, and without needing pizza."</p>
+    </div>
+  </section>
+
+  <!-- ── 2. THE IDEA ── -->
+  <section>
+    <div class="section-num">02 · The Idea</div>
+    <h2>AI as Adversarial Playtester</h2>
+    <p>The insight was conceptually simple: large language models like Claude and GPT-4 can reason about rules, maintain game state in context, and make strategic decisions. They're also infinitely patient, available via API at any hour, and — critically — they don't play the same way twice.</p>
+    <p>The plan had three parts:</p>
+    <ol class="styled">
+      <li><span><strong>Give each AI model the full rulebook</strong> as a system prompt, establishing it as a named player with the explicit goal of winning while strictly following the rules.</span></li>
+      <li><span><strong>Build an orchestrator</strong> that managed game state, serialised it after every action, sent it to the appropriate AI, parsed its move, applied it to the game engine, and looped.</span></li>
+      <li><span><strong>Hook in an edge-case tracker</strong> — whenever the game engine threw an unexpected state, a validation failed, or an AI attempted an action the engine didn't know how to handle, that situation was logged automatically into a structured bug document.</span></li>
+    </ol>
+    <p>Run this for long enough, with two AI players who are genuinely trying to outmanoeuvre each other, and you'd surface every weird rule interaction the game could produce.</p>
+
+    <div class="callout">
+      <div class="callout-label">Why Two Different Models?</div>
+      <p>Using both Claude (Anthropic) and GPT-4 (OpenAI) as opposing players was deliberate. Each model has different reasoning tendencies and different ways of interpreting ambiguous rule text. Claude tends toward conservative, rule-literal play. GPT-4 will sometimes find creative interpretations of card interactions that are technically defensible but push boundaries. That disagreement surface area is exactly where bugs live.</p>
+      <p>Running the same model against itself produces more homogeneous playthroughs. Two different models create genuine strategic divergence — and more edge cases.</p>
+    </div>
+  </section>
+
+  <!-- ── 3. ARCHITECTURE ── -->
+  <section>
+    <div class="section-num">03 · Architecture</div>
+    <h2>How the System Was Actually Built</h2>
+
+    <h3>The Playwright Question</h3>
+    <p>The original instinct was to have the AI models control the actual browser UI via Playwright — literally clicking buttons, selecting cards, dragging pieces, the way a human would. On paper this feels elegant: if the AI can navigate the UI, you're testing the full stack including the frontend interaction layer.</p>
+    <p>In practice, this approach has a fundamental friction problem. LLMs don't produce Playwright commands natively — you'd need an intermediate layer that converts the AI's natural-language decision ("I want to play the Rent card targeting blue properties against Player 2") into a precise sequence of DOM interactions. That translation layer becomes its own source of bugs, and any frontend change breaks the automation.</p>
+
+    <div class="highlight-box">
+      <strong>Design Decision</strong>
+      Instead of having the AI drive Playwright directly, the architecture was inverted: Playwright was used as a <em>headless game client</em> that the orchestrator drove programmatically. The AI decided; Playwright executed. This kept the AI layer clean (it only spoke game logic, not UI coordinates) while still exercising the full frontend on every move.
+    </div>
+
+    <p>The result was a three-layer architecture:</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">System Architecture · AI Game Testing Pipeline</div>
+      <div class="flow">
+        <div class="flow-node green">Game State (JSON)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Orchestrator</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node red">AI Player API<br/>(Claude / GPT-4)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Move Parser</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Game Engine</div>
+      </div>
+      <div class="flow">
+        <div class="flow-node">Game Engine</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">Playwright Client</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Web UI (Full Stack)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node muted">Bug Tracker Doc</div>
+      </div>
+    </div>
+
+    <p>On each turn, the orchestrator serialised the full game state — every player's hand, the board, discard piles, whose turn it was, what phase of the turn was active — into a structured JSON payload. That payload became the user message to the active AI player (alternating between Claude and GPT-4).</p>
+
+    <h3>The System Prompt: Giving the AI a Rulebook</h3>
+    <p>The system prompt was doing serious heavy lifting. For Monopoly Deal, it was around 1,800 words covering every card type, the property set completion rules, action card interactions, the "Just Say No" chain limit, what constitutes a legal move at each phase, and what format to use when responding.</p>
+    <p>Crucially, the AI was instructed to respond in strict JSON — not prose. This eliminated parsing ambiguity entirely. A valid move response looked like this:</p>
+
+    <div class="code-block">
+      <div class="code-label">AI Move Response Schema · Monopoly Deal</div>
+      <pre>{
+  <span class="code-str">"action"</span>: <span class="code-str">"PLAY_CARD"</span>,
+  <span class="code-str">"cardId"</span>: <span class="code-str">"rent_blue_green_007"</span>,
+  <span class="code-str">"targets"</span>: [<span class="code-str">"player_2"</span>],
+  <span class="code-str">"targetProperties"</span>: [<span class="code-str">"prop_blue_mayfair"</span>, <span class="code-str">"prop_blue_park_lane"</span>],
+  <span class="code-str">"useDoubleRent"</span>: <span class="code-num">true</span>,
+  <span class="code-str">"reasoning"</span>: <span class="code-str">"Player 2 has full blue set. Double rent gives 8M."</span>
+}</pre>
+    </div>
+
+    <p>The <code>reasoning</code> field was not used by the engine — it was logged for human review and turned out to be invaluable for understanding <em>why</em> an AI took a move that caused an unexpected state.</p>
+
+    <h3>The Playwright Layer</h3>
+    <p>Once the orchestrator had a validated, parsed move from the AI, Playwright executed it against the live web application running in a headless Chromium instance. This meant every single game interaction — clicking a card, confirming a payment, moving a detective token — went through the actual frontend code, triggering all the same event handlers, state updates, and websocket messages that a real player would produce.</p>
+    <p>This was the key insight that made the approach worth the extra complexity: you weren't just testing the game logic engine. You were testing the entire stack, continuously, for days.</p>
+
+    <div class="code-block">
+      <div class="code-label">Orchestrator Loop · Simplified</div>
+      <pre><span class="code-kw">async function</span> <span class="code-fn">runSimulationTurn</span>(<span class="code-var">gameState</span>, <span class="code-var">activePlayer</span>) {
+  <span class="code-cmt">// 1. Serialise state and ask the right AI</span>
+  <span class="code-kw">const</span> <span class="code-var">prompt</span> = <span class="code-fn">buildPrompt</span>(<span class="code-var">gameState</span>);
+  <span class="code-kw">const</span> <span class="code-var">aiResponse</span> = <span class="code-var">activePlayer</span> === <span class="code-str">'claude'</span>
+    ? <span class="code-kw">await</span> <span class="code-fn">askClaude</span>(<span class="code-var">prompt</span>)
+    : <span class="code-kw">await</span> <span class="code-fn">askGPT4</span>(<span class="code-var">prompt</span>);
+
+  <span class="code-cmt">// 2. Parse and validate the move</span>
+  <span class="code-kw">const</span> <span class="code-var">move</span> = <span class="code-fn">parseMove</span>(<span class="code-var">aiResponse</span>);
+  <span class="code-kw">const</span> <span class="code-var">validation</span> = <span class="code-fn">validateMove</span>(<span class="code-var">gameState</span>, <span class="code-var">move</span>);
+
+  <span class="code-kw">if</span> (!<span class="code-var">validation</span>.valid) {
+    <span class="code-cmt">// Illegal move attempt → log it and request retry</span>
+    <span class="code-fn">logEdgeCase</span>(<span class="code-str">'ILLEGAL_MOVE'</span>, { <span class="code-var">move</span>, <span class="code-var">state</span>: <span class="code-var">gameState</span>, <span class="code-var">reason</span>: <span class="code-var">validation</span>.reason });
+    <span class="code-kw">return</span> <span class="code-fn">runSimulationTurn</span>(<span class="code-var">gameState</span>, <span class="code-var">activePlayer</span>); <span class="code-cmt">// retry</span>
+  }
+
+  <span class="code-cmt">// 3. Execute via Playwright against real web UI</span>
+  <span class="code-kw">await</span> <span class="code-fn">playwrightExecuteMove</span>(<span class="code-var">move</span>);
+
+  <span class="code-cmt">// 4. Capture new state from UI / server</span>
+  <span class="code-kw">const</span> <span class="code-var">newState</span> = <span class="code-kw">await</span> <span class="code-fn">captureGameState</span>();
+
+  <span class="code-cmt">// 5. Check for state anomalies</span>
+  <span class="code-fn">detectAnomalies</span>(<span class="code-var">gameState</span>, <span class="code-var">newState</span>, <span class="code-var">move</span>);
+
+  <span class="code-kw">return</span> <span class="code-var">newState</span>;
+}</pre>
+    </div>
+  </section>
+
+  <!-- ── 4. EDGE CASE TRACKER ── -->
+  <section>
+    <div class="section-num">04 · The Tracker</div>
+    <h2>The Edge-Case Tracker: Your Living Bug Document</h2>
+    <p>Every unusual event was written to a structured tracker — not just crashes and errors, but a broader taxonomy of interesting events that warranted review:</p>
+    <ol class="styled">
+      <li><span><strong>Hard failures</strong> — the game engine threw an unhandled exception or the frontend crashed. These were P0 bugs fixed immediately.</span></li>
+      <li><span><strong>Soft failures</strong> — the engine produced a valid state that was logically impossible given the rules. For example: a player ending their turn with four cards in hand instead of the legal maximum of three after drawing.</span></li>
+      <li><span><strong>AI rule disagreements</strong> — Claude and GPT-4 interpreted the same rule differently and attempted incompatible moves in the same scenario. These were flagged for manual rulebook review, because ambiguity in the AI's interpretation usually reflected ambiguity in the implementation.</span></li>
+      <li><span><strong>Retry storms</strong> — if the same AI player attempted three illegal moves in a row in the same game state, it indicated the engine was presenting a state from which no legal move was possible. A deadlock bug.</span></li>
+      <li><span><strong>Performance anomalies</strong> — Playwright recorded timing data. Any turn taking over 2 seconds to execute against the UI was logged. These revealed rendering bottlenecks under complex board states.</span></li>
+    </ol>
+
+    <p>Each entry in the tracker included the full game state at the time of the anomaly (as a JSON snapshot), the AI's move and reasoning string, the expected outcome, the actual outcome, and an auto-generated severity label. This gave whoever was fixing the bug everything they needed to reproduce it in one place.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Tracker in Practice</div>
+      <p>The tracker document was a Google Sheet with three tabs: Open (new bugs), In Review (being worked on), and Closed (fixed and verified). The orchestrator appended new rows automatically via the Sheets API. Each fix was verified by replaying the exact game state snapshot that had caused the bug — if the fix worked, the simulation wouldn't log that anomaly type again.</p>
+      <p>At peak, there were 34 open bugs across both games simultaneously. By the end of the simulation period, the number of new edge cases logged per 100 games had dropped from ~12 to ~0.4 — mostly cosmetic rendering edge cases rather than logic errors.</p>
+    </div>
+  </section>
+
+  <!-- ── 5. MONOPOLY DEAL SPECIFICS ── -->
+  <section>
+    <div class="section-num">05 · Game Deep-Dives</div>
+    <h2>What the Simulation Found: Monopoly Deal</h2>
+    <p>Monopoly Deal is deceptively complex for a card game. The core rules are simple, but the interactions between action cards create a combinatorial explosion of states. Here are the most instructive bugs the simulation surfaced:</p>
+
+    <h3>The Double "Just Say No" Deadlock</h3>
+    <p>This was the first major bug. The rules allow a target to play a "Just Say No" card to block an action, and the original player can counter with their own "Just Say No" to re-activate the action. This creates a chain of up to two blocks. The question is: does the chain end after two "Just Say No" plays, or can it continue indefinitely?</p>
+    <p>The implementation had no limit. GPT-4 and Claude, both holding "Just Say No" cards, entered a loop. The game never progressed. The fix required implementing a maximum chain depth of two (as per the official rules) — but the simulation discovered this in game 7. A human tester might have taken weeks to construct that specific hand state.</p>
+
+    <h3>Wild Card Property Set Completion Race</h3>
+    <p>A wild property card can be placed on any colour set. When a player has a near-complete set containing a wild card, and the opponent plays a "Deal Breaker" to steal that set, the question becomes: does the stolen set retain the wild card's current colour assignment, or does it revert to unassigned?</p>
+    <p>The simulation found this because Claude played a Deal Breaker on a set containing a wild card in game 31, then immediately tried to use the stolen set's wild card in a different colour. The engine allowed it, creating a free colour reassignment exploit. This was fixed by locking the wild card's colour on steal.</p>
+
+    <h3>Rent Card + Forced Payment + Empty Hand</h3>
+    <p>When a player must pay rent but has no money cards and no property cards to hand over, the rules state they pay what they can and the debt is cleared. The engine was instead entering a payment-pending state indefinitely, blocking the turn. This deadlock showed up in roughly 1 in 400 games — rare enough that human testing had never caught it.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">847</div>
+        <div class="stat-label">Simulated Games<br/>Monopoly Deal</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">23</div>
+        <div class="stat-label">Unique Bugs<br/>Found & Fixed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~6</div>
+        <div class="stat-label">Days of<br/>Continuous Sim</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0.4</div>
+        <div class="stat-label">Bugs per 100 Games<br/>at End State</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. SCOTLAND YARD SPECIFICS ── -->
+  <section>
+    <div class="section-num">06 · Scotland Yard</div>
+    <h2>What the Simulation Found: Scotland Yard</h2>
+    <p>Scotland Yard presented a different class of challenges. The game is asymmetric — one player is the fugitive Mr. X, the others are detectives trying to corner him on a map of London. The hidden information mechanic (Mr. X's position is only revealed on specific turns) created edge cases that were genuinely hard to anticipate.</p>
+
+    <h3>The AI as Mr. X: A Strategic Surprise</h3>
+    <p>When Claude played Mr. X, it played exceptionally conservatively — prioritising board positions with the maximum number of escape routes. GPT-4 as Mr. X played more aggressively, sometimes doubling back deliberately to confuse detectives. Both strategies were valid, but they produced very different board states. The conservative strategy occasionally found moves that exploited an unchecked edge in the transport graph: a taxi route that connected two zones through an intermediary node that hadn't been added to the connectivity validation. Mr. X could "move" to a location the detectives couldn't legally reach, making capture impossible.</p>
+
+    <h3>Detective Collision Handling</h3>
+    <p>The rules are ambiguous about whether two detectives can occupy the same node simultaneously. The implementation had not made a decision — it allowed it silently, but the UI hadn't been designed for it. When the simulation put two detectives on the same node, the frontend rendered them overlapping and the click target became unpredictable. Minor UI bug, major gameplay confusion.</p>
+
+    <h3>Double Ticket Exhaustion</h3>
+    <p>Mr. X has a limited supply of "double move" tickets allowing two moves in one turn. The simulation discovered that the engine correctly decremented the ticket count for a double move — but didn't validate that a double move was only legal when the player actually had tickets remaining. Claude attempted a double move with zero tickets; the engine allowed it. The ticket count went negative.</p>
+
+    <div class="pull-quote">
+      <p>"Scotland Yard's hidden information mechanic meant the AI was reasoning under genuine uncertainty — exactly the conditions that expose inconsistencies between what the game <em>shows</em> and what the game <em>knows</em>."</p>
+    </div>
+  </section>
+
+  <!-- ── 7. WHAT THE AI GOT WRONG ── -->
+  <section>
+    <div class="section-num">07 · Limitations</div>
+    <h2>What the AI Got Wrong (And Why That Was Also Useful)</h2>
+    <p>The AI players weren't perfect rule-followers. They made mistakes — and those mistakes were informative in their own right.</p>
+
+    <h3>Context Window Decay in Long Games</h3>
+    <p>In long Scotland Yard games (25+ turns), both models began making suboptimal moves that suggested they were losing track of information from earlier in the conversation. A detective who had definitively seen Mr. X at a specific node 15 turns ago would sometimes move as if that information hadn't been established. This wasn't a bug in the game — it was a limitation of the AI's effective context window under a large game-state payload. The fix was a "memory compression" step where the orchestrator summarised historical game facts into a compact structured header sent at the start of each prompt.</p>
+
+    <h3>Rule Hallucination</h3>
+    <p>On three occasions during Monopoly Deal testing, GPT-4 attempted a move that didn't correspond to any card in the game — referencing a card type that doesn't exist in Monopoly Deal but does exist in the original Monopoly board game. The move parser correctly rejected it and logged it, but it underscored that the models were drawing on broad game knowledge, not only the rulebook in the system prompt. Tighter JSON schemas and explicit "only reference card IDs from the following list" instructions reduced this to zero occurrences.</p>
+  </section>
+
+  <!-- ── 8. THE TIMELINE ── -->
+  <section>
+    <div class="section-num">08 · Timeline</div>
+    <h2>The Simulation Timeline</h2>
+    <p>The simulation ran in phases rather than one continuous block. API rate limits, cost management, and the need to deploy fixes between sessions shaped the schedule:</p>
+    <ol class="styled">
+      <li><span><strong>Days 1–2 · Monopoly Deal Phase 1.</strong> Initial run, high crash rate. The first 50 games surfaced the most severe bugs — the "Just Say No" loop, the rent deadlock, and three UI rendering failures. These were fixed before continuing.</span></li>
+      <li><span><strong>Days 3–4 · Monopoly Deal Phase 2.</strong> Re-run with fixes deployed. Significantly more stable. Edge cases became increasingly subtle — timing issues, rare card combinations, payment calculation edge cases with mixed-denomination hands.</span></li>
+      <li><span><strong>Days 5–6 · Scotland Yard Phase 1.</strong> The graph traversal bug and double-ticket issue appeared in the first day. Mr. X AI revealed the transport graph hole in game 12.</span></li>
+      <li><span><strong>Day 7 · Scotland Yard Phase 2 + Combined Regression.</strong> Final simulation run covering both games with all fixes applied. Both games completed 200+ consecutive games without a single hard failure or new edge case.</span></li>
+    </ol>
+    <p>Total cost for API calls across the full simulation: approximately $40–60, split roughly evenly between Anthropic and OpenAI. Cheap by any professional QA standard.</p>
+  </section>
+
+  <!-- ── 9. WHAT'S FEASIBLE ── -->
+  <section>
+    <div class="section-num">09 · Reality Check</div>
+    <h2>What's Actually Feasible vs. What Needs Adjustment</h2>
+    <p>Let's be direct about where this approach works exactly as described, and where you'd need to adapt it for your own project:</p>
+
+    <h3>✓ Fully Feasible</h3>
+    <p><strong>LLM-driven game logic simulation</strong> works reliably for turn-based card and board games. The models understand rule text well, produce structured JSON moves consistently with appropriate prompting, and genuinely play strategically rather than randomly. This is not a theoretical approach — it produces meaningful test coverage.</p>
+    <p><strong>Playwright as execution layer</strong> is practical and adds real value. Running moves through the actual web UI catches frontend bugs that a pure engine simulation would miss entirely. The key is using Playwright as a controlled executor, not as a natural-language browser agent.</p>
+    <p><strong>Automated edge-case logging</strong> is straightforwardly implementable. The combination of move validation, state anomaly detection, and AI reasoning strings gives you rich, actionable bug reports without manual intervention.</p>
+
+    <h3>~ Needs Calibration</h3>
+    <p><strong>Context management in long games</strong> requires deliberate engineering. You cannot simply append the full game history to every prompt — token costs and model attention limits make this impractical for games running 30+ turns. A structured state summary with only relevant historical facts is essential.</p>
+    <p><strong>Scotland Yard's hidden information</strong> requires careful prompt engineering. The AI must receive only the information its character would legitimately know. Giving Mr. X the detectives' full state (or vice versa) defeats the test's validity and lets the AI exploit information it shouldn't have.</p>
+    <p><strong>Simulation speed</strong> is constrained by API rate limits. A single Monopoly Deal game with Claude and GPT-4 alternating turns takes 3–5 minutes. Plan for asynchronous batch runs, not real-time simulation.</p>
+
+    <h3>✗ Not Directly Possible</h3>
+    <p><strong>Having the AI control Playwright natively</strong> (i.e., writing its own selectors and click sequences) is technically possible via computer-use models but introduces too much translation-layer fragility for this use case. The inversion — orchestrator controls Playwright, AI controls game logic — is far more robust.</p>
+    <p><strong>Full-stack testing without a real server</strong> is a prerequisite. The Playwright layer requires the actual web application running and accessible. This means you need a stable local or staging environment with persistent game state between API calls — not a blocker, but something to set up before the simulation starts.</p>
+  </section>
+
+  <!-- ── 10. CONCLUSION ── -->
+  <section>
+    <div class="section-num">10 · Conclusions</div>
+    <h2>What I'd Do Differently — and Would Absolutely Do Again</h2>
+    <p>The approach worked. Both games shipped with meaningfully fewer bugs than they would have without the simulation. More importantly, the bugs it caught were the <em>right kind</em> — rare-state logic errors and rule-interaction edge cases that would have surfaced during real play with friends and produced that most frustrating of moments: a disputed game outcome with no clear answer.</p>
+    <p>If I were starting this today, I'd make three changes. I'd invest more time upfront in the JSON schema design — rigid, versioned move schemas make the parser trivially simple and eliminate an entire category of failures. I'd run the simulation from the very first week of development rather than at the end — many of the bugs fixed near launch could have been caught (and fixed cheaply) much earlier. And I'd add a third AI player, not for the gameplay mechanics, but as a neutral "rules arbiter" model that the other two could query when they attempted a move they were uncertain was legal.</p>
+    <p>The deeper lesson, though, is about the nature of AI as a testing tool. It isn't a replacement for thoughtful human playtesters. It's something different: a tireless, strategic, rules-aware adversary that will play your game hundreds of times across every combination of decisions, and quietly log every moment where the game doesn't know what to do next. That's not something any human tester will give you — at least, not without significantly more pizza.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Stack Used</div>
+      <p><span class="tag">Claude Sonnet / Opus</span> <span class="tag">GPT-4o</span> <span class="tag">Playwright</span> <span class="tag">Node.js</span> <span class="tag">WebSockets</span> <span class="tag">Google Sheets API</span> <span class="tag">Headless Chromium</span></p>
+      <p style="margin-top:14px;">The orchestrator was ~600 lines of Node.js. The Playwright execution layer was ~200 lines. The edge case logger was ~100 lines. The most complex part of the system was the game state serialiser — turning a live multiplayer game into a prompt-ready snapshot without losing the information the AI needed to make meaningful decisions.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    The games described — Monopoly Deal and Scotland Yard — are trademarks of their respective owners. This project is a personal, non-commercial implementation built for private use among friends. All bug statistics and simulation figures are approximate, drawn from production run logs.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>

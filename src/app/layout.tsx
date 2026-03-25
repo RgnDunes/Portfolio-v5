@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Playfair_Display, DM_Sans } from "next/font/google";
 import "@/styles/globals.css";
 
-const inter = Inter({
+const playfair = Playfair_Display({
   subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
+  display: "swap",
+  preload: true,
+  fallback: ["Georgia", "serif"],
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-dm-sans",
   display: "swap",
   preload: true,
   fallback: ["system-ui", "arial"],
@@ -38,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -54,7 +66,7 @@ export default function RootLayout({
         <link rel="icon" href="/Portfolio-v5/favicon.ico" type="image/x-icon" />
       </head>
       <body
-        className={`${inter.className} bg-gray-900 text-gray-100 antialiased`}
+        className={`${dmSans.className} bg-[rgb(245,240,232)] text-[rgb(15,14,12)] antialiased`}
       >
         {children}
       </body>

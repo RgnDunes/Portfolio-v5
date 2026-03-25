@@ -18,6 +18,7 @@ interface Experience {
   achievements?: string[];
   previousRoles?: PreviousRole[];
   logo: string | StaticImageData;
+  technologies?: string[];
 }
 
 export const experiences: Experience[] = [
@@ -28,6 +29,7 @@ export const experiences: Experience[] = [
     description: "Stay tuned...",
     achievements: undefined,
     logo: ripplingLogo,
+    technologies: ["React", "TypeScript", "Rollup", "Blade UI"],
   },
   {
     company: "Razorpay",
@@ -42,6 +44,7 @@ export const experiences: Experience[] = [
       "Awarded with `Esprit De Corps` award twice for my contribution to the company.",
     ],
     logo: razorpayLogo,
+    technologies: ["React", "TypeScript", "Redux", "Zustand", "Playwright", "Jest"],
     previousRoles: [
       {
         position: "Software Development Engineer I",
@@ -75,5 +78,6 @@ export const experiences: Experience[] = [
       "Published 11+ technical articles and enhanced 2 existing ones on GeeksforGeeks covering Linked Lists, Python, Git, ReactJS, Firestore, Flask, and more.",
     achievements: undefined,
     logo: gfgLogo,
+    technologies: ["Python", "ReactJS", "Flask", "Git"],
   },
 ] as const;

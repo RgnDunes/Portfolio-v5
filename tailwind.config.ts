@@ -16,7 +16,20 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-dm-sans)', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'serif'],
+      },
       colors: {
+        // From reference HTML - warm editorial theme
+        ink: '#0f0e0c',           // Main text - dark brown/black
+        paper: '#f5f0e8',         // Background - warm cream
+        accent: '#c84b31',        // Primary accent - burnt orange
+        accent2: '#2a6e4a',       // Secondary - sage green
+        muted: '#8a8275',         // Muted text - warm gray
+        rule: '#d4cdc0',          // Borders/dividers - soft beige
+        highlight: '#fff3b0',     // Highlight yellow
+        // Tailwind semantic colors (HSL-based)
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -33,14 +46,6 @@ const config: Config = {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

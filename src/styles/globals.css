@@ -4,25 +4,45 @@
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9;
+    /* Vibrant creative light theme - Sunset, Cosmos & Mountains */
+    --saffron: 28 90% 60%;      /* #FF9933 - Saffron orange */
+    --deep-blue: 200 60% 25%;   /* Deep space blue */
+    --teal: 180 45% 35%;        /* Mountain teal */
+    --indigo: 240 50% 30%;      /* Cosmic indigo */
+    --cream: 40 30% 95%;        /* Soft cream background */
+    --warm-gray: 25 20% 30%;    /* Warm charcoal text */
+    --sunset: 15 85% 65%;       /* Sunset orange */
+    --sky: 200 70% 85%;         /* Sky blue */
+
+    /* RGB values for direct use */
+    --ink: 60 50 45;            /* Warm dark brown */
+    --paper: 252 249 243;       /* Warm cream */
+    --accent: 255 153 51;       /* Saffron orange */
+    --accent2: 42 110 116;      /* Deep teal */
+    --muted: 120 110 100;       /* Warm muted */
+    --rule: 220 210 200;        /* Soft dividers */
+
+    /* HSL format for Tailwind compatibility */
+    --background: 40 30% 97%;
+    --foreground: 25 20% 20%;
+    --card: 40 25% 98%;
+    --card-foreground: 25 20% 20%;
+    --popover: 40 25% 98%;
+    --popover-foreground: 25 20% 20%;
+    --primary: 28 90% 60%;      /* Saffron */
+    --primary-foreground: 40 30% 97%;
+    --secondary: 180 45% 35%;   /* Teal */
+    --secondary-foreground: 40 30% 97%;
+    --muted: 25 15% 45%;
+    --muted-foreground: 25 15% 45%;
+    --accent: 28 90% 60%;
+    --accent-foreground: 40 30% 97%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 40 30% 97%;
+    --border: 25 20% 85%;
+    --input: 25 20% 85%;
+    --ring: 28 90% 60%;
+    --radius: 0.5rem;
   }
 
   * {
@@ -30,8 +50,60 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    background: #dad4cc;
+    color: #0f0e0c;
+    font-family: var(--font-dm-sans), sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
     font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), serif;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  /* Cosmic starfield animation */
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .star {
+    animation: twinkle 3s ease-in-out infinite;
+  }
+
+  .star:nth-child(2n) {
+    animation-delay: 0.5s;
+  }
+
+  .star:nth-child(3n) {
+    animation-delay: 1s;
+  }
+
+  /* Snowfall animation */
+  @keyframes snowfall {
+    0% {
+      transform: translateY(-10vh) translateX(0) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) translateX(50px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  .snowflake {
+    animation: snowfall linear infinite;
+    will-change: transform, opacity;
   }
 
   /* Smooth scrolling */

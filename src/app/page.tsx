@@ -1,4 +1,7 @@
+"use client";
+
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
@@ -30,12 +33,24 @@ const Testimonials = dynamic(
 const Contact = dynamic(() => import("@/components/sections/Contact"), {
   loading: () => <div className="min-h-screen" />,
 });
+const LatestBlogPosts = dynamic(
+  () => import("@/components/sections/LatestBlogPosts"),
+  {
+    loading: () => <div className="min-h-screen" />,
+  }
+);
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-[#0F172A] text-white">
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="min-h-screen"
+        style={{ background: '#dad4cc', color: '#0f0e0c' }}
+      >
         <Hero />
         <About />
         <Experience />
@@ -43,9 +58,10 @@ export default function Home() {
         <Projects />
         <DigitalProducts />
         <ArticlesAndProducts />
+        <LatestBlogPosts />
         <Testimonials />
         <Contact />
-      </main>
+      </motion.main>
     </>
   );
 }

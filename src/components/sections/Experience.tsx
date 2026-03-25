@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { experiences } from "@/data/experience";
 import Image from "next/image";
+import { useState } from "react";
 
 const highlightText = (text: string) => {
   const parts = text.split(/(\*\*.*?\*\*)/g);
@@ -11,7 +12,7 @@ const highlightText = (text: string) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       const highlightedText = part.slice(2, -2);
       return (
-        <span key={index} className="text-blue-400 font-medium">
+        <span key={index} className="font-medium text-[#0f0e0c]">
           {highlightedText}
         </span>
       );
@@ -21,110 +22,179 @@ const highlightText = (text: string) => {
 };
 
 export default function Experience() {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
   return (
     <section
       id="experience"
-      className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8"
+      className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 overflow-hidden"
     >
+      {/* Subtle grid pattern background */}
+      <div className="absolute inset-0 opacity-[0.015] pointer-events-none">
+        <div
+          className="h-full w-full"
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, #0f0e0c 1px, transparent 0)`,
+            backgroundSize: "40px 40px",
+          }}
+        />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10"
       >
-        <h2 className="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
-          Experience
-        </h2>
-        <div className="mt-12 space-y-12">
+        <div className="flex items-center justify-between">
+          <h2 className="font-serif text-3xl font-bold tracking-tight text-[#0f0e0c] sm:text-4xl">
+            Work Experience
+          </h2>
+          <span className="text-sm font-medium tracking-wider text-accent">
+            02 · WORK
+          </span>
+        </div>
+
+        <div className="mt-12 space-y-8">
           {experiences.map((experience, index) => (
             <motion.div
               key={experience.company}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative overflow-hidden rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm"
+              transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
+              className="relative"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="relative h-12 w-12 overflow-hidden rounded-lg p-2">
-                    <Image
-                      src={experience.logo}
-                      alt={`${experience.company} logo`}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-100">
-                      {experience.position}
-                    </h3>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="text-blue-400">
+              {/* Timeline dot */}
+              <motion.div
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 + 0.3 }}
+                className="absolute -left-2 top-8 h-3 w-3 rounded-full border-2 border-accent bg-white sm:-left-4"
+              />
+
+              {/* Card */}
+              <motion.div
+                whileHover={{
+                  scale: 1.01,
+                  boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
+                  borderColor: "#c84b31"
+                }}
+                transition={{ duration: 0.3 }}
+                className="ml-6 overflow-hidden rounded-lg border-2 border-[#d4cdc0] bg-white p-6 sm:ml-8 sm:p-8"
+              >
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-50 p-2">
+                      <Image
+                        src={experience.logo}
+                        alt={`${experience.company} logo`}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-2xl font-bold text-[#0f0e0c]">
+                        {experience.position}
+                      </h3>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">
                         {experience.company}
-                      </span>
-                      <span className="text-gray-500">•</span>
-                      <span className="text-gray-400">
-                        {experience.duration}
-                      </span>
+                      </p>
                     </div>
                   </div>
+                  <span className="text-sm font-medium text-accent">
+                    {experience.duration}
+                  </span>
                 </div>
-              </div>
-              <p className="mt-4 text-gray-400">
-                {highlightText(experience.description)}
-              </p>
-              {experience.achievements && (
-                <div className="mt-6">
-                  <h4 className="text-sm font-medium text-gray-300">
-                    Key Achievements
-                  </h4>
-                  <ul className="mt-2 space-y-2">
-                    {experience.achievements.map((achievement, idx) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
-                        <span className="text-gray-400">
-                          {highlightText(achievement)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {experience.previousRoles && (
-                <div className="mt-8 border-t border-gray-700 pt-8">
-                  <h4 className="text-lg font-medium text-gray-100">
-                    Previous Roles
-                  </h4>
-                  {experience.previousRoles.map((previousRole, roleIndex) => (
-                    <div key={roleIndex} className="mt-6">
-                      <div className="flex items-center justify-between">
-                        <h5 className="font-medium text-gray-100">
-                          {previousRole.position}
-                        </h5>
-                        <span className="text-sm text-gray-500">
-                          {previousRole.duration}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-gray-400">
-                        {highlightText(previousRole.description)}
-                      </p>
-                      {previousRole.achievements && (
-                        <ul className="mt-4 space-y-3">
-                          {previousRole.achievements.map((achievement, idx) => (
-                            <li key={idx} className="flex gap-3">
-                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
-                              <span className="text-gray-400">
-                                {highlightText(achievement)}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
+
+                <p className="mt-4 leading-relaxed text-[#0f0e0c]">
+                  {highlightText(experience.description)}
+                </p>
+
+                {/* Tags */}
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {experience.technologies?.map((tech: string) => (
+                    <span
+                      key={tech}
+                      className="rounded-md bg-[#f5e6d3] px-3 py-1 text-xs font-medium text-muted"
+                    >
+                      {tech}
+                    </span>
                   ))}
                 </div>
-              )}
+
+                {/* Achievements toggle */}
+                {experience.achievements && (
+                  <div className="mt-6">
+                    <button
+                      onClick={() =>
+                        setExpandedIndex(expandedIndex === index ? null : index)
+                      }
+                      className="text-sm font-medium text-accent hover:underline"
+                    >
+                      {expandedIndex === index
+                        ? "Hide achievements ↑"
+                        : "Show achievements ↓"}
+                    </button>
+
+                    {expandedIndex === index && (
+                      <motion.ul
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4 space-y-3 border-t border-[#d4cdc0] pt-4"
+                      >
+                        {experience.achievements.map((achievement, idx) => (
+                          <li key={idx} className="flex gap-3">
+                            <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
+                            <span className="leading-relaxed text-[#0f0e0c]">
+                              {highlightText(achievement)}
+                            </span>
+                          </li>
+                        ))}
+                      </motion.ul>
+                    )}
+                  </div>
+                )}
+
+                {/* Previous roles */}
+                {experience.previousRoles && (
+                  <div className="mt-8 border-t border-[#d4cdc0] pt-6">
+                    <h4 className="font-serif text-lg font-semibold text-[#0f0e0c]">
+                      Previous Roles
+                    </h4>
+                    {experience.previousRoles.map((previousRole, roleIndex) => (
+                      <div key={roleIndex} className="mt-6">
+                        <div className="flex items-start justify-between">
+                          <h5 className="font-semibold text-[#0f0e0c]">
+                            {previousRole.position}
+                          </h5>
+                          <span className="text-sm text-muted">
+                            {previousRole.duration}
+                          </span>
+                        </div>
+                        <p className="mt-2 leading-relaxed text-[#0f0e0c]">
+                          {highlightText(previousRole.description)}
+                        </p>
+                        {previousRole.achievements && (
+                          <ul className="mt-4 space-y-3">
+                            {previousRole.achievements.map((achievement, idx) => (
+                              <li key={idx} className="flex gap-3">
+                                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
+                                <span className="leading-relaxed text-[#0f0e0c]">
+                                  {highlightText(achievement)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
             </motion.div>
           ))}
         </div>
