@@ -29,12 +29,20 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
         const namespace = "rgndunes-portfolio";
         const baseUrl = "https://api.counterapi.dev/v1";
 
+        console.log(`[ViewCounter] Tracking view for ${pageId}, isNewVisitor: ${isNewVisitor}`);
+
         // Increment total views
         const totalResponse = await fetch(
           `${baseUrl}/${namespace}/${pageId}-total/up`,
           { method: "GET" }
         );
+
+        if (!totalResponse.ok) {
+          throw new Error(`Total views API failed: ${totalResponse.status}`);
+        }
+
         const totalData = await totalResponse.json();
+        console.log(`[ViewCounter] Total views response:`, totalData);
 
         // Increment unique views only if new visitor
         let uniqueData;
@@ -43,6 +51,11 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
             `${baseUrl}/${namespace}/${pageId}-unique/up`,
             { method: "GET" }
           );
+
+          if (!uniqueResponse.ok) {
+            throw new Error(`Unique views API failed: ${uniqueResponse.status}`);
+          }
+
           uniqueData = await uniqueResponse.json();
           localStorage.setItem(localStorageKey, "true");
         } else {
@@ -50,16 +63,27 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
             `${baseUrl}/${namespace}/${pageId}-unique`,
             { method: "GET" }
           );
+
+          if (!uniqueResponse.ok) {
+            throw new Error(`Get unique views API failed: ${uniqueResponse.status}`);
+          }
+
           uniqueData = await uniqueResponse.json();
         }
 
-        setStats({
+        console.log(`[ViewCounter] Unique views response:`, uniqueData);
+
+        const newStats = {
           totalViews: totalData.count || 0,
           uniqueViews: uniqueData.count || 0,
-        });
+        };
+
+        console.log(`[ViewCounter] Setting stats:`, newStats);
+        setStats(newStats);
         setLoading(false);
       } catch (error) {
-        console.error("Failed to fetch view count:", error);
+        console.error("[ViewCounter] Failed to fetch view count:", error);
+        // Keep the component visible even on error, just show 0
         setLoading(false);
       }
     };
