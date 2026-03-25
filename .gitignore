@@ -56,3 +56,7 @@ coverage
 # Misc
 .DS_Store
 *.pem
+
+# Documentation files (not needed in production)
+BLOG_GUIDE.md
+public/blog/README.md
