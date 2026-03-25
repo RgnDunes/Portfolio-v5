@@ -25,13 +25,11 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
         const hasVisited = localStorage.getItem(localStorageKey);
         const isNewVisitor = !hasVisited;
 
-        // Using CounterAPI.dev as a free alternative to CountAPI.xyz
+        // Using CounterAPI.dev - CORS is only enabled on /up endpoint
         const namespace = "rgndunes-portfolio";
         const baseUrl = "https://api.counterapi.dev/v1";
 
-        console.log(`[ViewCounter] Tracking view for ${pageId}, isNewVisitor: ${isNewVisitor}`);
-
-        // Increment total views
+        // Increment total views (always)
         const totalResponse = await fetch(
           `${baseUrl}/${namespace}/${pageId}-total/up`,
           { method: "GET" }
@@ -42,10 +40,9 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
         }
 
         const totalData = await totalResponse.json();
-        console.log(`[ViewCounter] Total views response:`, totalData);
 
         // Increment unique views only if new visitor
-        let uniqueData;
+        let uniqueCount = 0;
         if (isNewVisitor) {
           const uniqueResponse = await fetch(
             `${baseUrl}/${namespace}/${pageId}-unique/up`,
@@ -56,30 +53,22 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
             throw new Error(`Unique views API failed: ${uniqueResponse.status}`);
           }
 
-          uniqueData = await uniqueResponse.json();
+          const uniqueData = await uniqueResponse.json();
+          uniqueCount = uniqueData.count || 0;
+
+          // Store both the flag AND the count
           localStorage.setItem(localStorageKey, "true");
+          localStorage.setItem(`${localStorageKey}_count`, uniqueCount.toString());
         } else {
-          const uniqueResponse = await fetch(
-            `${baseUrl}/${namespace}/${pageId}-unique`,
-            { method: "GET" }
-          );
-
-          if (!uniqueResponse.ok) {
-            throw new Error(`Get unique views API failed: ${uniqueResponse.status}`);
-          }
-
-          uniqueData = await uniqueResponse.json();
+          // For returning visitors, use cached unique count
+          const cachedCount = localStorage.getItem(`${localStorageKey}_count`);
+          uniqueCount = cachedCount ? parseInt(cachedCount, 10) : totalData.count;
         }
 
-        console.log(`[ViewCounter] Unique views response:`, uniqueData);
-
-        const newStats = {
+        setStats({
           totalViews: totalData.count || 0,
-          uniqueViews: uniqueData.count || 0,
-        };
-
-        console.log(`[ViewCounter] Setting stats:`, newStats);
-        setStats(newStats);
+          uniqueViews: uniqueCount,
+        });
         setLoading(false);
       } catch (error) {
         console.error("[ViewCounter] Failed to fetch view count:", error);
