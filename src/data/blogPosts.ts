@@ -28,6 +28,16 @@ export const blogPosts: BlogPost[] = [
     readingTime: "10 min read",
     author: { name: "Divyansh Singh" },
   },
+  {
+    slug: "death-of-traditional-cicd",
+    title: "The Death of the Traditional CI/CD Pipeline",
+    description: "How AI-native development is making traditional CI/CD pipelines obsolete",
+    contentPath: "/blog/cicd_pipeline_article.html",
+    publishedAt: "2026-03-27",
+    tags: ["CI/CD", "DevOps", "AI"],
+    readingTime: "12 min read",
+    author: { name: "Divyansh Singh" },
+  },
   // Example 1: Markdown blog post (write inline)
   // {
   //   slug: "my-markdown-post",
