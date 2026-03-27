@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { FaEye, FaUsers } from "react-icons/fa";
 
 interface ViewCounterProps {
-  pageId: string; // Unique identifier for the page (e.g., "homepage" or "blog-slug")
+  pageId: string;
   showLabel?: boolean;
 }
 
@@ -18,73 +18,48 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Track and fetch view counts
     const trackView = async () => {
       try {
-        const localStorageKey = `viewed_${pageId}`;
-        const hasVisited = localStorage.getItem(localStorageKey);
-        const isNewVisitor = !hasVisited;
-
-        console.log(`[ViewCounter] pageId: ${pageId}`);
-        console.log(`[ViewCounter] hasVisited: ${hasVisited}`);
-        console.log(`[ViewCounter] isNewVisitor: ${isNewVisitor}`);
-
-        // Using CounterAPI.dev - CORS is only enabled on /up endpoint
         const namespace = "rgndunes-portfolio";
         const baseUrl = "https://api.counterapi.dev/v1";
+        const localStorageKey = `portfolio_visited_${pageId}`;
 
-        // Increment total views (always)
+        // Always increment total views
         const totalResponse = await fetch(
-          `${baseUrl}/${namespace}/${pageId}-total/up`,
-          { method: "GET" }
+          `${baseUrl}/${namespace}/${pageId}-total/up`
         );
-
-        if (!totalResponse.ok) {
-          throw new Error(`Total views API failed: ${totalResponse.status}`);
-        }
-
+        if (!totalResponse.ok) throw new Error("Total views API failed");
         const totalData = await totalResponse.json();
-        console.log(`[ViewCounter] Total count: ${totalData.count}`);
+        const totalViews = totalData.count || 0;
 
-        // Increment unique views only if new visitor
-        let uniqueCount = 0;
-        if (isNewVisitor) {
-          console.log(`[ViewCounter] New visitor - incrementing unique count`);
+        // Check if this browser has visited before
+        const cachedData = localStorage.getItem(localStorageKey);
+        let uniqueViews = 0;
+
+        if (!cachedData) {
+          // First visit from this browser - increment unique counter
           const uniqueResponse = await fetch(
-            `${baseUrl}/${namespace}/${pageId}-unique/up`,
-            { method: "GET" }
+            `${baseUrl}/${namespace}/${pageId}-unique/up`
           );
-
-          if (!uniqueResponse.ok) {
-            throw new Error(`Unique views API failed: ${uniqueResponse.status}`);
-          }
-
+          if (!uniqueResponse.ok) throw new Error("Unique views API failed");
           const uniqueData = await uniqueResponse.json();
-          uniqueCount = uniqueData.count || 0;
+          uniqueViews = uniqueData.count || 0;
 
-          // Store both the flag AND the count
-          localStorage.setItem(localStorageKey, "true");
-          localStorage.setItem(`${localStorageKey}_count`, uniqueCount.toString());
-          console.log(`[ViewCounter] Stored in localStorage: ${localStorageKey}=true, count=${uniqueCount}`);
+          // Cache the visit with timestamp and unique count
+          localStorage.setItem(localStorageKey, JSON.stringify({
+            firstVisit: Date.now(),
+            uniqueCount: uniqueViews,
+          }));
         } else {
-          // For returning visitors, use cached unique count
-          console.log(`[ViewCounter] Returning visitor - using cached count`);
-          const cachedCount = localStorage.getItem(`${localStorageKey}_count`);
-          uniqueCount = cachedCount ? parseInt(cachedCount, 10) : 0;
-          console.log(`[ViewCounter] Cached unique count: ${uniqueCount}`);
+          // Returning visitor - use cached unique count
+          const parsed = JSON.parse(cachedData);
+          uniqueViews = parsed.uniqueCount || 0;
         }
 
-        const finalStats = {
-          totalViews: totalData.count || 0,
-          uniqueViews: uniqueCount,
-        };
-        console.log(`[ViewCounter] Final stats:`, finalStats);
-
-        setStats(finalStats);
+        setStats({ totalViews, uniqueViews });
         setLoading(false);
       } catch (error) {
-        console.error("[ViewCounter] Failed to fetch view count:", error);
-        // Keep the component visible even on error, just show 0
+        console.error("[ViewCounter] Error:", error);
         setLoading(false);
       }
     };
@@ -105,14 +80,11 @@ export default function ViewCounter({ pageId, showLabel = true }: ViewCounterPro
 
   return (
     <div className="flex items-center gap-6 text-xs text-muted">
-      {/* Total Views */}
       <div className="flex items-center gap-1.5 transition-colors hover:text-accent">
         <FaEye className="h-3.5 w-3.5" />
         <span className="font-medium">{stats.totalViews.toLocaleString()}</span>
         {showLabel && <span>views</span>}
       </div>
-
-      {/* Unique Visitors */}
       <div className="flex items-center gap-1.5 transition-colors hover:text-accent">
         <FaUsers className="h-3.5 w-3.5" />
         <span className="font-medium">{stats.uniqueViews.toLocaleString()}</span>
