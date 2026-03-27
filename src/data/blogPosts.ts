@@ -25,7 +25,7 @@ export const blogPosts: BlogPost[] = [
     contentPath: "/blog/ai_boardgame_testing_article.html",
     publishedAt: "2026-03-20",
     tags: ["AI", "Testing", "Games"],
-    readingTime: "10 min read",
+    readingTime: "18 min read",
     author: { name: "Divyansh Singh" },
   },
   {
