@@ -72,14 +72,57 @@ export default function Projects() {
               }}
               className="group relative overflow-hidden rounded-lg border-2 border-[#d4cdc0] bg-white p-8"
             >
-              <h3 className="font-serif text-2xl font-bold text-[#0f0e0c]">
+              {/* Subtle background graphic */}
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 opacity-[0.08]">
+                {index % 4 === 0 && (
+                  <svg className="absolute -right-6 -top-6 h-48 w-48" viewBox="0 0 200 200" fill="none">
+                    <circle cx="100" cy="100" r="80" stroke="#0f0e0c" strokeWidth="1.5" />
+                    <circle cx="100" cy="100" r="60" stroke="#0f0e0c" strokeWidth="1" />
+                    <circle cx="100" cy="100" r="40" stroke="#0f0e0c" strokeWidth="0.8" />
+                    <circle cx="100" cy="100" r="20" stroke="#0f0e0c" strokeWidth="0.5" />
+                    <line x1="20" y1="100" x2="180" y2="100" stroke="#0f0e0c" strokeWidth="0.5" />
+                    <line x1="100" y1="20" x2="100" y2="180" stroke="#0f0e0c" strokeWidth="0.5" />
+                  </svg>
+                )}
+                {index % 4 === 1 && (
+                  <svg className="absolute -right-4 -top-4 h-44 w-44" viewBox="0 0 200 200" fill="none">
+                    <rect x="30" y="30" width="140" height="140" stroke="#0f0e0c" strokeWidth="1" rx="4" />
+                    <rect x="55" y="55" width="90" height="90" stroke="#0f0e0c" strokeWidth="0.8" rx="4" />
+                    <rect x="75" y="75" width="50" height="50" stroke="#0f0e0c" strokeWidth="0.5" rx="4" />
+                    <line x1="30" y1="30" x2="75" y2="75" stroke="#0f0e0c" strokeWidth="0.4" />
+                    <line x1="170" y1="30" x2="125" y2="75" stroke="#0f0e0c" strokeWidth="0.4" />
+                    <line x1="30" y1="170" x2="75" y2="125" stroke="#0f0e0c" strokeWidth="0.4" />
+                    <line x1="170" y1="170" x2="125" y2="125" stroke="#0f0e0c" strokeWidth="0.4" />
+                  </svg>
+                )}
+                {index % 4 === 2 && (
+                  <svg className="absolute -right-8 -top-8 h-52 w-52" viewBox="0 0 200 200" fill="none">
+                    <polygon points="100,10 190,60 190,140 100,190 10,140 10,60" stroke="#0f0e0c" strokeWidth="1" fill="none" />
+                    <polygon points="100,40 160,70 160,130 100,160 40,130 40,70" stroke="#0f0e0c" strokeWidth="0.7" fill="none" />
+                    <polygon points="100,65 135,82 135,118 100,135 65,118 65,82" stroke="#0f0e0c" strokeWidth="0.5" fill="none" />
+                  </svg>
+                )}
+                {index % 4 === 3 && (
+                  <svg className="absolute -right-6 -top-6 h-48 w-48" viewBox="0 0 200 200" fill="none">
+                    <path d="M100 10 L100 190" stroke="#0f0e0c" strokeWidth="0.5" />
+                    <path d="M10 100 L190 100" stroke="#0f0e0c" strokeWidth="0.5" />
+                    <path d="M30 30 L170 170" stroke="#0f0e0c" strokeWidth="0.4" />
+                    <path d="M170 30 L30 170" stroke="#0f0e0c" strokeWidth="0.4" />
+                    <circle cx="100" cy="100" r="70" stroke="#0f0e0c" strokeWidth="1" />
+                    <circle cx="100" cy="100" r="45" stroke="#0f0e0c" strokeWidth="0.6" />
+                    <circle cx="100" cy="100" r="4" fill="#0f0e0c" />
+                  </svg>
+                )}
+              </div>
+
+              <h3 className="relative z-10 font-serif text-2xl font-bold text-[#0f0e0c]">
                 {project.title}
               </h3>
-              <p className="mt-4 leading-relaxed text-[#0f0e0c]">
+              <p className="relative z-10 mt-4 leading-relaxed text-[#0f0e0c]">
                 {project.description}
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
+              <div className="relative z-10 mt-6 flex flex-wrap gap-2">
                 {project.technologies.map((tech: string) => (
                   <span
                     key={tech}
@@ -90,7 +133,7 @@ export default function Projects() {
                 ))}
               </div>
 
-              <div className="mt-6 flex items-center justify-between">
+              <div className="relative z-10 mt-6 flex items-center justify-between">
                 {project.stats && (
                   <span className="text-sm font-medium text-accent">
                     {project.stats}
