@@ -26,7 +26,7 @@ export default function DigitalProducts() {
           </span>
         </div>
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product, index) => (
             <motion.div
               key={product.title}
@@ -43,56 +43,51 @@ export default function DigitalProducts() {
                 delay: index * 0.1,
                 ease: "easeOut"
               }}
-              className="group relative overflow-hidden rounded-lg border-2 border-[#d4cdc0] bg-white p-8"
+              className="group relative flex flex-col overflow-hidden rounded-lg border-2 border-[#d4cdc0] bg-white"
             >
-              <div className="flex gap-6">
-                {product.image && (
-                  <div className="h-48 w-32 flex-shrink-0 overflow-hidden rounded-lg bg-gray-50">
-                    <Image
-                      src={product.image}
-                      alt={product.title}
-                      width={128}
-                      height={192}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-accent">
-                      {product.type}
-                    </span>
-                    <h4 className="mt-1 font-serif text-xl font-bold text-[#0f0e0c]">
-                      {product.title}
-                    </h4>
-                  </div>
-                  <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-[#0f0e0c]">
-                    {product.description}
-                  </p>
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {product.techStack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="rounded-md bg-[#f5e6d3] px-3 py-1 text-xs font-medium text-muted"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-6 flex items-center justify-between">
-                    <span className="text-sm font-medium text-accent">
-                      {product.stats}
-                    </span>
-                    <a
-                      href={product.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-accent transition-colors hover:text-[#a03b25]"
-                      aria-label={`View ${product.title}`}
+              {product.image && (
+                <div className="relative h-52 w-full overflow-hidden bg-gray-50">
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    fill
+                    className="object-contain p-4"
+                  />
+                </div>
+              )}
+              <div className="flex flex-1 flex-col p-6">
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+                  {product.type}
+                </span>
+                <h4 className="mt-1 font-serif text-xl font-bold text-[#0f0e0c]">
+                  {product.title}
+                </h4>
+                <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-[#0f0e0c]">
+                  {product.description}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {product.techStack.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded-md bg-[#f5e6d3] px-3 py-1 text-xs font-medium text-muted"
                     >
-                      <FaExternalLinkAlt className="h-4 w-4" />
-                    </a>
-                  </div>
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-auto flex items-center justify-between pt-5">
+                  <span className="text-sm font-medium text-accent">
+                    {product.stats}
+                  </span>
+                  <a
+                    href={product.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-[#d4cdc0] p-2 text-accent transition-colors hover:border-accent hover:bg-[#f5e6d3]"
+                    aria-label={`View ${product.title}`}
+                  >
+                    <FaExternalLinkAlt className="h-3.5 w-3.5" />
+                  </a>
                 </div>
               </div>
             </motion.div>
