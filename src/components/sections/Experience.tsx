@@ -23,6 +23,7 @@ const highlightText = (text: string) => {
 
 export default function Experience() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [expandedRolesIndex, setExpandedRolesIndex] = useState<number | null>(null);
 
   return (
     <section
@@ -161,37 +162,54 @@ export default function Experience() {
 
                 {/* Previous roles */}
                 {experience.previousRoles && (
-                  <div className="mt-8 border-t border-[#d4cdc0] pt-6">
-                    <h4 className="font-serif text-lg font-semibold text-[#0f0e0c]">
-                      Previous Roles
-                    </h4>
-                    {experience.previousRoles.map((previousRole, roleIndex) => (
-                      <div key={roleIndex} className="mt-6">
-                        <div className="flex items-start justify-between">
-                          <h5 className="font-semibold text-[#0f0e0c]">
-                            {previousRole.position}
-                          </h5>
-                          <span className="text-sm text-muted">
-                            {previousRole.duration}
-                          </span>
-                        </div>
-                        <p className="mt-2 leading-relaxed text-[#0f0e0c]">
-                          {highlightText(previousRole.description)}
-                        </p>
-                        {previousRole.achievements && (
-                          <ul className="mt-4 space-y-3">
-                            {previousRole.achievements.map((achievement, idx) => (
-                              <li key={idx} className="flex gap-3">
-                                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
-                                <span className="leading-relaxed text-[#0f0e0c]">
-                                  {highlightText(achievement)}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ))}
+                  <div className="mt-6">
+                    <button
+                      onClick={() =>
+                        setExpandedRolesIndex(expandedRolesIndex === index ? null : index)
+                      }
+                      className="text-sm font-medium text-accent hover:underline"
+                    >
+                      {expandedRolesIndex === index
+                        ? "Hide previous roles ↑"
+                        : `Show previous roles (${experience.previousRoles.length}) ↓`}
+                    </button>
+
+                    {expandedRolesIndex === index && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4 border-t border-[#d4cdc0] pt-6"
+                      >
+                        {experience.previousRoles.map((previousRole, roleIndex) => (
+                          <div key={roleIndex} className="mt-6 first:mt-0">
+                            <div className="flex items-start justify-between">
+                              <h5 className="font-semibold text-[#0f0e0c]">
+                                {previousRole.position}
+                              </h5>
+                              <span className="text-sm text-muted">
+                                {previousRole.duration}
+                              </span>
+                            </div>
+                            <p className="mt-2 leading-relaxed text-[#0f0e0c]">
+                              {highlightText(previousRole.description)}
+                            </p>
+                            {previousRole.achievements && (
+                              <ul className="mt-4 space-y-3">
+                                {previousRole.achievements.map((achievement, idx) => (
+                                  <li key={idx} className="flex gap-3">
+                                    <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
+                                    <span className="leading-relaxed text-[#0f0e0c]">
+                                      {highlightText(achievement)}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
                   </div>
                 )}
               </motion.div>
