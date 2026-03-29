@@ -53,20 +53,20 @@ export default function About() {
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          {/* Profile image - shown on mobile, hidden on larger screens */}
+          {/* Profile image */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mb-8 flex justify-center lg:hidden"
+            className="mb-8 flex justify-center lg:justify-start"
           >
-            <div className="relative h-36 w-36 overflow-hidden rounded-full border-4 border-[#d4cdc0] shadow-lg">
+            <div className="relative h-36 w-36 overflow-hidden rounded-full border-4 border-[#d4cdc0] shadow-lg lg:h-44 lg:w-44">
               <Image
                 src={ProfileImage}
                 alt="Divyansh Singh"
                 fill
-                sizes="144px"
+                sizes="(min-width: 1024px) 176px, 144px"
                 className="object-cover object-top"
                 priority
               />
