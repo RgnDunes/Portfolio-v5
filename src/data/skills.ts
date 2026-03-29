@@ -13,6 +13,16 @@ import chakraUiIcon from "../assets/images/skills/chakra-ui.png";
 import flaskIcon from "../assets/images/skills/flask.png";
 import firebaseIcon from "../assets/images/skills/firebase.png";
 import gitIcon from "../assets/images/skills/git.png";
+import datadogIcon from "../assets/images/skills/datadog.svg";
+import sentryIcon from "../assets/images/skills/sentry.svg";
+import buildkiteIcon from "../assets/images/skills/buildkite.svg";
+import playwrightIcon from "../assets/images/skills/playwright.svg";
+import bashIcon from "../assets/images/skills/bash.svg";
+import awsIcon from "../assets/images/skills/aws.svg";
+import nodejsIcon from "../assets/images/skills/nodejs.svg";
+import rollupIcon from "../assets/images/skills/rollup.svg";
+import webpackIcon from "../assets/images/skills/webpack.svg";
+import slackIcon from "../assets/images/skills/slack.svg";
 import { StaticImageData } from "next/image";
 
 export interface Skill {
@@ -97,27 +107,27 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       {
         name: "Datadog",
-        image: "",
+        image: datadogIcon,
         experience: "1+ year",
       },
       {
         name: "Sentry",
-        image: "",
+        image: sentryIcon,
         experience: "2+ years",
       },
       {
         name: "Buildkite",
-        image: "",
+        image: buildkiteIcon,
         experience: "1+ year",
       },
       {
         name: "Playwright",
-        image: "",
+        image: playwrightIcon,
         experience: "2+ years",
       },
       {
         name: "Bash",
-        image: "",
+        image: bashIcon,
         experience: "3+ years",
       },
     ],
@@ -127,7 +137,7 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       {
         name: "AWS",
-        image: "",
+        image: awsIcon,
         experience: "1+ year",
       },
       {
@@ -142,7 +152,7 @@ export const skillCategories: SkillCategory[] = [
       },
       {
         name: "Node.js",
-        image: "",
+        image: nodejsIcon,
         experience: "3+ years",
       },
     ],
@@ -157,17 +167,17 @@ export const skillCategories: SkillCategory[] = [
       },
       {
         name: "Rollup",
-        image: "",
+        image: rollupIcon,
         experience: "2+ years",
       },
       {
         name: "Webpack",
-        image: "",
+        image: webpackIcon,
         experience: "3+ years",
       },
       {
         name: "Slack API",
-        image: "",
+        image: slackIcon,
         experience: "1+ year",
       },
     ],
