@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin, FaExternalLinkAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import KiitLogo from "../../assets/images/logos/kiit-logo.png";
-import ProfileImage from "../../assets/images/hero-bg.JPG";
+import ProfileImage from "../../assets/images/profile.jpg";
 import Image from "next/image";
 
 const socialLinks = [
