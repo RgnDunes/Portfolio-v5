@@ -7,11 +7,26 @@ import airtribeLogo from "../assets/images/logos/airtribe.png";
 import correlationsLogo from "../assets/images/logos/correlations.png";
 import taghiveLogo from "../assets/images/logos/taghive.jpg";
 
+// Media imports
+import espritDeCorp1 from "../assets/media/espirit_de_corp_rzp.jpeg";
+import espritDeCorp2 from "../assets/media/espirit_de_corp_rzp_2.jpeg";
+import winnerOfWeek from "../assets/media/winner_of_the_week_rzp.jpeg";
+import rzpInternCert from "../assets/media/rzp_internship_cert.jpeg";
+import gfgInternCert from "../assets/media/gfg_internship_cert.png";
+import correlationsInternCert from "../assets/media/correlations_ai_internship_certificate.png";
+import taghiveInternCert from "../assets/media/Taghive_internship_cert.png";
+
+interface MediaItem {
+  src: StaticImageData;
+  caption: string;
+}
+
 interface PreviousRole {
   position: string;
   duration: string;
   description: string;
   achievements: string[];
+  media?: MediaItem[];
 }
 
 interface Experience {
@@ -23,6 +38,7 @@ interface Experience {
   previousRoles?: PreviousRole[];
   logo: string | StaticImageData;
   technologies?: string[];
+  media?: MediaItem[];
 }
 
 export const experiences: Experience[] = [
@@ -58,6 +74,11 @@ export const experiences: Experience[] = [
     ],
     logo: razorpayLogo,
     technologies: ["React", "TypeScript", "Rollup", "Blade UI", "Playwright", "Jest"],
+    media: [
+      { src: espritDeCorp1, caption: "Esprit De Corps Award" },
+      { src: espritDeCorp2, caption: "Esprit De Corps Award" },
+      { src: winnerOfWeek, caption: "Winner of the Week" },
+    ],
     previousRoles: [
       {
         position: "Software Development Engineer",
@@ -80,6 +101,9 @@ export const experiences: Experience[] = [
         achievements: [
           "Cut payment dispute resolution time by 50%, reducing the average from 20 minutes to 10 minutes.",
           "Revamped Shield UI, achieving a 33% surge in user engagement and reducing load time by 21%.",
+        ],
+        media: [
+          { src: rzpInternCert, caption: "Internship Certificate" },
         ],
       },
     ],
@@ -113,6 +137,9 @@ export const experiences: Experience[] = [
     achievements: undefined,
     logo: gfgLogo,
     technologies: ["Python", "ReactJS", "Flask", "Git"],
+    media: [
+      { src: gfgInternCert, caption: "Internship Certificate" },
+    ],
   },
   {
     company: "Correlations.ai",
@@ -123,6 +150,9 @@ export const experiences: Experience[] = [
     achievements: undefined,
     logo: correlationsLogo,
     technologies: ["ReactJS", "Flask", "MongoDB"],
+    media: [
+      { src: correlationsInternCert, caption: "Internship Certificate" },
+    ],
   },
   {
     company: "TagHive Inc.",
@@ -133,5 +163,8 @@ export const experiences: Experience[] = [
     achievements: undefined,
     logo: taghiveLogo,
     technologies: ["Android", "Java"],
+    media: [
+      { src: taghiveInternCert, caption: "Internship Certificate" },
+    ],
   },
 ] as const;

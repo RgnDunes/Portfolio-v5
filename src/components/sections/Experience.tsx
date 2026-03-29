@@ -24,6 +24,7 @@ const highlightText = (text: string) => {
 export default function Experience() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [expandedRolesIndex, setExpandedRolesIndex] = useState<number | null>(null);
+  const [expandedMediaIndex, setExpandedMediaIndex] = useState<number | null>(null);
 
   return (
     <section
@@ -160,6 +161,47 @@ export default function Experience() {
                   </div>
                 )}
 
+                {/* Media gallery */}
+                {experience.media && experience.media.length > 0 && (
+                  <div className="mt-6">
+                    <button
+                      onClick={() =>
+                        setExpandedMediaIndex(expandedMediaIndex === index ? null : index)
+                      }
+                      className="text-sm font-medium text-accent hover:underline"
+                    >
+                      {expandedMediaIndex === index
+                        ? "Hide awards & certificates ↑"
+                        : `Show awards & certificates (${experience.media.length}) ↓`}
+                    </button>
+
+                    {expandedMediaIndex === index && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4 grid grid-cols-2 gap-4 border-t border-[#d4cdc0] pt-4 sm:grid-cols-3"
+                      >
+                        {experience.media.map((item, mediaIdx) => (
+                          <div key={mediaIdx} className="group/media overflow-hidden rounded-lg border border-[#d4cdc0]">
+                            <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
+                              <Image
+                                src={item.src}
+                                alt={item.caption}
+                                fill
+                                className="object-contain p-2 transition-transform duration-300 group-hover/media:scale-105"
+                              />
+                            </div>
+                            <p className="bg-[#f5f0e8] px-3 py-2 text-center text-xs font-medium text-muted">
+                              {item.caption}
+                            </p>
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+
                 {/* Previous roles */}
                 {experience.previousRoles && (
                   <div className="mt-6">
@@ -205,6 +247,25 @@ export default function Experience() {
                                   </li>
                                 ))}
                               </ul>
+                            )}
+                            {previousRole.media && previousRole.media.length > 0 && (
+                              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {previousRole.media.map((item, mediaIdx) => (
+                                  <div key={mediaIdx} className="overflow-hidden rounded-lg border border-[#d4cdc0]">
+                                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
+                                      <Image
+                                        src={item.src}
+                                        alt={item.caption}
+                                        fill
+                                        className="object-contain p-2"
+                                      />
+                                    </div>
+                                    <p className="bg-[#f5f0e8] px-2 py-1.5 text-center text-xs font-medium text-muted">
+                                      {item.caption}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
                             )}
                           </div>
                         ))}
