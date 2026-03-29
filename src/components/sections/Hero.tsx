@@ -142,9 +142,9 @@ export default function Hero() {
         transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
         className="relative z-10 mx-auto mt-8 max-w-3xl text-center text-base leading-relaxed text-[#0f0e0c] sm:text-lg"
       >
-        Senior Frontend Engineer (L6) at Rippling. Previously at Razorpay, building
-        international payment systems and open-source tools with 86K+ weekly downloads.
-        Author, mentor, and system design enthusiast.
+        Software Engineer II (L6) at Rippling, working on Web Infrastructure - CI/CD pipelines,
+        developer tooling, and observability. Previously at Razorpay, building international
+        payment systems and open-source SDKs with 100K+ weekly downloads. Author and mentor.
       </motion.p>
 
       {/* CTA Buttons */}
@@ -184,11 +184,11 @@ export default function Hero() {
         </motion.span>
         <span className="hidden sm:inline">·</span>
         <motion.span whileHover={{ color: "#c84b31" }} transition={{ duration: 0.2 }}>
-          4 YEARS EXPERIENCE
+          5+ YEARS EXPERIENCE
         </motion.span>
         <span className="hidden sm:inline">·</span>
         <motion.span whileHover={{ color: "#c84b31" }} transition={{ duration: 0.2 }}>
-          86K+ DOWNLOADS
+          100K+ DOWNLOADS
         </motion.span>
         <span className="hidden sm:inline">·</span>
         <motion.span whileHover={{ color: "#c84b31" }} transition={{ duration: 0.2 }}>
@@ -208,7 +208,7 @@ export default function Hero() {
           कर्मण्येवाधिकारस्ते मा फलेषु कदाचन
         </p>
         <p className="mt-2 text-sm text-muted">
-          — Bhagavad Gita 2.47
+          - Bhagavad Gita 2.47
         </p>
         <p className="mt-1 text-xs italic text-muted">
           You have the right to perform your duty, but not to the fruits of your actions

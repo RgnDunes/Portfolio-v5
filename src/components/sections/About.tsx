@@ -62,34 +62,28 @@ export default function About() {
           </div>
 
           <p className="mt-6 text-base leading-relaxed text-[#0f0e0c]">
-            👋 Hey there! I'm Divyansh, a full-time Senior Frontend Engineer at
-            Rippling, part-time code whisperer, and full-time fan of clean architecture.
+            I'm Divyansh, a Software Engineer II (L6) at Rippling on the Web Infrastructure
+            team, where I work on CI/CD pipelines, developer tooling, E2E test observability,
+            and deployment infrastructure using AWS, Datadog, Buildkite, and Playwright.
           </p>
 
           <p className="mt-4 text-base leading-relaxed text-[#0f0e0c]">
-            Previously, I led Razorpay's global frontend efforts (hello
-            Malaysia, Singapore and US 🌏) before recently joining Rippling.
-            Come weekends and holidays, I switch gears, mentoring bright minds
-            at ProPeers and AccioJob, and occasionally pretending I have a
-            social life (spoiler: it's usually with code).
+            Previously, I spent 4+ years at Razorpay as a Senior Frontend Engineer, leading
+            the international expansion into Malaysia and Singapore (530 merchants, 80M MYR GMV),
+            building Mastercard Biometric Authentication (demoed at GFF 2024), and open-sourcing
+            the i18nify-js SDK (100K+ weekly downloads, 27+ teams).
           </p>
 
           <p className="mt-4 text-base leading-relaxed text-[#0f0e0c]">
-            I was also recently invited by Airtribe as a Jury Member for an AI
-            Tech Hackathon in Bangalore, because apparently, I now judge things
-            other than bad variable names 😄
+            Outside work, I freelance as a React instructor at AccioJob and have
+            mentored 100+ students at Airtribe. I was invited as a Jury Member
+            for an AI Tech Hackathon in Bangalore. I've also authored 3 technical
+            ebooks with 200+ copies sold.
           </p>
 
           <p className="mt-4 text-base leading-relaxed text-[#0f0e0c]">
-            I'm passionate about clean code, clever UI, and helping devs level
-            up their frontend game, all while debugging like a caffeine-fueled
-            detective 🕵️‍♂️
-          </p>
-
-          <p className="mt-4 text-base leading-relaxed text-[#0f0e0c]">
-            Let's connect if you want to geek out over React, discuss
-            internationalization (I might've open-sourced a thing 👀), or debate
-            why undefined shows up only when you're on a roll.
+            I'm passionate about clean architecture, developer experience, and
+            building tools that make engineering teams more productive.
           </p>
 
           <div className="mt-8 flex gap-4">
@@ -133,14 +127,13 @@ export default function About() {
               <li className="flex items-start gap-3">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
                 <span className="flex-1 text-sm leading-relaxed text-[#0f0e0c]">
-                  Built Industry's First Biometric Authentication: An OTP-Free
-                  Payment Checkout.
+                  Built Mastercard Biometric Authentication (OTP-free checkout), demoed at GFF 2024, improving success rate by 35%.
                 </span>
                 <a
                   href="https://razorpay.com/blog/biometric-authentication-easy-card-payments-checkout/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-accent transition-colors hover:text-[#a03b25]"
+                  className="flex-shrink-0 text-accent transition-colors hover:text-[#a03b25]"
                   aria-label="Read more"
                 >
                   <FaExternalLinkAlt className="h-4 w-4" />
@@ -149,25 +142,41 @@ export default function About() {
               <li className="flex items-start gap-3">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
                 <span className="flex-1 text-sm leading-relaxed text-[#0f0e0c]">
-                  Created India's first token lifecycle management system for
-                  major banks.
+                  Architected a Flakiness Detection System with statistical scoring, HTML dashboards, and Datadog integration at Rippling.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
                 <span className="flex-1 text-sm leading-relaxed text-[#0f0e0c]">
-                  Published a book "Full Spectrum JavaScript" with 200+ copies
-                  sold.
+                  Open-sourced @razorpay/i18nify-js SDK with 100K+ weekly downloads, adopted by 27+ teams.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
+                <span className="flex-1 text-sm leading-relaxed text-[#0f0e0c]">
+                  Led package registry security overhaul: CodeArtifact dual-registry to AWS Secrets Manager migration with zero downtime.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
+                <span className="flex-1 text-sm leading-relaxed text-[#0f0e0c]">
+                  Published 3 technical ebooks with 200+ copies sold.
                 </span>
                 <a
                   href="https://rgndunes.gumroad.com/l/full-spectrum-javascript"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-accent transition-colors hover:text-[#a03b25]"
+                  className="flex-shrink-0 text-accent transition-colors hover:text-[#a03b25]"
                   aria-label="Buy Book"
                 >
                   <FaExternalLinkAlt className="h-4 w-4" />
                 </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
+                <span className="flex-1 text-sm leading-relaxed text-[#0f0e0c]">
+                  Awarded Esprit De Corps (twice) at Razorpay for outstanding contributions.
+                </span>
               </li>
             </ul>
           </motion.div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaPhone } from "react-icons/fa";
 
 export default function Contact() {
   return (
@@ -56,8 +56,17 @@ export default function Contact() {
                   rgndunes@gmail.com
                 </a>
               </div>
+              <div className="flex items-center gap-4">
+                <FaPhone className="h-5 w-5 text-accent" />
+                <a
+                  href="tel:+917019817001"
+                  className="text-[#0f0e0c] hover:text-accent"
+                >
+                  +91 7019817001
+                </a>
+              </div>
               <p className="text-sm leading-relaxed text-muted">
-                Feel free to reach out through email or any of the social
+                Feel free to reach out through email, phone, or any of the social
                 platforms below. I typically respond within 24-48 hours.
               </p>
             </div>

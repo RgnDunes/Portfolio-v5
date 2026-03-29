@@ -93,8 +93,43 @@ export const skillCategories: SkillCategory[] = [
     ],
   },
   {
-    name: "Backend Development",
+    name: "Observability & DevOps",
     skills: [
+      {
+        name: "Datadog",
+        image: "",
+        experience: "1+ year",
+      },
+      {
+        name: "Sentry",
+        image: "",
+        experience: "2+ years",
+      },
+      {
+        name: "Buildkite",
+        image: "",
+        experience: "1+ year",
+      },
+      {
+        name: "Playwright",
+        image: "",
+        experience: "2+ years",
+      },
+      {
+        name: "Bash",
+        image: "",
+        experience: "3+ years",
+      },
+    ],
+  },
+  {
+    name: "Backend & Infrastructure",
+    skills: [
+      {
+        name: "AWS",
+        image: "",
+        experience: "1+ year",
+      },
       {
         name: "Flask",
         image: flaskIcon,
@@ -105,10 +140,15 @@ export const skillCategories: SkillCategory[] = [
         image: firebaseIcon,
         experience: "3+ years",
       },
+      {
+        name: "Node.js",
+        image: "",
+        experience: "3+ years",
+      },
     ],
   },
   {
-    name: "Tools & Technologies",
+    name: "Tools & Build Systems",
     skills: [
       {
         name: "Git",
@@ -116,9 +156,19 @@ export const skillCategories: SkillCategory[] = [
         experience: "5+ years",
       },
       {
-        name: "Firebase",
-        image: firebaseIcon,
+        name: "Rollup",
+        image: "",
+        experience: "2+ years",
+      },
+      {
+        name: "Webpack",
+        image: "",
         experience: "3+ years",
+      },
+      {
+        name: "Slack API",
+        image: "",
+        experience: "1+ year",
       },
     ],
   },
