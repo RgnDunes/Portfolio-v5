@@ -19,7 +19,7 @@ export default function Contact() {
           <h2 className="font-serif text-3xl font-bold tracking-tight text-[#0f0e0c] sm:text-4xl">
             Get in Touch
           </h2>
-          <span className="text-sm font-medium tracking-wider text-accent">
+          <span className="hidden text-sm font-medium tracking-wider text-accent sm:inline">
             06 · CONTACT
           </span>
         </div>

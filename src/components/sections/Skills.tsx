@@ -50,7 +50,7 @@ export default function Skills() {
           <h2 className="font-serif text-3xl font-bold tracking-tight text-[#0f0e0c] sm:text-4xl">
             Skills & Technologies
           </h2>
-          <span className="text-sm font-medium tracking-wider text-accent">
+          <span className="hidden text-sm font-medium tracking-wider text-accent sm:inline">
             03 · SKILLS
           </span>
         </div>
