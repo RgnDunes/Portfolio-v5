@@ -106,9 +106,14 @@
     will-change: transform, opacity;
   }
 
-  /* Smooth scrolling */
+  /* Smooth scrolling & prevent horizontal overflow on mobile */
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
   }
 
   /* Custom scrollbar */
@@ -127,4 +132,13 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted;
   }
+}
+
+/* Hide scrollbar for horizontal-scroll pill containers */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

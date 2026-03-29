@@ -55,12 +55,12 @@ export default function Skills() {
           </span>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide sm:flex-wrap sm:overflow-x-visible sm:pb-0">
           {skillCategories.map((category) => (
             <button
               key={category.name}
               onClick={() => setSelectedCategory(category.name)}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
+              className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
                 selectedCategory === category.name
                   ? "bg-accent text-white"
                   : "border-2 border-[#d4cdc0] bg-white text-muted hover:border-accent"

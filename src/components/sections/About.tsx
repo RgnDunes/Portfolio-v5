@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin, FaExternalLinkAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import KiitLogo from "../../assets/images/logos/kiit-logo.png";
+import ProfileImage from "../../assets/images/hero-bg.JPG";
 import Image from "next/image";
 
 const socialLinks = [
@@ -52,6 +53,26 @@ export default function About() {
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
+          {/* Profile image - shown on mobile, hidden on larger screens */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="mb-8 flex justify-center lg:hidden"
+          >
+            <div className="relative h-36 w-36 overflow-hidden rounded-full border-4 border-[#d4cdc0] shadow-lg">
+              <Image
+                src={ProfileImage}
+                alt="Divyansh Singh"
+                fill
+                sizes="144px"
+                className="object-cover object-top"
+                priority
+              />
+            </div>
+          </motion.div>
+
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-3xl font-bold tracking-tight text-[#0f0e0c] sm:text-4xl">
               About Me

@@ -27,8 +27,8 @@ export default function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed top-0 z-50 w-full border-b backdrop-blur-md"
-      style={{ borderColor: '#d4cdc0', background: 'rgba(218, 212, 204, 0.95)' }}
+      className="fixed top-0 z-50 w-full border-b shadow-sm"
+      style={{ borderColor: '#d4cdc0', background: '#dad4cc' }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">

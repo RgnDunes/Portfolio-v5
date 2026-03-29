@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaPhone } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaPhone, FaWhatsapp } from "react-icons/fa";
 
 export default function Contact() {
   return (
@@ -63,6 +63,15 @@ export default function Contact() {
                   className="text-[#0f0e0c] hover:text-accent"
                 >
                   +91 7019817001
+                </a>
+                <a
+                  href="https://wa.me/917019817001"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full bg-[#25D366] px-2.5 py-0.5 text-xs font-medium text-white transition-opacity hover:opacity-80"
+                >
+                  <FaWhatsapp className="h-3.5 w-3.5" />
+                  WhatsApp
                 </a>
               </div>
               <p className="text-sm leading-relaxed text-muted">
