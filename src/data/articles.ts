@@ -28,7 +28,7 @@ export const articles: Article[] = [
       "For years we quietly assumed Rollup was the library bundler and Webpack was the application bundler. That line has blurred considerably. Here is why Rollup deserves a second look for your next production application.",
     link: "/blog/rollup_article.html",
     icon: FaBookmark,
-    date: "May 2025",
+    date: "April 2025",
     stats: "Blog",
   },
   {
@@ -38,7 +38,7 @@ export const articles: Article[] = [
       "The new Actions API is a solid improvement for handling async mutations and form submissions. But teams are already reaching for it as a Zustand or Redux replacement, and that's a category error that will bite them at scale.",
     link: "/blog/react19_actions_article.html",
     icon: FaBookmark,
-    date: "May 2025",
+    date: "April 2025",
     stats: "Blog",
   },
   {
