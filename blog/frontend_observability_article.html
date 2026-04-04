@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Frontend Observability is Not a Backend Problem – Divyansh Singh</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* LAYOUT */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* FLOW NODES */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* NUMBERED LIST */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* DIVIDER */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Perspectives &nbsp;·&nbsp; Frontend Engineering &nbsp;·&nbsp; Observability</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Opinion · Frontend Engineering</div>
+  <h1>Frontend Observability is <em>Not a Backend Problem</em></h1>
+  <p class="hero-sub">Your servers are green. Your APIs are healthy. Your dashboards look perfectly fine. And somewhere out there, a real user is staring at a blank white screen, wondering why your product doesn't work. Here is why that gap exists, and what you can actually do about it.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~14 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">Observability</span>
+    <span class="tag">Frontend</span>
+    <span class="tag">Engineering</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <!-- 01. THE PROBLEM -->
+  <section>
+    <div class="section-num">01 · The Problem</div>
+    <h2>Your Backend is Fine. Your Users Are Not.</h2>
+    <p>A few months back, one of my colleagues pinged me in Slack. "Hey, did you check the frontend errors dashboard?" I had not. Nobody had. We had four Datadog monitors watching our Node services, three PagerDuty alerts for database connection failures, and a very thorough runbook for every possible API outage. What we did not have was any meaningful visibility into what was actually happening inside the browser.</p>
+    <p>Turned out a third-party font CDN had quietly gone down. Our CSS was loading fine. Our HTML was fine. The JavaScript bundle was fine. But because we had a hardcoded <code>font-display: block</code> on a Google Fonts import that was timing out, an entire section of our checkout page was rendering invisible text on a white background for users in certain regions. Not an error. Not a crash. Just a completely silent, invisible failure that our backend observability had absolutely zero visibility into.</p>
+    <p>We found out three days later when a support ticket came in. By then, we had no idea how many people had quietly given up and left.</p>
+
+    <div class="pull-quote">
+      <p>"The backend tells you what your servers experienced. Frontend observability tells you what your users experienced. These are two very different stories, and most teams are only listening to one of them."</p>
+    </div>
+
+    <p>This is the core problem. Backend observability has matured beautifully over the last decade. We have distributed tracing, structured logging, APM tools, synthetic monitors, SLOs, error budgets, and entire engineering philosophies built around knowing exactly what our infrastructure is doing at any given moment. Frontend observability, by comparison, is still being treated as an afterthought in most teams I have worked with or spoken to.</p>
+    <p>And the excuse I hear most often? "That is a frontend problem, not a backend problem." Which is true. It is a frontend problem. That is precisely why the backend team should not be the one solving it, and also precisely why the frontend team keeps not solving it either. It falls in the gap between ownership.</p>
+  </section>
+
+  <!-- 02. WHAT FRONTEND OBSERVABILITY ACTUALLY IS -->
+  <section>
+    <div class="section-num">02 · Definition</div>
+    <h2>What We Actually Mean by Frontend Observability</h2>
+    <p>Observability, in the traditional backend sense, means being able to answer arbitrary questions about your system's state by looking at its outputs. You should not need to redeploy or add new instrumentation to understand a production problem. The data should already be flowing.</p>
+    <p>Frontend observability means the same thing, but for the client. You should be able to answer questions like: what did the user actually see when this error happened? Which browsers are choking on our new CSS grid layout? Is our JavaScript bundle parse time causing bounces on low-end Android devices? Is that third-party analytics script delaying our Largest Contentful Paint by two seconds for users in Southeast Asia?</p>
+    <p>These are not questions your backend can answer. They require instrumentation that lives in the browser, captures real user experience, and ships that data somewhere you can actually query it.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Three Pillars, Applied to the Frontend</div>
+      <p><strong style="color: var(--accent); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;">Logs</strong> &nbsp; JavaScript errors with full stack traces, console warnings, network failures, custom application events.</p>
+      <p><strong style="color: var(--accent); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;">Metrics</strong> &nbsp; Core Web Vitals (LCP, CLS, INP), bundle sizes, resource load times, client-side API latency, crash rates by browser and device class.</p>
+      <p><strong style="color: var(--accent); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;">Traces</strong> &nbsp; User session replay, navigation timings, component render waterfalls, distributed traces that stitch together the client-side leg of a request with its server-side journey.</p>
+    </div>
+
+    <p>Notice how none of these come for free from your existing backend tooling. You have to instrument them deliberately, at the client level, and you have to build the habit of actually looking at them when things go wrong.</p>
+  </section>
+
+  <!-- 03. WHY TEAMS IGNORE IT -->
+  <section>
+    <div class="section-num">03 · Root Causes</div>
+    <h2>Why Frontend Observability Keeps Getting Ignored</h2>
+    <p>I have asked this question to a lot of engineers across different companies, and the answers cluster around a few common themes. Understanding them is important because fixing the tooling problem without fixing the cultural and organisational problem around it will not actually change anything.</p>
+
+    <h3>Backend engineers own the dashboards</h3>
+    <p>In most companies, the team that sets up observability infrastructure is the backend or platform team. They are solving for their own pain, which is completely rational. The dashboards they build capture server metrics, database query performance, queue depths, and API error rates. Frontend metrics simply do not show up in these dashboards, so they do not get monitored, and they do not get prioritised.</p>
+    <p>Frontend engineers, meanwhile, often do not have the access or the familiarity with tools like Datadog, Grafana, or Honeycomb to go and add their own instrumentation. So the gap persists.</p>
+
+    <h3>Errors in the browser feel less "real"</h3>
+    <p>There is a subtle cultural thing happening here. When your API throws a 500 error, PagerDuty wakes someone up. When your React app throws an unhandled promise rejection in production, nothing happens. Nobody is paged. Nobody wakes up. The error is logged to the browser console of the one user who happened to open DevTools, and then it disappears into the void.</p>
+    <p>This asymmetry in how we treat errors creates a completely distorted picture of product health. A team can have an error rate of 3 JavaScript exceptions per session and still feel like their product is "stable" because their backend error rate is 0.01%.</p>
+
+    <h3>The ownership problem is genuinely tricky</h3>
+    <p>Frontend observability sits in an uncomfortable middle space. It is not pure infrastructure, so the platform team does not feel responsible for it. It is not product analytics, so the data team does not feel responsible for it. And frontend engineers are usually too busy building features to instrument the ones they have already shipped. This diffusion of responsibility is probably the single biggest reason why most teams end up with nothing.</p>
+
+    <div class="highlight-box">
+      <strong>A Useful Heuristic</strong>
+      If your on-call runbook has more entries about database failover than it does about JavaScript error spikes, you have an ownership problem, not just a tooling problem.
+    </div>
+  </section>
+
+  <!-- 04. WHAT BREAKS WITHOUT IT -->
+  <section>
+    <div class="section-num">04 · Failure Modes</div>
+    <h2>The Specific Things That Break Without Frontend Observability</h2>
+    <p>Let me be concrete here. These are not theoretical failure modes. These are the kinds of things that have actually happened to real engineering teams, and that would have been caught quickly with even basic frontend instrumentation in place.</p>
+
+    <h3>Silent JavaScript failures that never surface as HTTP errors</h3>
+    <p>Your backend returns a 200 response with a perfectly valid JSON payload. Your frontend JavaScript then tries to access <code>response.data.user.preferences.theme</code> and throws a TypeError because <code>preferences</code> is null for new users. The user sees a broken page. Your error rate dashboard shows 0.00% API errors. You have no idea this is happening.</p>
+    <p>This category of error is probably the most common and the most underreported. A study by Sentry found that the majority of JavaScript errors in production are never reported to any monitoring system. They happen, they break the experience for that user, and they vanish.</p>
+
+    <h3>Third-party script degradation</h3>
+    <p>Modern web applications load scripts from dozens of third-party domains. Analytics, A/B testing, customer support widgets, payment processors, social login SDKs. Any one of these can start misbehaving in ways that degrade your application's performance or functionality without causing a single server-side error. If you are not capturing third-party resource timings and error rates at the client level, you will not know when a vendor you depend on starts having problems.</p>
+
+    <h3>Browser and device-specific regressions</h3>
+    <p>Your CI pipeline runs tests in a headless Chromium instance on a powerful cloud machine. Your users run Safari on an iPhone 12 with a throttled 4G connection while sitting in a metro train. These are not the same environment. CSS bugs, API incompatibilities, layout shifts, and performance cliffs that only appear on specific browser versions or device classes are extremely common, and absolutely invisible to backend monitoring.</p>
+
+    <h3>Core Web Vitals degradation</h3>
+    <p>Since Google started using Core Web Vitals in its ranking algorithm, frontend performance has had real SEO and business consequences beyond just user experience. But CWV data only exists in the browser. It is collected by the browser, reported by the browser, and can only be measured meaningfully through real user monitoring. Lab-based testing tools give you a rough approximation, but field data from real users in real conditions is the only thing that actually tells you whether you are hitting thresholds.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">70%</div>
+        <div class="stat-label">JS Errors That<br/>Go Unreported</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3x</div>
+        <div class="stat-label">Higher Bounce Rate<br/>With Poor LCP</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">48h</div>
+        <div class="stat-label">Average Time to Detect<br/>Silent Frontend Bugs</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">23%</div>
+        <div class="stat-label">Revenue Impact From<br/>Unmonitored UI Failures</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. THE TOOLING LANDSCAPE -->
+  <section>
+    <div class="section-num">05 · Tooling</div>
+    <h2>The Tooling Landscape, Without the Marketing Speak</h2>
+    <p>There are broadly four categories of frontend observability tooling, and you will almost certainly need something from each one. The good news is that the ecosystem has grown up considerably in the last two or three years, and integrating even a basic setup into a React or Vue application takes an afternoon, not a sprint.</p>
+
+    <h3>Error tracking</h3>
+    <p>This is the starting point. You need something that catches unhandled JavaScript exceptions, captures full stack traces with source map support, groups similar errors intelligently, and sends you an alert when a new error type starts appearing or when a known error suddenly spikes. Sentry is the default choice for most teams and is genuinely excellent. Datadog has a good frontend error tracking product if you are already in that ecosystem. Rollbar and Bugsnag are solid alternatives.</p>
+    <p>If you are using React, you need to wrap your application in an Error Boundary component in addition to the global error handler, because React swallows certain render-phase errors that the global <code>window.onerror</code> handler will never catch.</p>
+
+    <h3>Real User Monitoring</h3>
+    <p>RUM tools capture performance data from actual user sessions. They measure when resources finish loading, when the page becomes interactive, what the layout shift score is, and how long your LCP element took to paint. This is different from Lighthouse or WebPageTest, which measure performance in synthetic controlled conditions. RUM gives you field data: what real users on real networks with real devices are actually experiencing.</p>
+    <p>Datadog RUM, New Relic Browser, and Elastic RUM are the enterprise options. SpeedCurve and Calibre are excellent if you want something more focused purely on web performance. If budget is a constraint, the Web Vitals JavaScript library combined with your own analytics pipeline is a perfectly viable DIY approach.</p>
+
+    <h3>Session replay</h3>
+    <p>Session replay tools record user sessions and let you play them back like a video. When a bug report comes in saying "the checkout button doesn't work," you can watch exactly what the user did, what the page looked like when they clicked it, what JavaScript errors were active at that moment, and what network requests were failing in the background. This collapses a debugging loop that used to take days into something you can resolve in minutes.</p>
+    <p>LogRocket is the most capable tool in this space and has good integration with error tracking. Hotjar does session replay but is more analytics-focused and has weaker error correlation. FullStory is powerful but expensive. PostHog has a session replay feature if you are already using it for product analytics and want one fewer tool to manage.</p>
+
+    <h3>Distributed tracing that crosses the client boundary</h3>
+    <p>This is where things get genuinely interesting and where most teams have not gone yet. When a user clicks a button that triggers a request, you want a trace that starts at the click handler in the browser, follows the request through your CDN, into your API gateway, down through your microservices, and back out again, all as a single connected trace. OpenTelemetry now has a browser SDK that makes this possible, and if you are already running OTel on the backend, adding the frontend leg is not as painful as it sounds.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Frontend Observability Stack · Recommended Layers</div>
+      <div class="flow">
+        <div class="flow-node green">Browser Agent</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">Error Tracker</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">RUM Platform</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node red">Alerting</div>
+      </div>
+      <div class="flow" style="margin-top: 12px;">
+        <div class="flow-node muted">Session Replay</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node green">OTel SDK (Browser)</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">Trace Backend</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node muted">Shared Dashboard</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. HOW TO ACTUALLY INSTRUMENT IT -->
+  <section>
+    <div class="section-num">06 · Implementation</div>
+    <h2>How to Actually Instrument This, Starting From Zero</h2>
+    <p>Theory is fine, but let us talk about what the code actually looks like. The following examples assume a React application, but the patterns apply to any modern JavaScript framework with minor syntax differences.</p>
+
+    <h3>Step one: global error capture</h3>
+    <p>Before you reach for any third-party tool, add a global error handler that captures everything the browser sees. This is your safety net for anything that falls outside structured error boundaries.</p>
+
+    <div class="code-block">
+      <div class="code-label">global-error-handler.ts</div>
+      <pre><span class="code-cmt">// Catches unhandled exceptions</span>
+<span class="code-var">window</span>.<span class="code-fn">addEventListener</span>(<span class="code-str">'error'</span>, (<span class="code-var">event</span>) <span class="code-kw">=></span> {
+  <span class="code-fn">reportError</span>({
+    <span class="code-var">type</span>: <span class="code-str">'uncaught_exception'</span>,
+    <span class="code-var">message</span>: <span class="code-var">event</span>.<span class="code-var">message</span>,
+    <span class="code-var">filename</span>: <span class="code-var">event</span>.<span class="code-var">filename</span>,
+    <span class="code-var">stack</span>: <span class="code-var">event</span>.<span class="code-var">error</span>?.<span class="code-var">stack</span>,
+    <span class="code-var">url</span>: <span class="code-var">location</span>.<span class="code-var">href</span>,
+    <span class="code-var">userAgent</span>: <span class="code-var">navigator</span>.<span class="code-var">userAgent</span>,
+    <span class="code-var">timestamp</span>: <span class="code-kw">new</span> <span class="code-fn">Date</span>().<span class="code-fn">toISOString</span>(),
+  });
+});
+
+<span class="code-cmt">// Catches unhandled promise rejections</span>
+<span class="code-var">window</span>.<span class="code-fn">addEventListener</span>(<span class="code-str">'unhandledrejection'</span>, (<span class="code-var">event</span>) <span class="code-kw">=></span> {
+  <span class="code-fn">reportError</span>({
+    <span class="code-var">type</span>: <span class="code-str">'unhandled_promise_rejection'</span>,
+    <span class="code-var">message</span>: <span class="code-var">event</span>.<span class="code-var">reason</span>?.<span class="code-var">message</span> ?? <span class="code-str">'Unknown rejection'</span>,
+    <span class="code-var">stack</span>: <span class="code-var">event</span>.<span class="code-var">reason</span>?.<span class="code-var">stack</span>,
+    <span class="code-var">url</span>: <span class="code-var">location</span>.<span class="code-var">href</span>,
+    <span class="code-var">timestamp</span>: <span class="code-kw">new</span> <span class="code-fn">Date</span>().<span class="code-fn">toISOString</span>(),
+  });
+});</pre>
+    </div>
+
+    <h3>Step two: the React Error Boundary</h3>
+    <p>React's component rendering lifecycle throws errors in a way that bypasses the global handler. You need a dedicated Error Boundary component wrapping your application tree, and ideally wrapping individual feature areas separately so one broken widget does not take down the whole page.</p>
+
+    <div class="code-block">
+      <div class="code-label">ErrorBoundary.tsx</div>
+      <pre><span class="code-kw">import</span> { <span class="code-var">Component</span>, <span class="code-var">ReactNode</span> } <span class="code-kw">from</span> <span class="code-str">'react'</span>;
+
+<span class="code-kw">class</span> <span class="code-fn">ErrorBoundary</span> <span class="code-kw">extends</span> <span class="code-fn">Component</span>&lt;
+  { <span class="code-var">children</span>: <span class="code-var">ReactNode</span>; <span class="code-var">fallback</span>?: <span class="code-var">ReactNode</span> },
+  { <span class="code-var">hasError</span>: <span class="code-var">boolean</span> }
+&gt; {
+  <span class="code-var">state</span> = { <span class="code-var">hasError</span>: <span class="code-kw">false</span> };
+
+  <span class="code-kw">static</span> <span class="code-fn">getDerivedStateFromError</span>() {
+    <span class="code-kw">return</span> { <span class="code-var">hasError</span>: <span class="code-kw">true</span> };
+  }
+
+  <span class="code-fn">componentDidCatch</span>(<span class="code-var">error</span>: <span class="code-var">Error</span>, <span class="code-var">info</span>: <span class="code-var">ErrorInfo</span>) {
+    <span class="code-fn">reportError</span>({
+      <span class="code-var">type</span>: <span class="code-str">'react_error_boundary'</span>,
+      <span class="code-var">message</span>: <span class="code-var">error</span>.<span class="code-var">message</span>,
+      <span class="code-var">stack</span>: <span class="code-var">error</span>.<span class="code-var">stack</span>,
+      <span class="code-var">componentStack</span>: <span class="code-var">info</span>.<span class="code-var">componentStack</span>,
+    });
+  }
+
+  <span class="code-fn">render</span>() {
+    <span class="code-kw">if</span> (<span class="code-kw">this</span>.<span class="code-var">state</span>.<span class="code-var">hasError</span>) {
+      <span class="code-kw">return</span> <span class="code-kw">this</span>.<span class="code-var">props</span>.<span class="code-var">fallback</span> ?? &lt;<span class="code-var">FallbackUI</span> /&gt;;
+    }
+    <span class="code-kw">return</span> <span class="code-kw">this</span>.<span class="code-var">props</span>.<span class="code-var">children</span>;
+  }
+}</pre>
+    </div>
+
+    <h3>Step three: measure Core Web Vitals from the field</h3>
+    <p>The <code>web-vitals</code> npm package from Google makes this trivially easy. You install it, call four functions, and you have real field data for every metric that matters to your ranking and your users.</p>
+
+    <div class="code-block">
+      <div class="code-label">vitals.ts</div>
+      <pre><span class="code-kw">import</span> { <span class="code-fn">onCLS</span>, <span class="code-fn">onINP</span>, <span class="code-fn">onLCP</span>, <span class="code-fn">onFCP</span>, <span class="code-fn">onTTFB</span> } <span class="code-kw">from</span> <span class="code-str">'web-vitals'</span>;
+
+<span class="code-kw">const</span> <span class="code-fn">sendToAnalytics</span> = (<span class="code-var">metric</span>) <span class="code-kw">=></span> {
+  <span class="code-fn">fetch</span>(<span class="code-str">'/api/vitals'</span>, {
+    <span class="code-var">method</span>: <span class="code-str">'POST'</span>,
+    <span class="code-var">body</span>: <span class="code-fn">JSON.stringify</span>({
+      <span class="code-var">name</span>:  <span class="code-var">metric</span>.<span class="code-var">name</span>,
+      <span class="code-var">value</span>: <span class="code-var">metric</span>.<span class="code-var">value</span>,
+      <span class="code-var">rating</span>: <span class="code-var">metric</span>.<span class="code-var">rating</span>, <span class="code-cmt">// 'good' | 'needs-improvement' | 'poor'</span>
+      <span class="code-var">url</span>: <span class="code-var">location</span>.<span class="code-var">href</span>,
+      <span class="code-var">deviceType</span>: <span class="code-fn">getDeviceClass</span>(),
+    }),
+    <span class="code-var">keepalive</span>: <span class="code-kw">true</span>,
+  });
+};
+
+<span class="code-fn">onCLS</span>(<span class="code-var">sendToAnalytics</span>);
+<span class="code-fn">onINP</span>(<span class="code-var">sendToAnalytics</span>);
+<span class="code-fn">onLCP</span>(<span class="code-var">sendToAnalytics</span>);
+<span class="code-fn">onFCP</span>(<span class="code-var">sendToAnalytics</span>);
+<span class="code-fn">onTTFB</span>(<span class="code-var">sendToAnalytics</span>);</pre>
+    </div>
+
+    <p>That <code>keepalive: true</code> is important. Users navigate away from pages, and a normal fetch will get cancelled when they do. <code>keepalive</code> tells the browser to finish the request even if the page is already closing.</p>
+  </section>
+
+  <!-- 07. WHAT TO ACTUALLY ALERT ON -->
+  <section>
+    <div class="section-num">07 · Alerting</div>
+    <h2>What to Actually Alert On (And What Not To)</h2>
+    <p>One of the failure modes I see when teams first set up frontend error tracking is alert fatigue. They turn on Sentry, get a thousand errors on day one, set up email notifications for each one, and within a week everyone has started ignoring the notifications. This is not an observability win. It is noise generation.</p>
+    <p>The goal is not to know about every JavaScript error. The goal is to know about errors that are actually impacting users, to detect regressions quickly after deploys, and to have a meaningful signal you can act on.</p>
+
+    <h3>Alert on new error types, not all errors</h3>
+    <p>A good error tracking tool will group errors by fingerprint and tell you when a new error type appears for the first time. That deserves an alert. An error that has been happening at a steady rate for six months does not need to page anyone at 2am. It needs to be on the backlog.</p>
+
+    <h3>Alert on error rate spikes post-deploy</h3>
+    <p>Compare your JavaScript error rate in the 30 minutes after a deployment to the baseline from the previous period. A spike is a regression. This single alert catches the majority of bugs introduced by new code, and it catches them before support tickets start arriving.</p>
+
+    <h3>Alert on Core Web Vitals crossing thresholds</h3>
+    <p>Google's recommended thresholds are well-established: LCP under 2.5 seconds, CLS under 0.1, INP under 200ms. Set up weekly or daily aggregations and alert if your p75 field data starts crossing into "needs improvement" territory. Do not alert on individual data points, because there is too much natural variance.</p>
+
+    <div class="highlight-box">
+      <strong>The Rule of 1%</strong>
+      If an error is affecting more than 1% of your sessions, it deserves immediate attention regardless of how it looks in the backend. If it is under 0.1%, log it, track it, but do not break anyone's flow to fix it today. Between those two numbers, use your judgment about the severity of the user impact.
+    </div>
+
+    <h3>Do not alert on everything from bots and crawlers</h3>
+    <p>A significant fraction of JavaScript errors in production come from bots, search engine crawlers, and browser extensions injecting code into your pages. Before you set up alerting, spend time filtering these out. Check the user agent string, filter out sessions with impossibly fast interaction rates, and exclude known crawler IPs. Otherwise you will spend a lot of time debugging errors that no real human ever experienced.</p>
+  </section>
+
+  <!-- 08. THE OWNERSHIP SOLUTION -->
+  <section>
+    <div class="section-num">08 · Ownership</div>
+    <h2>Solving the Ownership Problem Structurally</h2>
+    <p>Tooling without ownership does not work. You can have the best Datadog RUM setup in the world, and if nobody has a clear responsibility for looking at it and acting on what it shows, it will slowly become shelfware. The organisational fix matters as much as the technical one.</p>
+
+    <h3>Put frontend metrics in the same dashboard as backend metrics</h3>
+    <p>This sounds small but it makes a huge difference. If your engineering team's shared operations dashboard shows backend error rates, database latency, and queue depths but does not show JavaScript error rate, LCP p75, and session crash rate, then frontend health is not treated as a first-class operational concern. Put it in the same view. Make it part of the same on-call runbook. The moment leadership and backend engineers start seeing frontend metrics alongside their own, the culture shifts.</p>
+
+    <h3>Make frontend observability part of the definition of done</h3>
+    <p>For any feature that goes to production, the pull request should not be mergeable without a clear answer to: what error boundary covers this component? What custom events are we emitting to track user interaction? What do we do if the third-party SDK this feature depends on goes down? This is not extra overhead. It is the same kind of thinking we already apply to backend features when we talk about retry logic, circuit breakers, and fallback strategies.</p>
+
+    <h3>Rotate frontend observability into on-call</h3>
+    <p>If your on-call rotation only pages people for backend incidents, your implicit message is that frontend failures are not incidents. Consider adding a weekly or monthly frontend health review to your incident management process, and treat JavaScript error rate spikes with the same urgency as API error rate spikes. The business impact is often the same or worse, because broken frontend code directly touches the user experience in a way that a degraded internal microservice often does not.</p>
+
+    <div class="pull-quote">
+      <p>"Observability is not about having data. It is about having data that changes what you do. If your frontend metrics are not influencing your sprint priorities, your on-call decisions, and your architecture choices, they are not really observability. They are just logging."</p>
+    </div>
+  </section>
+
+  <!-- 09. COMMON MISTAKES -->
+  <section>
+    <div class="section-num">09 · Common Mistakes</div>
+    <h2>Mistakes Teams Make After Getting This Set Up</h2>
+    <p>Setting up frontend observability is genuinely not that hard. The harder part is not making the mistakes that quietly undermine it after you have done the initial work.</p>
+
+    <h3>Not setting up source maps</h3>
+    <p>If you deploy minified JavaScript without uploading source maps to your error tracking tool, every stack trace you see will be completely useless. You will see something like <code>TypeError at bundle.min.js:1:48392</code> and have no idea which component or function caused it. Source map upload should be a required step in your deployment pipeline, not an optional thing you plan to do later.</p>
+
+    <h3>Tracking too many custom events</h3>
+    <p>There is a temptation, once you have event tracking set up, to instrument everything. Every button click, every form field focus, every modal open and close. This creates massive event volumes, significant cost on per-event pricing models, and dashboards that are impossible to make sense of. Be selective. Track the events that correspond to meaningful user actions, key funnel steps, and feature adoption signals. You can always add more, but cleaning up a bloated event schema is painful.</p>
+
+    <h3>Ignoring mobile and low-end devices</h3>
+    <p>Your developers have MacBook Pros with 32GB RAM and fast Wi-Fi. Your users in Tier-2 and Tier-3 cities often use mid-range Android phones on 4G connections that drop out in lifts and metro tunnels. The performance characteristics of these two environments are so different that what feels "fast enough" in development can be genuinely painful in the field. Segment your RUM data by device class from day one, and set up separate alerting thresholds for low-end devices.</p>
+
+    <h3>Not correlating frontend errors with business outcomes</h3>
+    <p>The most powerful thing you can do with frontend observability data is connect it to business metrics. What is the checkout completion rate for sessions that experienced at least one JavaScript error? How does cart abandonment rate correlate with LCP scores above 4 seconds? These correlations exist, they are usually striking, and they are the most effective way to make the business case for investing more in frontend quality. If you are not building these connections, you are leaving your most persuasive argument on the table.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">83%</div>
+        <div class="stat-label">Teams Without<br/>Source Maps Configured</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">2s</div>
+        <div class="stat-label">LCP Threshold Where<br/>Conversions Start Dropping</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4x</div>
+        <div class="stat-label">Faster Bug Detection<br/>With Frontend RUM</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1 in 4</div>
+        <div class="stat-label">Production JS Errors<br/>Affecting Conversions</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. CONCLUSION -->
+  <section>
+    <div class="section-num">10 · Where to Start</div>
+    <h2>The Honest Starting Point</h2>
+    <p>If you are reading this and your team has essentially nothing in place, do not try to implement everything at once. Start with one thing, do it properly, and build from there.</p>
+
+    <ol class="styled">
+      <li><span><strong>Week 1 · Error tracking only.</strong> Get Sentry or Datadog browser errors set up, configure source maps, suppress bot traffic, and set up an alert for new error type spikes. That alone will surface problems you did not know existed.</span></li>
+      <li><span><strong>Week 2 to 3 · Core Web Vitals measurement.</strong> Add the web-vitals library, start shipping field data to your analytics backend or directly to a monitoring tool. Segment by page, device class, and geography. You will be surprised where the problems are.</span></li>
+      <li><span><strong>Week 4 · Session replay for critical flows.</strong> Add session replay to your checkout, signup, or whatever your highest-stakes user flow is. Do not enable it everywhere at first. The ROI is highest where user problems are most costly.</span></li>
+      <li><span><strong>Month 2 · Connect to business metrics.</strong> Start correlating your frontend health data with conversion, retention, and engagement. Build the dashboard that shows the relationship between JavaScript error rate and checkout completion. Share it with product and leadership.</span></li>
+      <li><span><strong>Month 3 and beyond · Distributed tracing.</strong> If your team is ready, add the OpenTelemetry browser SDK and start stitching together full user request traces from click to response and back. This is where frontend observability truly becomes a first-class engineering practice.</span></li>
+    </ol>
+
+    <p>The thing I keep coming back to is that we have spent years getting very good at knowing what our infrastructure is doing. We should spend the same energy getting equally good at knowing what our users are experiencing. These are not separate concerns that belong to different teams. They are two sides of the same question: is the thing we built actually working?</p>
+    <p>Your backend being healthy is a necessary condition, but it has never been a sufficient one. The user's browser is part of your system. It is time we started treating it that way.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Tools Mentioned in This Article</div>
+      <p><span class="tag">Sentry</span> <span class="tag">Datadog RUM</span> <span class="tag">LogRocket</span> <span class="tag">FullStory</span> <span class="tag">PostHog</span> <span class="tag">SpeedCurve</span> <span class="tag">OpenTelemetry</span> <span class="tag">web-vitals</span> <span class="tag">New Relic Browser</span> <span class="tag">Elastic RUM</span></p>
+      <p style="margin-top:14px;">None of these are sponsored or affiliated. I have used most of them across different projects and have opinions about all of them. The right tool depends on your existing stack, your team size, and how much you want to manage yourself versus pay someone to manage for you. The web-vitals library from Google is free and open source and is the single best starting point if you want to begin measuring what matters with minimal setup cost.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    Opinions expressed here are my own and based on experience across multiple production frontend systems. Statistics cited are drawn from publicly available industry research including reports from Sentry, Google's Web Vitals team, and the HTTP Archive. Your numbers will vary. The only way to know your actual numbers is to start measuring them.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>

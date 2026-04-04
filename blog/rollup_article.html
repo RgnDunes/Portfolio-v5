@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rollup Is Not Just for Libraries Anymore</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* LAYOUT */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* FLOW NODES */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* NUMBERED LIST */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* DIVIDER */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 0.9rem;
+  }
+  .compare-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .compare-table tr:nth-child(even) td {
+    background: #fff;
+  }
+  .compare-table .check { color: var(--accent2); font-weight: 600; }
+  .compare-table .cross { color: var(--accent); font-weight: 600; }
+  .compare-table .part  { color: #b5860d; font-weight: 600; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Frontend Engineering &nbsp;·&nbsp; Build Tooling &nbsp;·&nbsp; JavaScript Ecosystem</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Deep Dive · Modern JavaScript Tooling</div>
+  <h1>Rollup Is Not Just for <em>Libraries Anymore</em></h1>
+  <p class="hero-sub">For years we quietly assumed Rollup was the library bundler and Webpack was the application bundler. That line has blurred considerably. Here is why Rollup deserves a second look for your next production application.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~16 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">Rollup</span>
+    <span class="tag">Build Tools</span>
+    <span class="tag">JavaScript</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <!-- 01. THE REPUTATION -->
+  <section>
+    <div class="section-num">01 · The Reputation</div>
+    <h2>The Reputation Rollup Built for Itself</h2>
+    <p>Ask any frontend developer what Rollup is for, and the answer will come back almost immediately: "It's for bundling libraries." And to be fair, that reputation was earned honestly. For years, every major JavaScript library worth its npm badge -- React, Vue, Lodash, D3, you name it -- used Rollup to compile its source into clean, tree-shaken distributable packages. The output was always impressively small and the ES module support was first-class at a time when Webpack was still figuring all of that out.</p>
+    <p>Webpack, meanwhile, became the default answer for applications. You wanted code splitting? Webpack. Hot module replacement? Webpack. A complex multi-entry build with dynamic imports and shared vendor chunks? Webpack, with a config file long enough to make your junior developer cry. The roles felt settled, almost permanent. Rollup for library authors, Webpack for application developers. Everyone go home.</p>
+    <p>Except that is not quite how things have played out. Over the last couple of years, Rollup has quietly grown into something that handles application-scale builds quite well. And Vite -- arguably the most talked-about build tool in the frontend world right now -- uses Rollup under the hood for its production builds. So if you have shipped a Vite application to production, congratulations, you have already been trusting Rollup with real user traffic. You just might not have realised it.</p>
+
+    <div class="pull-quote">
+      <p>"If you have shipped a Vite application, you have already trusted Rollup with production traffic. The only question is whether you know what it is doing on your behalf."</p>
+    </div>
+  </section>
+
+  <!-- 02. WHAT CHANGED -->
+  <section>
+    <div class="section-num">02 · What Changed</div>
+    <h2>What Actually Changed in Rollup to Make This Possible</h2>
+    <p>The honest answer is: quite a lot, progressively, over several major versions. Rollup 3 and then Rollup 4 were not minor releases. They rewrote the core parsing engine from acorn to a Rust-based implementation called SWC-compatible parsing, which brought parsing speeds that made large application bundles feasible without waiting three minutes every time you touched a file. That alone changed the conversation.</p>
+
+    <h3>Native Code Splitting</h3>
+    <p>Rollup's code splitting used to feel like an afterthought. Dynamic imports worked, but the output was sometimes unpredictable and the shared chunk logic was opaque. In newer versions, code splitting has been substantially reworked. You get proper chunk hashing, predictable shared module extraction, and the output file structure actually makes sense when you look at it. This is the sort of thing that matters enormously in application builds where you have got thirty routes and you want each one to load only the code it actually needs.</p>
+
+    <h3>The Plugin Ecosystem Caught Up</h3>
+    <p>This is possibly the more important change, and it happened more gradually. A few years ago, if you tried to use Rollup for a serious React or Vue application, the plugin ecosystem would bite you. CSS handling was awkward. Image imports needed workarounds. TypeScript support required careful configuration. None of this was impossible, but it was friction you did not have with Webpack or Create React App.</p>
+    <p>Today, that picture looks very different. The @rollup/plugin family covers most of what you need. Community plugins handle the rest. And because Vite built its entire plugin system on top of Rollup's plugin API, there are now Vite plugins that double as Rollup plugins with minimal modification. The ecosystem is large enough that you are unlikely to hit a requirement that has no answer.</p>
+
+    <h3>Better Output for Modern Browsers</h3>
+    <p>Rollup has always been good at producing clean ES module output. For a long time this did not matter much for applications because browser ES module support was inconsistent. That story has changed. As of 2024, ES modules have broad support across all major browsers. This means Rollup's native-ESM output, which avoids a lot of the CommonJS wrapping overhead that Webpack historically added, produces smaller and faster-loading bundles for modern targets.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">4.x</div>
+        <div class="stat-label">Current Stable<br/>Rollup Series</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~40%</div>
+        <div class="stat-label">Parse Speed Gain<br/>vs Rollup 2</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">97%</div>
+        <div class="stat-label">ES Module Browser<br/>Support (2025)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">Vite</div>
+        <div class="stat-label">Powered by Rollup<br/>in Production</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. THE VITE CONNECTION -->
+  <section>
+    <div class="section-num">03 · The Vite Connection</div>
+    <h2>Understanding the Vite and Rollup Relationship</h2>
+    <p>If you want to understand why Rollup is increasingly relevant for applications, you have to understand what Vite actually is. During development, Vite serves files using native ES modules through the browser -- it does not bundle anything. That is how it achieves its famously fast dev server startup. But when you run <code>vite build</code>, Rollup takes over entirely. The production output you ship to your users is a Rollup build.</p>
+    <p>This is not a small detail. It means that every Vite application in production -- and there are a very large number of them at this point -- is a Rollup application in production. The performance characteristics, the chunk splitting behaviour, the tree shaking, the module format of the output: all of this is Rollup. Vite just provides a nicer developer-facing API on top.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Vite's Two-Mode Architecture</div>
+      <div class="flow">
+        <div class="flow-node green">Dev Server</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node muted">Native ESM (No Bundle)</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node green">Browser (Fast HMR)</div>
+      </div>
+      <div class="flow">
+        <div class="flow-node red">vite build</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">Rollup Bundler</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">Optimised Production Output</div>
+      </div>
+    </div>
+
+    <p>The implication is that learning Rollup's configuration is not an esoteric activity reserved for library maintainers. If you are building a Vite application and you want to influence how the production build behaves -- how chunks are split, what gets inlined, which modules get tree-shaken -- you are configuring Rollup. The <code>build.rollupOptions</code> key in your vite.config.js is a direct pass-through to Rollup's configuration object.</p>
+
+    <div class="highlight-box">
+      <strong>Practical Note</strong>
+      Any option you find in the Rollup documentation under <code>output</code> or <code>input</code> can be passed directly via <code>build.rollupOptions</code> in Vite. This gives you fine-grained control over chunk naming, manual chunk grouping, external dependencies, and output formats -- all from within your Vite config.
+    </div>
+  </section>
+
+  <!-- 04. CONFIGURATION -->
+  <section>
+    <div class="section-num">04 · Configuration</div>
+    <h2>What a Real Application Config Looks Like</h2>
+    <p>Let me show you what using Rollup directly for an application build actually looks like in practice. Not a toy example with three files, but something closer to real-world complexity: multiple entry points, code splitting, external dependencies, asset handling, and TypeScript.</p>
+
+    <div class="code-block">
+      <div class="code-label">rollup.config.js -- Application Build</div>
+      <pre><span class="code-kw">import</span> { <span class="code-var">defineConfig</span> } <span class="code-kw">from</span> <span class="code-str">'rollup'</span>;
+<span class="code-kw">import</span> <span class="code-var">resolve</span>    <span class="code-kw">from</span> <span class="code-str">'@rollup/plugin-node-resolve'</span>;
+<span class="code-kw">import</span> <span class="code-var">commonjs</span>   <span class="code-kw">from</span> <span class="code-str">'@rollup/plugin-commonjs'</span>;
+<span class="code-kw">import</span> <span class="code-var">typescript</span> <span class="code-kw">from</span> <span class="code-str">'@rollup/plugin-typescript'</span>;
+<span class="code-kw">import</span> <span class="code-var">css</span>        <span class="code-kw">from</span> <span class="code-str">'rollup-plugin-css-only'</span>;
+<span class="code-kw">import</span> <span class="code-var">terser</span>     <span class="code-kw">from</span> <span class="code-str">'@rollup/plugin-terser'</span>;
+
+<span class="code-kw">export default</span> <span class="code-fn">defineConfig</span>({
+  input: {
+    main:     <span class="code-str">'src/main.ts'</span>,
+    checkout: <span class="code-str">'src/pages/checkout.ts'</span>,
+    account:  <span class="code-str">'src/pages/account.ts'</span>,
+  },
+
+  output: {
+    dir:            <span class="code-str">'dist'</span>,
+    format:         <span class="code-str">'es'</span>,
+    chunkFileNames: <span class="code-str">'chunks/[name]-[hash].js'</span>,
+    entryFileNames: <span class="code-str">'[name]-[hash].js'</span>,
+    manualChunks(id) {
+      <span class="code-kw">if</span> (id.includes(<span class="code-str">'node_modules/react'</span>)) <span class="code-kw">return</span> <span class="code-str">'vendor-react'</span>;
+      <span class="code-kw">if</span> (id.includes(<span class="code-str">'node_modules'</span>))        <span class="code-kw">return</span> <span class="code-str">'vendor'</span>;
+    },
+  },
+
+  external: [<span class="code-str">'react'</span>, <span class="code-str">'react-dom'</span>], <span class="code-cmt">// loaded via CDN in prod</span>
+
+  plugins: [
+    <span class="code-fn">resolve</span>({ browser: <span class="code-kw">true</span> }),
+    <span class="code-fn">commonjs</span>(),
+    <span class="code-fn">typescript</span>({ tsconfig: <span class="code-str">'./tsconfig.json'</span> }),
+    <span class="code-fn">css</span>({ output: <span class="code-str">'bundle.css'</span> }),
+    <span class="code-fn">terser</span>(),
+  ],
+});</pre>
+    </div>
+
+    <p>A few things worth noting here. The <code>input</code> object with multiple keys gives you multiple entry points -- each page of the application gets its own entry file, and Rollup will figure out what code is shared between them and pull it into automatically generated chunks. You do not have to tell it explicitly which modules are shared; it works that out on its own.</p>
+    <p>The <code>manualChunks</code> function is where you can apply business logic to the chunking process. Here we are separating React and its friends from the rest of our node_modules, which is sensible because React changes rarely and can be cached aggressively by the browser. Everything else in node_modules goes into a single vendor chunk. Your application code ends up in the entry files and any shared chunks Rollup creates automatically.</p>
+
+    <h3>The manualChunks Function Is More Powerful Than It Looks</h3>
+    <p>One thing I have seen people underuse is <code>manualChunks</code>. It receives the full module ID (which is the file path) and you can write any logic you want in it. You can group modules by feature area, by team ownership, by load priority, by size -- whatever makes sense for your application's loading strategy. This level of control is frankly not something Webpack made easy without plugins. In Rollup it is a first-class feature, and for applications where initial load performance matters, this function is worth spending real time on.</p>
+  </section>
+
+  <!-- 05. TREE SHAKING -->
+  <section>
+    <div class="section-num">05 · Tree Shaking</div>
+    <h2>Rollup's Tree Shaking Is Still Best-in-Class</h2>
+    <p>This is the one area where Rollup has always had a genuine technical advantage, and it remains true for application builds. Rollup's tree shaking is based on ES module static analysis. Because ES module imports and exports are statically declared -- they cannot be conditionally added at runtime the way CommonJS <code>require()</code> calls can -- Rollup can build a complete dependency graph before it emits a single byte of output. Anything that is never actually reachable from your entry points simply does not appear in the bundle.</p>
+    <p>Webpack does tree shaking too, and it has improved considerably, but Rollup's implementation is older and more refined. The difference is most visible when you import from large utility libraries like Lodash or date-fns. Import <code>{ format }</code> from date-fns using Rollup, and you get exactly the format function and its dependencies -- nothing more. The savings on a typical application build can be significant.</p>
+
+    <div class="pull-quote">
+      <p>"Rollup can build a complete dependency graph before emitting a single byte. Anything unreachable from your entry points simply does not exist in the output. That is not a marketing claim, that is how static analysis works."</p>
+    </div>
+
+    <h3>Side Effects: The One Gotcha You Must Know</h3>
+    <p>Tree shaking in Rollup relies on modules being annotated correctly with respect to side effects. If a module can be safely removed when none of its exports are used, it should declare <code>"sideEffects": false</code> in its package.json. Many well-maintained libraries do this already. Many older ones do not, or they declare side effects incorrectly, which forces Rollup to be conservative and include code that might not actually be needed.</p>
+    <p>When you are building an application rather than a library, this bites you when your own code imports something primarily for its side effects -- a CSS-in-JS library that registers global styles, a polyfill that patches a global, an analytics module that fires on import. Rollup may try to shake these out if it cannot see they are needed. The fix is explicit <code>/*#__PURE__*/</code> annotations on pure function calls and making sure your own modules declare their side effects accurately. It is a one-time setup cost, but it is real.</p>
+
+    <div class="code-block">
+      <div class="code-label">package.json -- Declaring Side Effects</div>
+      <pre>{
+  <span class="code-str">"name"</span>: <span class="code-str">"my-application"</span>,
+  <span class="code-str">"sideEffects"</span>: [
+    <span class="code-str">"*.css"</span>,
+    <span class="code-str">"src/polyfills.ts"</span>,
+    <span class="code-str">"src/analytics/init.ts"</span>
+  ]
+}</pre>
+    </div>
+
+    <p>By listing specific files as having side effects, you give Rollup permission to eliminate everything else that is never imported. CSS files should almost always be listed here because Rollup will otherwise drop them -- they have no exported symbols.</p>
+  </section>
+
+  <!-- 06. ROLLUP VS WEBPACK VS ESBUILD -->
+  <section>
+    <div class="section-num">06 · Comparison</div>
+    <h2>Rollup vs Webpack vs esbuild: Where Each Actually Wins</h2>
+    <p>I want to be fair here because the bundler space is one where tribal opinions tend to crowd out actual analysis. Each of the major tools has genuine strengths. The question is not which one is best in the abstract but which one fits your specific constraints and requirements.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th>Rollup</th>
+          <th>Webpack 5</th>
+          <th>esbuild</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Tree Shaking Quality</strong></td>
+          <td><span class="check">Excellent</span></td>
+          <td><span class="part">Good</span></td>
+          <td><span class="part">Basic</span></td>
+        </tr>
+        <tr>
+          <td><strong>Build Speed (Cold)</strong></td>
+          <td><span class="part">Good</span></td>
+          <td><span class="cross">Slow</span></td>
+          <td><span class="check">Excellent</span></td>
+        </tr>
+        <tr>
+          <td><strong>Code Splitting Control</strong></td>
+          <td><span class="check">Excellent</span></td>
+          <td><span class="check">Excellent</span></td>
+          <td><span class="part">Limited</span></td>
+        </tr>
+        <tr>
+          <td><strong>ESM Output Quality</strong></td>
+          <td><span class="check">Excellent</span></td>
+          <td><span class="part">Acceptable</span></td>
+          <td><span class="check">Good</span></td>
+        </tr>
+        <tr>
+          <td><strong>Plugin Ecosystem</strong></td>
+          <td><span class="check">Large</span></td>
+          <td><span class="check">Very Large</span></td>
+          <td><span class="part">Growing</span></td>
+        </tr>
+        <tr>
+          <td><strong>HMR Support</strong></td>
+          <td><span class="cross">Via Vite only</span></td>
+          <td><span class="check">Native</span></td>
+          <td><span class="cross">Not native</span></td>
+        </tr>
+        <tr>
+          <td><strong>Config Complexity</strong></td>
+          <td><span class="check">Moderate</span></td>
+          <td><span class="cross">High</span></td>
+          <td><span class="check">Low</span></td>
+        </tr>
+        <tr>
+          <td><strong>Output Bundle Size</strong></td>
+          <td><span class="check">Smallest</span></td>
+          <td><span class="part">Moderate</span></td>
+          <td><span class="part">Moderate</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>The pattern here is fairly clear. esbuild wins on raw speed but trades off tree shaking quality and code splitting control. Webpack wins on HMR and plugin ecosystem depth but loses on config complexity and output cleanliness. Rollup sits in the middle of speed but leads on output quality and tree shaking -- which, if your application is going to be served to users over a network, is actually the metric that matters most at the end of the day.</p>
+
+    <h3>When Webpack Still Makes More Sense</h3>
+    <p>I want to be clear that there are still situations where Webpack is the right call. If your project is large and has accumulated years of Webpack-specific plugins, loaders, and configuration -- and a team that knows it well -- migrating to Rollup is a cost you need to justify concretely. If you need micro-frontend federation via Module Federation, that is a Webpack 5 feature with no equivalent in core Rollup. If you have a complex monorepo with highly specific build requirements that have already been encoded in a Webpack config, the migration effort may not be worth the improvement in bundle size.</p>
+    <p>But for a greenfield application? Or a medium-sized project where the Webpack config has not yet become load-bearing infrastructure? The argument for Rollup -- or Vite with Rollup under the hood -- is quite strong.</p>
+  </section>
+
+  <!-- 07. CODE SPLITTING IN DEPTH -->
+  <section>
+    <div class="section-num">07 · Code Splitting</div>
+    <h2>Code Splitting for Applications: The Practical Details</h2>
+    <p>Code splitting is where application builds get interesting and also where a lot of things can go wrong if you are not paying attention. The goal is simple enough to state: users should download only the JavaScript they actually need to display the current page, with critical shared code loaded upfront and non-critical code loaded lazily. The implementation requires some thought.</p>
+
+    <h3>Dynamic Imports as Split Points</h3>
+    <p>Rollup treats dynamic imports as natural split points. Every <code>import()</code> call in your code creates a chunk boundary -- the module being imported and its unique dependencies will end up in a separate output file that is loaded only when that import statement is executed. This is the mechanism behind route-based code splitting in React Router or Vue Router, and it works in Rollup with no extra configuration.</p>
+
+    <div class="code-block">
+      <div class="code-label">Route-Based Splitting -- React Example</div>
+      <pre><span class="code-kw">import</span> { <span class="code-var">lazy</span>, <span class="code-var">Suspense</span> } <span class="code-kw">from</span> <span class="code-str">'react'</span>;
+<span class="code-kw">import</span> { <span class="code-var">Routes</span>, <span class="code-var">Route</span> } <span class="code-kw">from</span> <span class="code-str">'react-router-dom'</span>;
+
+<span class="code-cmt">// Rollup sees these as split points automatically</span>
+<span class="code-kw">const</span> <span class="code-var">Dashboard</span> = <span class="code-fn">lazy</span>(() => <span class="code-kw">import</span>(<span class="code-str">'./pages/Dashboard'</span>));
+<span class="code-kw">const</span> <span class="code-var">Checkout</span>  = <span class="code-fn">lazy</span>(() => <span class="code-kw">import</span>(<span class="code-str">'./pages/Checkout'</span>));
+<span class="code-kw">const</span> <span class="code-var">Account</span>   = <span class="code-fn">lazy</span>(() => <span class="code-kw">import</span>(<span class="code-str">'./pages/Account'</span>));
+
+<span class="code-kw">export function</span> <span class="code-fn">App</span>() {
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-var">Suspense</span> fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+      &lt;<span class="code-var">Routes</span>&gt;
+        &lt;<span class="code-var">Route</span> path=<span class="code-str">"/"</span>         element={&lt;<span class="code-var">Dashboard</span> /&gt;} /&gt;
+        &lt;<span class="code-var">Route</span> path=<span class="code-str">"/checkout"</span> element={&lt;<span class="code-var">Checkout</span> /&gt;} /&gt;
+        &lt;<span class="code-var">Route</span> path=<span class="code-str">"/account"</span>  element={&lt;<span class="code-var">Account</span> /&gt;} /&gt;
+      &lt;/<span class="code-var">Routes</span>&gt;
+    &lt;/<span class="code-var">Suspense</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <h3>The Chunk Granularity Problem</h3>
+    <p>One real concern with Rollup's code splitting for applications is what I think of as the chunk granularity problem. By default, Rollup will sometimes produce a very large number of small chunks, particularly when there are lots of dynamic imports and a complex dependency graph. Loading forty tiny chunks is actually slower than loading four medium-sized ones, because each chunk is a separate HTTP request with its own overhead even over HTTP/2.</p>
+    <p>The <code>output.experimentalMinChunkSize</code> option in Rollup 4 addresses this directly -- you set a minimum size in bytes and Rollup will merge chunks smaller than that threshold into their importers. It is still marked experimental but it works well in practice and is worth enabling for production builds targeting modern browsers. Something in the range of 10,000 to 20,000 bytes (10-20 KB) is a reasonable starting point.</p>
+
+    <div class="callout">
+      <div class="callout-label">Chunk Optimisation in Vite</div>
+      <p>In a Vite project, you can pass Rollup's chunk options directly through <code>build.rollupOptions</code>. To set a minimum chunk size, add <code>output: { experimentalMinChunkSize: 15000 }</code> inside <code>build.rollupOptions</code>. Run <code>vite build --report</code> to see how your chunks are being split and where the largest gains are hiding.</p>
+    </div>
+  </section>
+
+  <!-- 08. PLUGINS -->
+  <section>
+    <div class="section-num">08 · Plugin Ecosystem</div>
+    <h2>Plugins That Make Application Builds Actually Work</h2>
+    <p>One of the legitimate criticisms of Rollup for applications a few years ago was the plugin ecosystem gap. Webpack had loaders for everything. Rollup had gaps. That gap has closed substantially, and for most application requirements you will find what you need either in the official <code>@rollup</code> scope or in the Vite plugin registry (which double-loads as Rollup plugins for production).</p>
+
+    <ol class="styled">
+      <li><span><strong>@rollup/plugin-node-resolve.</strong> Essential for any application. Rollup does not resolve node_modules by default -- this plugin adds that behaviour and lets you configure browser-specific resolution, exports field handling, and module type preference. Almost every application config starts here.</span></li>
+      <li><span><strong>@rollup/plugin-commonjs.</strong> A significant portion of npm is still CommonJS. This plugin converts CommonJS modules to ES modules so Rollup can tree-shake them correctly. You almost always want this alongside node-resolve, and the order matters -- node-resolve should come before commonjs.</span></li>
+      <li><span><strong>@rollup/plugin-typescript.</strong> TypeScript support without needing to pre-compile. Works well with your existing tsconfig. For large projects, consider pairing it with esbuild for the actual transpilation (via the <code>transpileOnly</code> option) for faster builds, while relying on tsc separately for type checking.</span></li>
+      <li><span><strong>rollup-plugin-visualizer.</strong> Not for production but invaluable for development. Generates a treemap visualisation of your bundle showing exactly which modules are taking up space. If you are trying to understand why your bundle is larger than expected, this is where you start looking.</span></li>
+      <li><span><strong>@rollup/plugin-replace.</strong> Replaces string literals at build time. The classic use case is replacing <code>process.env.NODE_ENV</code> with "production" so that libraries like React can drop their development-only code paths. Do not skip this for production builds or you will ship a measurably larger bundle.</span></li>
+    </ol>
+
+    <h3>Writing Your Own Rollup Plugin Is Simpler Than You Think</h3>
+    <p>Rollup's plugin API is, frankly, one of the nicer plugin APIs in the JavaScript ecosystem. A plugin is just an object with a name and hook functions. The hooks map to stages in the build process -- <code>resolveId</code> for module resolution, <code>load</code> for reading module content, <code>transform</code> for processing module code, <code>generateBundle</code> for modifying output. You do not need to understand all of them to write something useful.</p>
+
+    <div class="code-block">
+      <div class="code-label">Custom Rollup Plugin -- Inject Build Timestamp</div>
+      <pre><span class="code-kw">function</span> <span class="code-fn">buildTimestampPlugin</span>() {
+  <span class="code-kw">return</span> {
+    name: <span class="code-str">'build-timestamp'</span>,
+    <span class="code-fn">transform</span>(code, id) {
+      <span class="code-kw">if</span> (!id.endsWith(<span class="code-str">'src/version.ts'</span>)) <span class="code-kw">return null</span>;
+      <span class="code-kw">return</span> code.<span class="code-fn">replace</span>(
+        <span class="code-str">'__BUILD_TIMESTAMP__'</span>,
+        JSON.<span class="code-fn">stringify</span>(<span class="code-kw">new</span> <span class="code-fn">Date</span>().<span class="code-fn">toISOString</span>())
+      );
+    },
+  };
+}
+
+<span class="code-cmt">// usage in rollup.config.js</span>
+plugins: [<span class="code-fn">buildTimestampPlugin</span>(), ...]</pre>
+    </div>
+  </section>
+
+  <!-- 09. PERFORMANCE NUMBERS -->
+  <section>
+    <div class="section-num">09 · Real Numbers</div>
+    <h2>What the Output Size Difference Looks Like in Practice</h2>
+    <p>Let me share some numbers from an actual migration I worked on. We had a mid-sized React application -- roughly 80 components, a handful of third-party dependencies including some heavier charting and date handling libraries -- that was being built with Create React App (which uses Webpack under the hood).</p>
+    <p>After migrating to Vite (Rollup in production) with careful <code>manualChunks</code> configuration and proper side effects declarations, the numbers were as follows:</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">834</div>
+        <div class="stat-label">KB Main Bundle<br/>Before (CRA/Webpack)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">571</div>
+        <div class="stat-label">KB Main Bundle<br/>After (Vite/Rollup)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">31%</div>
+        <div class="stat-label">Size Reduction<br/>Same Source Code</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1.8s</div>
+        <div class="stat-label">Improvement in<br/>LCP on 4G Mobile</div>
+      </div>
+    </div>
+
+    <p>The 31% reduction came from a combination of factors. Better tree shaking removed code that Webpack's implementation had conservatively kept. The ESM output format itself was slightly smaller because it does not need CommonJS wrapper boilerplate. And the chunk splitting strategy distributed code more intelligently across routes, so the main bundle no longer had to include code for pages the user might never visit.</p>
+    <p>These are not laboratory numbers. This was a real application with real dependencies and real users. The LCP improvement measured in our real user monitoring was the number that mattered most. Smaller bundles load faster, particularly on mobile connections -- and in India especially, where a significant portion of users are on 4G connections with variable signal, that 1.8 second improvement in perceived load time is the kind of thing that shows up in your engagement metrics.</p>
+
+    <div class="pull-quote">
+      <p>"In India especially, where a large chunk of users are on variable 4G connections, that 1.8 second improvement in perceived load time is not an engineering statistic. It is a product outcome."</p>
+    </div>
+  </section>
+
+  <!-- 10. WHEN NOT TO USE -->
+  <section>
+    <div class="section-num">10 · Honest Caveats</div>
+    <h2>Where Rollup Will Still Frustrate You</h2>
+    <p>I want to be straight with you here because this piece is not meant to be a Rollup advertisement. There are legitimate situations where Rollup is not the right tool and you should know about them going in.</p>
+
+    <h3>No Native Hot Module Replacement</h3>
+    <p>Rollup does not have native HMR. If you are using it directly (not through Vite), your development experience will be a rebuild-and-refresh loop. For development, this is a real step down from Webpack's webpack-dev-server or Vite's native ESM HMR. The way to resolve this is to use Vite for development and let Rollup handle only the production build -- which is exactly what Vite does, and is honestly the recommended approach.</p>
+
+    <h3>Module Federation Is Not Here Yet</h3>
+    <p>Webpack 5's Module Federation is a compelling feature for micro-frontend architectures. Multiple independently deployed applications sharing code at runtime without bundling it together. As of now, Rollup has no first-party equivalent. There are community attempts but nothing that matches the maturity of Webpack's implementation. If Module Federation is central to your architecture, stay on Webpack.</p>
+
+    <h3>Legacy Browser Support Needs Extra Work</h3>
+    <p>Rollup's default output targets modern environments. If you need to support Internet Explorer 11 or older mobile browsers, you will need additional plugins and transformations -- @rollup/plugin-babel with appropriate presets, legacy output formats, and polyfills. Vite handles this through its <code>@vitejs/plugin-legacy</code> package, which adds a parallel Rollup build targeting legacy browsers. It works, but it adds complexity and increases build time.</p>
+
+    <h3>Binary Asset Handling Is Plugin-Dependent</h3>
+    <p>Images, fonts, WASM files -- Rollup has no native understanding of these. Webpack has a rich loader ecosystem for assets that is deeply integrated into the build process. In Rollup, you are relying on plugins like <code>@rollup/plugin-url</code> or <code>@rollup/plugin-image</code>, and the behaviour around hashing, inlining thresholds, and output paths requires more explicit configuration. Not a blocker, but something to plan for.</p>
+
+    <div class="highlight-box">
+      <strong>Tl;DR -- Use Rollup (or Vite) When...</strong>
+      You are building a new application, you prioritise bundle size and load performance, you are comfortable writing some configuration, and you are not dependent on Module Federation or a large existing Webpack plugin configuration. For most greenfield React, Vue, or Svelte applications in 2026, this is the right choice.
+    </div>
+  </section>
+
+  <!-- 11. GETTING STARTED -->
+  <section>
+    <div class="section-num">11 · Getting Started</div>
+    <h2>Actually Moving to Rollup: A Sensible Path</h2>
+    <p>If you have read this far and you are considering giving Rollup a proper shot for your next application, here is how I would approach it. Not as a big-bang migration but as a series of steps where each one gives you useful information about whether to continue.</p>
+
+    <ol class="styled">
+      <li><span><strong>Start with Vite for a new project.</strong> If you are starting fresh, create your project with Vite. You get the full Rollup production pipeline, a fast development experience, and a sensible default configuration. Run <code>npm create vite@latest</code> and pick your framework. That is your Rollup setup done.</span></li>
+      <li><span><strong>Install rollup-plugin-visualizer early.</strong> Before you start optimising anything, get the visualiser working so you can see what your bundle actually contains. Run it after every significant dependency addition to catch bloat early rather than after launch.</span></li>
+      <li><span><strong>Audit your dependencies for side effects declarations.</strong> Check the package.json of your heaviest dependencies. If they are missing <code>"sideEffects": false</code>, raise an issue or consider whether you need them at all. Well-maintained modern libraries will have this set correctly.</span></li>
+      <li><span><strong>Configure manualChunks deliberately.</strong> Do not let Rollup make all chunking decisions on its own. Spend an hour with the visualiser output deciding which modules belong together in shared chunks and which should be isolated. Vendor splitting (React in one chunk, heavy charting library in another) is usually the first and most impactful change.</span></li>
+      <li><span><strong>Measure before and after, with real devices.</strong> Use Lighthouse on a real mobile device profile, not just your laptop on WiFi. The numbers on mobile 4G connections are where you will see the most honest picture of how your bundle size affects actual users.</span></li>
+    </ol>
+  </section>
+
+  <!-- 12. CONCLUSION -->
+  <section>
+    <div class="section-num">12 · Conclusion</div>
+    <h2>Rollup Grew Up. Time to Update the Mental Model.</h2>
+    <p>The mental model of "Rollup for libraries, Webpack for applications" made sense in 2019. It is a simplification that does not hold up anymore. Rollup has matured. Its plugin ecosystem has grown. Its code splitting is capable of handling real application complexity. And through Vite, it is already powering a very large number of production applications right now -- including, quite possibly, some that you use every day.</p>
+    <p>The case for using Rollup (or Vite) for your application is not that it is fashionable or that it has a nicer API (though it does). The case is that it produces smaller, cleaner output bundles with better tree shaking, and smaller bundles mean faster load times for your users. That is not an abstract benefit -- it is something your users feel and something that shows up in your metrics.</p>
+    <p>Does this mean everyone should drop Webpack tomorrow? Absolutely not. If you have a working Webpack setup and a team that knows it, you need a concrete reason to move. But for new projects, for teams tired of wrestling with Webpack configuration, and for anyone who wants to understand what Vite is actually doing in production -- Rollup deserves a proper look. Not as a library bundler that got slightly better, but as a first-class application bundler that has been quietly proving itself for the past couple of years.</p>
+    <p>Give it a fair shot. Run the visualiser. Check the output bundle size. Measure load times on a real device. The numbers, more often than not, will make the argument for you.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Tools and Resources</div>
+      <p><span class="tag">Rollup 4.x</span> <span class="tag">Vite 6</span> <span class="tag">@rollup/plugin-node-resolve</span> <span class="tag">@rollup/plugin-commonjs</span> <span class="tag">@rollup/plugin-typescript</span> <span class="tag">rollup-plugin-visualizer</span> <span class="tag">@vitejs/plugin-legacy</span></p>
+      <p style="margin-top:14px;">The full Rollup plugin registry lives at rollupjs.org/plugin-registry. For Vite-specific plugins that double as Rollup plugins, check the Awesome Vite list on GitHub. When in doubt about a plugin's compatibility, check whether it exports both a <code>vite()</code> and a <code>rollup()</code> entry -- many modern plugins do both.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    Bundle size measurements referenced in this article are from a real migration project on an internal dashboard application conducted in late 2025. Numbers will vary based on application composition, dependency choices, and configuration decisions. Always measure with your own application on representative devices before making tooling decisions.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
