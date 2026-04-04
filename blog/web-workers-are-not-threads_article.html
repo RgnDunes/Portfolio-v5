@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Web Workers Are Not Threads: What JavaScript Developers Get Wrong About Browser Parallelism</title>
+<meta name="description" content="Web Workers aren't threads. Learn how browser parallelism actually works, from message passing to SharedArrayBuffer, with real code examples." />
+<meta property="og:title" content="Web Workers Are Not Threads: What JavaScript Developers Get Wrong About Browser Parallelism" />
+<meta property="og:description" content="Web Workers aren't threads. Learn how browser parallelism actually works, from message passing to SharedArrayBuffer, with real code examples." />
+<meta property="og:type" content="article" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* ── FLOW NODES ── */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* ── NUMBERED LIST ── */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">JavaScript &nbsp;·&nbsp; Web Workers &nbsp;·&nbsp; Browser Performance</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">JavaScript · Browser Internals</div>
+  <h1>Web Workers Are Not Threads: What JavaScript Developers Get Wrong About <em>Browser Parallelism</em></h1>
+  <p class="hero-sub">Every conference talk tells you Web Workers 'add multithreading to JavaScript.' They're wrong — and the misconception is costing you performance. This article dissects what Web Workers actually are, how they differ from real OS threads, and how to use them without shooting yourself in the foot.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~18 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">JavaScript</span>
+    <span class="tag">Web Workers</span>
+    <span class="tag red">Concurrency</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- ── 01. THE MISCONCEPTION ── -->
+  <section>
+    <div class="section-num">01 · The Misconception</div>
+    <h2>JavaScript Is Single-Threaded — Except When It Isn't</h2>
+    <p>If you've been writing JavaScript for more than a week, someone has told you that 'JavaScript is single-threaded.' It's the first thing we learn, the thing we repeat at interviews, and the mental model we carry into every architectural decision. But it's a half-truth that's doing real damage.</p>
+    <p>JavaScript the <em>language</em> doesn't have an opinion on threading. The ECMAScript specification says nothing about threads, event loops, or concurrency models. What's single-threaded is the <em>execution context</em> — the main thread of a browser tab, the environment in which your DOM exists, your event handlers fire, and your React components render. That's the thing that can only do one thing at a time.</p>
+    <div class="pull-quote">
+      <p>JavaScript isn't single-threaded. Your execution context is. The distinction matters more than you think.</p>
+    </div>
+    <p>The browser itself is wildly multithreaded. Chromium spawns dozens of threads per tab — for compositing, rasterisation, network I/O, audio processing, and garbage collection. V8's garbage collector has run on background threads since 2018. When you call <code>fetch()</code>, the network request isn't blocking your main thread — it's handled by the browser's networking stack on a completely separate thread, and the result is marshalled back into your execution context via the event loop.</p>
+    <p>So when we say 'JavaScript is single-threaded,' what we actually mean is: <em>your code</em> runs on a single thread, and that thread is also responsible for layout, painting, and responding to user input. This is the real problem. It's not that you can't do two things at once — it's that computation and rendering share a single lane, and when one blocks, the other stalls.</p>
+    <div class="callout">
+      <div class="callout-label">Key Insight</div>
+      <p>The 'single-threaded' narrative oversimplifies reality. The browser is heavily multithreaded; what's single-threaded is the JavaScript execution context that shares a thread with DOM rendering. Understanding this distinction is the first step towards making informed decisions about Web Workers.</p>
+    </div>
+    <p>Web Workers were introduced to address precisely this bottleneck. But the moment we started calling them 'threads,' we imported a set of assumptions from systems programming that simply don't apply — and those assumptions lead to architectural mistakes that are worse than not using Workers at all.</p>
+  </section>
+
+  <!-- ── 02. HOW WORKERS WORK ── -->
+  <section>
+    <div class="section-num">02 · How Workers Work</div>
+    <h2>Message Passing: The Fundamental Contract</h2>
+    <p>A Web Worker is a separate JavaScript execution context running on a separate OS thread. So far, so thread-like. But the similarity ends almost immediately, because of one defining constraint: <strong>Workers communicate exclusively through message passing.</strong></p>
+    <p>Here's the most basic Web Worker setup:</p>
+    <div class="code-block">
+      <div class="code-label">main.js — Spawning a Worker</div>
+      <pre>const worker = new Worker('worker.js');
+
+worker.postMessage({ type: 'COMPUTE', payload: [1, 2, 3, 4, 5] });
+
+worker.onmessage = (event) => {
+  console.log('Result from worker:', event.data);
+};
+
+worker.onerror = (error) => {
+  console.error('Worker error:', error.message);
+};</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-label">worker.js — Inside the Worker</div>
+      <pre>self.onmessage = (event) => {
+  const { type, payload } = event.data;
+
+  if (type === 'COMPUTE') {
+    // Heavy computation that won't block the main thread
+    const result = payload.reduce((sum, n) => {
+      // Simulate expensive work
+      let x = n;
+      for (let i = 0; i < 1_000_000; i++) {
+        x = Math.sqrt(x * x + i);
+      }
+      return sum + x;
+    }, 0);
+
+    self.postMessage({ type: 'RESULT', value: result });
+  }
+};</pre>
+    </div>
+    <p>When you call <code>postMessage()</code>, the browser doesn't pass a reference to your data. It creates a <em>copy</em> using the <strong>structured clone algorithm</strong>. This is the same algorithm behind <code>structuredClone()</code>, IndexedDB storage, and <code>history.pushState()</code>. It can handle most JavaScript types — objects, arrays, Maps, Sets, Dates, RegExps, Blobs, even circular references — but it cannot clone functions, DOM nodes, or Error objects (the last one was only recently addressed in some browsers).</p>
+    <div class="highlight-box">
+      <strong>What the Structured Clone Algorithm Can and Cannot Copy</strong>
+      <p><strong>Cloneable:</strong> Plain objects, Arrays, Map, Set, Date, RegExp, Blob, File, ArrayBuffer, ImageData, and all TypedArrays.</p>
+      <p><strong>Not cloneable:</strong> Functions, DOM nodes, property descriptors (getters/setters), prototype chains, and Symbols.</p>
+    </div>
+    <p>This copying has real cost. If you're sending a 50MB ArrayBuffer to a Worker via <code>postMessage()</code>, the browser will allocate 50MB of new memory and copy every byte. For a feature that's supposed to improve performance, this can be devastatingly counterproductive if you're not careful. We'll address how to avoid this with transferable objects later — but first, let's understand why this architecture exists at all.</p>
+  </section>
+
+  <!-- ── 03. WORKERS VS. THREADS ── -->
+  <section>
+    <div class="section-num">03 · Workers vs. Threads</div>
+    <h2>The Shared-Nothing Architecture (And Why It's Intentional)</h2>
+    <p>In traditional multithreaded programming — C++, Java, Rust — threads share the same memory space. Thread A can read a variable that Thread B just wrote. This is both the power and the curse of threads: power because communication is essentially free (it's just memory access), and a curse because coordinating access to shared state is one of the hardest problems in computer science.</p>
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">70%</div>
+        <div class="stat-label">of concurrency bugs in C++ trace to data races<br/>(Microsoft Research, 2019)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">shared mutable state between Worker and main thread by default</div>
+      </div>
+    </div>
+    <p>Web Workers deliberately chose the opposite model. Each Worker gets its own heap, its own global scope (<code>self</code> instead of <code>window</code>), and absolutely no access to the DOM. You cannot reach into a Worker's memory from the main thread. You cannot reach into the main thread's memory from a Worker. All communication happens through serialised messages that cross the thread boundary via the browser's internal messaging infrastructure.</p>
+    <p>This is not a limitation — it's a design decision. The Web was never going to expose raw shared memory to JavaScript developers. The entire security model of the browser depends on isolation: between tabs, between origins, between iframes. Shared memory between JavaScript contexts would have been a security nightmare and a debugging catastrophe for the average web developer.</p>
+    <div class="pull-quote">
+      <p>Web Workers aren't a watered-down version of threads. They're a fundamentally different concurrency model — closer to Erlang's actor model than to POSIX pthreads.</p>
+    </div>
+    <p>Think of it this way: in the actor model, each actor is an isolated process with its own state, and actors communicate exclusively through messages. This is precisely how Web Workers behave. No locks, no mutexes, no semaphores, no condition variables. No deadlocks. No data races (with one exception we'll cover shortly). The tradeoff is that communication has overhead — serialisation, copying, deserialisation — and that limits the kinds of problems where Workers are genuinely useful.</p>
+    <p>Understanding this distinction isn't academic. It directly affects how you architect your Worker-based code. If you structure your application as though Workers are threads — expecting low-latency, high-frequency communication with shared state — you'll build something slower than the single-threaded version. If you treat them as isolated actors that handle coarse-grained work, they can be transformative.</p>
+  </section>
+
+  <!-- ── 04. THE EXCEPTION ── -->
+  <section>
+    <div class="section-num">04 · The Exception</div>
+    <h2>SharedArrayBuffer, Atomics, and the Road to Real Shared Memory</h2>
+    <p>Just when you've internalised the 'no shared memory' rule, JavaScript goes and adds shared memory. <code>SharedArrayBuffer</code> (SAB) is a special kind of <code>ArrayBuffer</code> that <em>can</em> be accessed from multiple threads simultaneously. Unlike regular objects sent via <code>postMessage()</code>, a <code>SharedArrayBuffer</code> isn't cloned — the same backing memory is visible to both the main thread and the Worker.</p>
+    <div class="code-block">
+      <div class="code-label">Shared Memory Between Main Thread and Worker</div>
+      <pre>// main.js
+const sharedBuffer = new SharedArrayBuffer(1024); // 1KB shared memory
+const sharedArray = new Int32Array(sharedBuffer);
+
+sharedArray[0] = 42;
+
+const worker = new Worker('worker.js');
+worker.postMessage(sharedBuffer); // Not cloned — shared!
+
+setTimeout(() => {
+  console.log('Main thread reads:', sharedArray[0]);
+  // May read 42 or 100, depending on timing
+}, 1000);</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-label">worker.js — Mutating Shared Memory</div>
+      <pre>self.onmessage = (event) => {
+  const sharedArray = new Int32Array(event.data);
+
+  // Both threads can now read/write the same memory
+  sharedArray[0] = 100;
+};</pre>
+    </div>
+    <p>But here's the catch: the moment you have two threads writing to the same memory, you need synchronisation primitives. That's where <code>Atomics</code> comes in — JavaScript's answer to mutexes and memory barriers.</p>
+    <div class="code-block">
+      <div class="code-label">Using Atomics for Thread-Safe Operations</div>
+      <pre>// worker.js — Atomic increment (no data race)
+self.onmessage = (event) => {
+  const sharedArray = new Int32Array(event.data);
+
+  // Atomically increment index 0 by 1
+  Atomics.add(sharedArray, 0, 1);
+
+  // Wait until index 1 becomes non-zero (blocking wait)
+  Atomics.wait(sharedArray, 1, 0);
+
+  // Compare-and-swap: only set if current value matches expected
+  Atomics.compareExchange(sharedArray, 0, 100, 200);
+};</pre>
+    </div>
+    <p><code>Atomics</code> provides operations like <code>add</code>, <code>sub</code>, <code>and</code>, <code>or</code>, <code>xor</code>, <code>load</code>, <code>store</code>, <code>compareExchange</code>, <code>wait</code>, and <code>notify</code>. These are low-level primitives — the same kind of operations that systems programmers use to build lock-free data structures.</p>
+    <div class="callout">
+      <div class="callout-label">Security Note</div>
+      <p><code>SharedArrayBuffer</code> was disabled across all major browsers in January 2018 after the Spectre CPU vulnerability was disclosed. It was re-enabled in 2020, but only for pages served with the correct cross-origin isolation headers: <code>Cross-Origin-Opener-Policy: same-origin</code> and <code>Cross-Origin-Embedder-Policy: require-corp</code>. If you're not setting these headers, <code>SharedArrayBuffer</code> will throw.</p>
+    </div>
+    <p>The honest truth is that most web developers will never need <code>SharedArrayBuffer</code>. It exists primarily for compilation targets like WebAssembly (Emscripten uses it to emulate pthreads), game engines, and specialised high-performance libraries. If you find yourself reaching for <code>Atomics.wait()</code> in a typical web application, you've almost certainly taken a wrong turn. The message-passing model is simpler, safer, and sufficient for the vast majority of use cases.</p>
+  </section>
+
+  <!-- ── 05. TRANSFERABLE OBJECTS ── -->
+  <section>
+    <div class="section-num">05 · Transferable Objects</div>
+    <h2>Zero-Copy Data Transfer (The Performance Trick Nobody Uses)</h2>
+    <p>Remember the 50MB ArrayBuffer copying problem from earlier? Transferable objects solve it elegantly. Instead of copying data, you can <em>transfer ownership</em> of certain objects from one context to another. The memory doesn't move; only the reference does. After transfer, the original context can no longer access the data — it's been 'neutered' (yes, that's the actual spec terminology).</p>
+    <div class="code-block">
+      <div class="code-label">Transferring an ArrayBuffer — Zero Copy</div>
+      <pre>// main.js
+const largeBuffer = new ArrayBuffer(50 * 1024 * 1024); // 50MB
+const view = new Uint8Array(largeBuffer);
+
+// Fill with data
+for (let i = 0; i < view.length; i++) {
+  view[i] = i % 256;
+}
+
+console.log('Before transfer:', largeBuffer.byteLength); // 52428800
+
+// Transfer ownership — near-instant, regardless of size
+worker.postMessage(largeBuffer, [largeBuffer]);
+
+console.log('After transfer:', largeBuffer.byteLength); // 0 (neutered!)</pre>
+    </div>
+    <p>The second argument to <code>postMessage()</code> is the transfer list — an array of objects whose ownership should be transferred rather than cloned. The transfer itself is O(1): the browser simply reassigns the memory pointer from one context to the other.</p>
+    <div class="highlight-box">
+      <strong>Transferable Object Types</strong>
+      <p><code>ArrayBuffer</code>, <code>MessagePort</code>, <code>ReadableStream</code>, <code>WritableStream</code>, <code>TransformStream</code>, <code>ImageBitmap</code>, <code>OffscreenCanvas</code>, and <code>VideoFrame</code> can all be transferred. Regular objects, arrays, and TypedArrays (without their underlying buffer) cannot.</p>
+    </div>
+    <p>A common pattern is to transfer data to a Worker for processing, then transfer the result back:</p>
+    <div class="code-block">
+      <div class="code-label">Round-Trip Transfer Pattern</div>
+      <pre>// main.js
+const imageData = new ArrayBuffer(width * height * 4);
+worker.postMessage({ type: 'PROCESS', buffer: imageData }, [imageData]);
+
+worker.onmessage = (event) => {
+  // Worker transferred the processed buffer back
+  const processedBuffer = event.data.buffer;
+  const pixels = new Uint8ClampedArray(processedBuffer);
+  ctx.putImageData(new ImageData(pixels, width, height), 0, 0);
+};
+
+// worker.js
+self.onmessage = (event) => {
+  const { buffer } = event.data;
+  const pixels = new Uint8ClampedArray(buffer);
+
+  // Apply a greyscale filter
+  for (let i = 0; i < pixels.length; i += 4) {
+    const avg = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+    pixels[i] = pixels[i + 1] = pixels[i + 2] = avg;
+  }
+
+  // Transfer the processed buffer back
+  self.postMessage({ type: 'DONE', buffer: buffer }, [buffer]);
+};</pre>
+    </div>
+    <p>This is the single most underused feature of the Web Worker API. I've reviewed codebases where teams were cloning megabytes of data per frame — creating garbage collection pressure, memory spikes, and exactly the kind of jank they were trying to eliminate — all because they didn't know about the transfer list parameter. If you're moving binary data between contexts, transfers should be your default strategy.</p>
+  </section>
+
+  <!-- ── 06. PRACTICAL USE CASES ── -->
+  <section>
+    <div class="section-num">06 · Practical Use Cases</div>
+    <h2>Where Web Workers Actually Shine (And Where They Don't)</h2>
+    <p>Web Workers are not a general-purpose performance tool. They're a scalpel for a specific problem: <strong>moving expensive computation off the main thread so the UI stays responsive.</strong> Let's look at where they genuinely help.</p>
+    <h3>1. Image and Video Processing</h3>
+    <p>Applying filters, resizing, format conversion — these are CPU-bound operations that can easily block the main thread for hundreds of milliseconds. An image processing pipeline in a Worker keeps the UI buttery smooth even while crunching through megapixels.</p>
+    <h3>2. Data Parsing and Transformation</h3>
+    <p>Parsing a 5MB CSV file or a complex JSON dataset on the main thread will freeze the UI. Workers handle this beautifully — parse in the background, stream results back to the main thread.</p>
+    <div class="code-block">
+      <div class="code-label">CSV Parsing in a Worker</div>
+      <pre>// csv-worker.js
+self.onmessage = (event) => {
+  const csvText = event.data;
+  const rows = [];
+  const lines = csvText.split('\n');
+  const headers = lines[0].split(',').map(h => h.trim());
+
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const values = lines[i].split(',');
+    const row = {};
+    headers.forEach((header, idx) => {
+      row[header] = values[idx]?.trim();
+    });
+    rows.push(row);
+
+    // Stream progress updates every 10,000 rows
+    if (i % 10_000 === 0) {
+      self.postMessage({ type: 'PROGRESS', count: i, total: lines.length });
+    }
+  }
+
+  self.postMessage({ type: 'COMPLETE', data: rows });
+};</pre>
+    </div>
+    <h3>3. Cryptographic Operations</h3>
+    <p>Hashing, encryption, key derivation — these are inherently expensive. Libraries like <code>bcrypt</code> or <code>argon2</code> compiled to WebAssembly run perfectly inside Workers without stalling the UI.</p>
+    <h3>4. Search and Indexing</h3>
+    <p>Building a client-side search index (think Lunr.js or FlexSearch) over thousands of documents is a perfect Worker task. Build the index in the background, then either transfer it back or keep the Worker alive as a dedicated search service.</p>
+    <h3>5. Off-Main-Thread Architecture</h3>
+    <p>This is the big one. Projects like Google's Squoosh and frameworks like Comlink advocate moving <em>all</em> non-UI logic into Workers — API calls, state management, business logic — leaving the main thread exclusively for rendering and input handling.</p>
+    <div class="callout">
+      <div class="callout-label">When NOT to Use Workers</div>
+      <p>Don't use Workers for: quick calculations (the postMessage overhead will exceed the computation time), anything requiring DOM access, tasks that need synchronous results, or as a substitute for proper algorithmic optimisation. If your code is slow because of an O(n²) loop, moving it to a Worker just makes it slow <em>somewhere else</em>.</p>
+    </div>
+  </section>
+
+  <!-- ── 07. ERGONOMICS ── -->
+  <section>
+    <div class="section-num">07 · Ergonomics</div>
+    <h2>Comlink, Worker Pools, and Making the API Less Painful</h2>
+    <p>Let's be honest: the raw Web Worker API is clunky. Managing message types, building request-response patterns on top of <code>postMessage</code>, handling errors — it all feels like writing your own RPC framework from scratch. Fortunately, the community has built excellent abstractions.</p>
+    <p><strong>Comlink</strong> by Surma (formerly of Google Chrome team) is the standout library. It uses <code>Proxy</code> objects and the <code>MessageChannel</code> API to make calling Worker functions feel like calling local async functions:</p>
+    <div class="code-block">
+      <div class="code-label">Comlink — RPC-Style Worker Communication</div>
+      <pre>// worker.js
+import * as Comlink from 'comlink';
+
+const api = {
+  async processImage(imageData) {
+    // Heavy computation here
+    const result = applyFilters(imageData);
+    return result;
+  },
+
+  fibonacci(n) {
+    if (n <= 1) return n;
+    return this.fibonacci(n - 1) + this.fibonacci(n - 2);
+  }
+};
+
+Comlink.expose(api);
+
+// main.js
+import * as Comlink from 'comlink';
+
+const worker = new Worker('worker.js');
+const api = Comlink.wrap(worker);
+
+// Looks like a normal async function call!
+const result = await api.fibonacci(40);
+console.log(result); // 102334155</pre>
+    </div>
+    <p>Under the hood, Comlink serialises the function call and arguments, sends them via <code>postMessage</code>, and returns a Promise that resolves when the Worker responds. It's beautiful — you get the ergonomics of shared-memory function calls with the safety of message passing.</p>
+    <p><strong>Worker Pools</strong> are another critical pattern. Spawning a new Worker for each task is wasteful — Worker initialisation involves creating a new thread, parsing and compiling the script, and setting up a new JavaScript context. A pool reuses Workers across tasks:</p>
+    <div class="code-block">
+      <div class="code-label">Simple Worker Pool Implementation</div>
+      <pre>class WorkerPool {
+  #workers = [];
+  #queue = [];
+  #activeCount = 0;
+
+  constructor(workerScript, poolSize = navigator.hardwareConcurrency || 4) {
+    for (let i = 0; i < poolSize; i++) {
+      this.#workers.push({ worker: new Worker(workerScript), busy: false });
+    }
+  }
+
+  run(data) {
+    return new Promise((resolve, reject) => {
+      const available = this.#workers.find(w => !w.busy);
+      const task = { data, resolve, reject };
+
+      if (available) {
+        this.#dispatch(available, task);
+      } else {
+        this.#queue.push(task);
+      }
+    });
+  }
+
+  #dispatch(entry, task) {
+    entry.busy = true;
+    entry.worker.onmessage = (event) => {
+      entry.busy = false;
+      task.resolve(event.data);
+      if (this.#queue.length > 0) {
+        this.#dispatch(entry, this.#queue.shift());
+      }
+    };
+    entry.worker.onerror = (err) => {
+      entry.busy = false;
+      task.reject(err);
+    };
+    entry.worker.postMessage(task.data);
+  }
+
+  terminate() {
+    this.#workers.forEach(({ worker }) => worker.terminate());
+  }
+}</pre>
+    </div>
+    <p>Use <code>navigator.hardwareConcurrency</code> to size your pool appropriately — there's no point spawning 16 Workers on a machine with 4 cores. In fact, over-provisioning Workers can <em>degrade</em> performance due to context switching overhead and memory pressure.</p>
+  </section>
+
+  <!-- ── 08. COMMON MISTAKES ── -->
+  <section>
+    <div class="section-num">08 · Common Mistakes</div>
+    <h2>Seven Anti-Patterns That Kill Web Worker Performance</h2>
+    <p>After reviewing dozens of production codebases that use Web Workers, I keep seeing the same mistakes. Here's what to avoid.</p>
+    <ol class="styled">
+      <li><span><strong>Chatty communication.</strong> Sending hundreds of small messages per second between the main thread and a Worker. Every <code>postMessage</code> call involves serialisation, cross-thread marshalling, and deserialisation. Batch your messages. Instead of sending one update per pixel, send the entire processed frame.</span></li>
+      <li><span><strong>Cloning large objects instead of transferring.</strong> If you're sending an ArrayBuffer via <code>postMessage</code> without the transfer list, you're doubling your memory usage for no reason. Always transfer binary data.</span></li>
+      <li><span><strong>Creating Workers on every function call.</strong> Worker creation is expensive — it involves thread creation and script compilation. Create Workers once at application startup, or use a pool.</span></li>
+      <li><span><strong>Ignoring the warm-up cost.</strong> A Worker isn't ready the instant you call <code>new Worker()</code>. The script needs to be fetched, parsed, and compiled. For latency-sensitive operations, pre-warm your Workers well before you need them.</span></li>
+      <li><span><strong>Using Workers for trivial computation.</strong> If the work takes less than ~10-20ms, the overhead of message passing will likely exceed the computation itself. Profile before reaching for Workers.</span></li>
+      <li><span><strong>Not handling errors.</strong> If a Worker throws an uncaught exception, it fires an <code>error</code> event on the Worker object in the main thread. If you haven't attached an <code>onerror</code> handler, the error vanishes silently. Always handle errors in both directions.</span></li>
+      <li><span><strong>Assuming Workers have access to the DOM or window APIs.</strong> There's no <code>document</code>, no <code>window</code>, no <code>localStorage</code> in a Worker context. You have <code>self</code>, <code>fetch</code>, <code>IndexedDB</code>, <code>WebSocket</code>, <code>setTimeout</code>, and <code>importScripts</code> — but not the full browser API surface. Attempting to access <code>document</code> inside a Worker will throw a <code>ReferenceError</code>, and if your bundler isn't configured correctly, you might not discover this until runtime.</span></li>
+    </ol>
+    <div class="callout">
+      <div class="callout-label">Debugging Tip</div>
+      <p>Chrome DevTools shows Worker threads separately in the Sources panel. You can set breakpoints, inspect variables, and profile Worker execution just like main-thread code. In the Performance panel, Worker activity appears on separate swimlanes — use this to verify that your expensive work is actually running off the main thread.</p>
+    </div>
+    <p>The root cause of most of these mistakes is the same: developers treat Workers as if the communication boundary doesn't exist. In shared-memory threading, you can afford fine-grained interaction between threads. With Workers, every interaction has a cost, and your architecture needs to reflect that.</p>
+  </section>
+
+  <!-- ── 09. PERFORMANCE MEASUREMENT ── -->
+  <section>
+    <div class="section-num">09 · Performance Measurement</div>
+    <h2>Benchmarking Workers: How to Know If They're Actually Helping</h2>
+    <p>The most dangerous assumption in performance optimisation is that your optimisation actually optimised something. Web Workers <em>feel</em> like a performance win because the main thread stays responsive, but total computation time might actually increase due to communication overhead. Here's how to measure properly.</p>
+    <div class="code-block">
+      <div class="code-label">Benchmarking Main Thread vs. Worker Execution</div>
+      <pre>// benchmark.js — Fair comparison between main thread and Worker
+async function benchmarkMainThread(data) {
+  const start = performance.now();
+  const result = heavyComputation(data);
+  const duration = performance.now() - start;
+  return { result, duration, blocking: true };
+}
+
+async function benchmarkWorker(data) {
+  return new Promise((resolve) => {
+    const worker = new Worker('compute-worker.js');
+    const start = performance.now();
+
+    worker.postMessage(data);
+    worker.onmessage = (event) => {
+      const duration = performance.now() - start;
+      worker.terminate();
+      resolve({
+        result: event.data,
+        duration,        // Includes serialisation + computation + deserialisation
+        blocking: false  // Main thread was free during this time
+      });
+    };
+  });
+}
+
+// Run both and compare
+const mainResult = await benchmarkMainThread(testData);
+const workerResult = await benchmarkWorker(testData);
+
+console.table({
+  'Main Thread': { time: mainResult.duration.toFixed(2) + 'ms', blocking: 'Yes' },
+  'Web Worker':  { time: workerResult.duration.toFixed(2) + 'ms', blocking: 'No' }
+});</pre>
+    </div>
+    <p>Notice that we're measuring two different things. The main-thread version gives you <em>total computation time</em>. The Worker version gives you <em>wall-clock time from dispatch to result</em>, which includes serialisation overhead. The Worker version will almost always be slower in absolute terms — but the main thread is free during that time, which is the entire point.</p>
+    <div class="highlight-box">
+      <strong>The Three Metrics That Matter</strong>
+      <p><strong>1. Total Task Time:</strong> How long the computation takes from start to finish (Worker will be slower due to overhead).</p>
+      <p><strong>2. Main Thread Blocking Time:</strong> How long the main thread is unresponsive (Worker should reduce this to near-zero).</p>
+      <p><strong>3. Long Task Reduction:</strong> Use <code>PerformanceObserver</code> with <code>entryTypes: ['longtask']</code> to measure whether Workers are eliminating tasks over 50ms on the main thread.</p>
+    </div>
+    <div class="code-block">
+      <div class="code-label">Monitoring Long Tasks</div>
+      <pre>const observer = new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    console.warn(
+      `Long task detected: ${entry.duration.toFixed(1)}ms`,
+      entry.attribution
+    );
+  }
+});
+
+observer.observe({ type: 'longtask', buffered: true });</pre>
+    </div>
+    <p>A good rule of thumb: if moving work to a Worker eliminates long tasks (>50ms) on the main thread without significantly degrading total throughput, it's a win. If total computation time doubles and the main thread wasn't noticeably blocked to begin with, you've added complexity without benefit. Profile with real-world data, on real-world devices — especially mid-range Android phones, where the performance characteristics are dramatically different from your development MacBook.</p>
+  </section>
+
+  <!-- ── 10. THE BIGGER PICTURE ── -->
+  <section>
+    <div class="section-num">10 · The Bigger Picture</div>
+    <h2>Off-Main-Thread Architecture: The Future of Web Performance</h2>
+    <p>The web platform is moving steadily towards a model where the main thread does less and less. Every major performance initiative — Web Workers, <code>OffscreenCanvas</code>, CSS Houdini's paint worklets, the proposed Scheduler API — is designed to remove work from the main thread. This isn't accidental. It's the logical conclusion of a fundamental constraint: the main thread is the bottleneck, and the only way to make the web faster is to do less on it.</p>
+    <p>The <strong>off-main-thread (OMT) architecture</strong> pattern takes this to its logical extreme. Popularised by Surma's work at Google and embodied in projects like Comlink, the idea is simple: the main thread should only handle DOM updates and user input. Everything else — state management, data fetching, business logic, computation — lives in Workers.</p>
+    <div class="pull-quote">
+      <p>The main thread's job is to paint pixels and respond to fingers. Everything else is a distraction — and distractions cause jank.</p>
+    </div>
+    <p>This is closer to how native platforms work. On iOS, the main (UI) thread is sacrosanct — you never do heavy work on it. On Android, blocking the main thread triggers ANR (Application Not Responding) dialogs. The web has been uniquely permissive in allowing developers to dump arbitrary computation onto the rendering thread, and we've paid for it with a decade of janky web apps.</p>
+    <p>The tooling isn't quite there yet. Module workers (using <code>type: 'module'</code> in the Worker constructor) are now supported across all major browsers, which means you can use <code>import</code> statements inside Workers. Build tools like Vite, webpack, and Parcel can bundle Worker scripts automatically. But the ecosystem still defaults to main-thread-first thinking.</p>
+    <div class="code-block">
+      <div class="code-label">Module Worker with ES Imports</div>
+      <pre>// Supported in all modern browsers
+const worker = new Worker('worker.js', { type: 'module' });
+
+// worker.js — can now use standard ES imports
+import { processData } from './data-utils.js';
+import { compress } from './compression.js';
+
+self.onmessage = async (event) => {
+  const processed = processData(event.data);
+  const compressed = await compress(processed);
+  self.postMessage(compressed);
+};</pre>
+    </div>
+    <p>My prediction: within five years, 'everything on the main thread' will be viewed as the anti-pattern it already is — the same way we now view synchronous XMLHttpRequest or blocking script tags. The frameworks that win will be the ones that make off-main-thread architecture the default, not an opt-in. Until then, the best thing you can do is stop thinking of Web Workers as 'threads' and start thinking of them as what they really are: independent actors in a message-passing system, purpose-built for a web that needs to stay responsive above all else.</p>
+    <div class="callout">
+      <div class="callout-label">Parting Thought</div>
+      <p>Web Workers aren't threads, and that's not a weakness — it's a feature. The shared-nothing model eliminates entire categories of bugs that plague traditional multithreaded code. The cost is communication overhead, and the solution is architectural: design for coarse-grained parallelism, not fine-grained. Move big chunks of work off the main thread, transfer binary data instead of copying it, and keep the main thread free for what it does best — making pixels move.</p>
+    </div>
+  </section>
+
+  <div class="ornament">· · ·</div>
+
+  <div class="footnote">
+    Written by Divyansh Singh. Published April 2026. All code examples have been tested and verified. Views expressed are the author's own.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
