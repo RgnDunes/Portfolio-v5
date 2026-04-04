@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "fetch-api-streams-cancellation-features",
+    title: "The Fetch API Is Not What You Think: Streams, Cancellation, and the Features Nobody Uses",
+    description: "Most developers treat fetch() as a glorified XMLHttpRequest. This deep dive explores the powerful features hiding in plain sight - streaming, cancellation, caching, and the patterns that separate hobby projects from production-grade code.",
+    contentPath: "/blog/fetch-api-streams-cancellation-features_article.html",
+    publishedAt: "2026-04-05",
+    tags: ["JavaScript", "Web APIs", "Fetch API"],
+    readingTime: "~20 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "web-workers-are-not-threads",
     title: "Web Workers Are Not Threads: What JavaScript Developers Get Wrong About Browser Parallelism",
     description: "Most JavaScript developers think Web Workers give them multithreading. They don't. This deep dive explores what Web Workers actually are, how they differ from OS threads, and why the distinction matters for building performant web applications.",

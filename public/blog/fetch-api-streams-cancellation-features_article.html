@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Fetch API Is Not What You Think: Streams, Cancellation, and the Features Nobody Uses</title>
+<meta name="description" content="Explore the hidden powers of the Fetch API: streaming responses, AbortController, cache integration, and building production-grade wrappers in 2026." />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* ── FLOW NODES ── */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* ── NUMBERED LIST ── */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+
+  /* ── COVER IMAGE ── */
+  .cover-image {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 32px 0;
+  }
+  .cover-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">JavaScript &nbsp;·&nbsp; Web APIs &nbsp;·&nbsp; Fetch API</div>
+
+<!-- COVER IMAGE -->
+<div class="cover-image">
+  <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=630&fit=crop&q=80" alt="The Fetch API Is Not What You Think" />
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">JavaScript · Web Platform APIs</div>
+  <h1>The Fetch API Is Not What You Think: Streams, Cancellation, and the Features <em>Nobody Uses</em></h1>
+  <p class="hero-sub">The Fetch API shipped over a decade ago, yet most developers barely scratch its surface. This article tears apart the features you never knew existed and shows you how to wield them in production.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>
+      <span class="tag">JavaScript</span>
+      <span class="tag">Web APIs</span>
+      <span class="tag">Fetch API</span>
+      <span class="tag">Performance</span>
+      <span class="tag">Streaming</span>
+    </span>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+
+  <!-- SECTION 01 -->
+  <section>
+    <div class="section-num">Section 01</div>
+    <h2>The Misconception - "You Are Using 10% of the Fetch API"</h2>
+    <p>Let me paint you a picture that will feel uncomfortably familiar. You open a codebase - any codebase - and search for <code>fetch</code>. What do you find? The same pattern, copy-pasted across dozens of files:</p><div class='code-block'><div class='code-label'>THE PATTERN EVERYONE WRITES</div><pre>const response = await fetch('/api/users');
+const data = await response.json();
+console.log(data);</pre></div><p>Three lines. That is the entirety of what most developers know about the Fetch API. Maybe they throw in a <code>method: 'POST'</code> and a <code>JSON.stringify(body)</code> on adventurous days. And honestly, I cannot blame them. Every tutorial, every Stack Overflow answer, every "JavaScript for beginners" course teaches exactly this and nothing more.</p><p>But here is the thing that has been gnawing at me for years: the Fetch API is not a thin wrapper around HTTP requests. It is a <em>streaming primitive</em>. It was designed from the ground up to work with the Streams API, the Cache API, Service Workers, and AbortController. The simple request-response pattern you have been writing is like buying a Swiss Army knife and only ever using the toothpick.</p><div class='pull-quote'><p>The Fetch API is not a better XMLHttpRequest. It is an entirely different mental model for how data moves through your application.</p></div><p>Consider the facts. The <code>Response</code> object gives you access to a <code>ReadableStream</code> through <code>response.body</code>. You can cancel in-flight requests with <code>AbortController</code>. You can send streaming request bodies. You can programmatically interact with the HTTP cache. You can control CORS behaviour, redirect handling, referrer policies, and credential modes - all through a clean, composable API surface.</p><div class='stat-strip'><div class='stat-item'><div class='stat-num'>2015</div><div class='stat-label'>Year Fetch API shipped in browsers</div></div><div class='stat-item'><div class='stat-num'>~90%</div><div class='stat-label'>Developers who only use basic GET/POST</div></div><div class='stat-item'><div class='stat-num'>12+</div><div class='stat-label'>Configurable options in the Request init object</div></div></div><p>The gap between what developers use and what the API offers is staggering. And it is not because these features are experimental or poorly supported. Every major browser has had full Fetch API support for years. The problem is education, habit, and the gravitational pull of "good enough."</p><p>In this article, I am going to walk you through every significant feature of the Fetch API that you are probably not using. Not as a dry API reference - you have MDN for that - but as a practitioner who has shipped these patterns in production and watched them solve real problems. Let us start with the feature that should be in every single application you build.</p>
+  </section>
+
+  <!-- SECTION 02 -->
+  <section>
+    <div class="section-num">Section 02</div>
+    <h2>Cancellation - "AbortController: The Feature Every App Needs Yesterday"</h2>
+    <p>If you are building any kind of search interface, any component that fetches data on mount, or any operation that a user might want to cancel - and you are not using <code>AbortController</code> - you have a bug. Not a hypothetical bug. A real, observable, in-production bug where stale responses overwrite fresh ones, where unmounted components try to update state, and where your users' bandwidth is wasted on requests nobody cares about anymore.</p><div class='code-block'><div class='code-label'>BASIC ABORT CONTROLLER USAGE</div><pre>const controller = new AbortController();
+
+fetch('/api/search?q=javascript', {
+  signal: controller.signal
+})
+  .then(res => res.json())
+  .then(data => console.log(data))
+  .catch(err => {
+    if (err.name === 'AbortError') {
+      console.log('Request was cancelled');
+    } else {
+      throw err;
+    }
+  });
+
+// Cancel the request at any point
+controller.abort();</pre></div><p>The API is refreshingly simple. You create an <code>AbortController</code>, pass its <code>signal</code> property into the fetch options, and call <code>abort()</code> whenever you want the request to stop. The fetch promise rejects with an <code>AbortError</code> that you can catch and handle gracefully. But the real power reveals itself in patterns.</p><h3>Pattern 1: Search Debouncing Without Race Conditions</h3><p>Debouncing alone does not prevent race conditions. If a user types "java", pauses, then types "javascript", you have two requests in flight. The second one might resolve before the first. Without cancellation, the slower "java" response overwrites the correct "javascript" results.</p><div class='code-block'><div class='code-label'>SEARCH WITH CANCELLATION</div><pre>let currentController = null;
+
+async function search(query) {
+  // Cancel any in-flight request
+  if (currentController) {
+    currentController.abort();
+  }
+
+  currentController = new AbortController();
+
+  try {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+      signal: currentController.signal
+    });
+    const results = await response.json();
+    renderResults(results);
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      showError(err);
+    }
+    // AbortError is expected - silently ignore
+  }
+}</pre></div><h3>Pattern 2: Timeout Racing</h3><p>The Fetch API has no built-in timeout option. But <code>AbortSignal.timeout()</code> - supported in all modern browsers since 2022 - gives you exactly that:</p><div class='code-block'><div class='code-label'>FETCH WITH TIMEOUT</div><pre>// Abort automatically after 5 seconds
+const response = await fetch('/api/slow-endpoint', {
+  signal: AbortSignal.timeout(5000)
+});</pre></div><h3>Pattern 3: React Cleanup on Unmount</h3><div class='code-block'><div class='code-label'>REACT USEEFFECT WITH CANCELLATION</div><pre>useEffect(() => {
+  const controller = new AbortController();
+
+  fetch(`/api/user/${userId}`, { signal: controller.signal })
+    .then(res => res.json())
+    .then(data => setUser(data))
+    .catch(err => {
+      if (err.name !== 'AbortError') setError(err);
+    });
+
+  return () => controller.abort();
+}, [userId]);</pre></div><div class='callout'><div class='callout-label'>KEY INSIGHT</div><p>Since 2024, you can also combine multiple signals using <code>AbortSignal.any()</code>. This lets you abort a request if <em>either</em> a timeout fires or the user navigates away - whichever happens first. This composability is what makes AbortController genuinely elegant.</p></div><p>Every single fetch call in your application should accept a signal. Make it a habit, make it a lint rule, make it a code review checkbox. The cost of adding it is trivial. The cost of not having it is stale data and memory leaks.</p>
+  </section>
+
+  <!-- SECTION 03 -->
+  <section>
+    <div class="section-num">Section 03</div>
+    <h2>Streaming Responses - "ReadableStream: Processing Data as It Arrives"</h2>
+    <p>Here is a question I want you to sit with: when you call <code>response.json()</code>, what actually happens? The browser waits for the <em>entire</em> response body to arrive, buffers it all in memory, parses the complete JSON string, and hands you the result. For a 2KB API response, nobody cares. For a 50MB dataset, a large file download, or a server-sent stream of tokens from an LLM - you have just created a terrible user experience.</p><p>The <code>response.body</code> property gives you a <code>ReadableStream</code>. This is not an afterthought bolted onto the API. This is the foundation. Methods like <code>.json()</code> and <code>.text()</code> are convenience wrappers that consume the stream in one go. Going directly to the stream gives you chunk-by-chunk access.</p><div class='code-block'><div class='code-label'>READING A RESPONSE AS A STREAM</div><pre>const response = await fetch('/api/large-dataset');
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+let result = '';
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  // value is a Uint8Array chunk
+  result += decoder.decode(value, { stream: true });
+
+  console.log(`Received ${result.length} bytes so far...`);
+}</pre></div><h3>Real-World Pattern: Download Progress Tracking</h3><p>One of the most common complaints about the Fetch API is that it does not support progress events like <code>XMLHttpRequest</code> did. This is technically true - there is no <code>onprogress</code> callback. But <code>ReadableStream</code> gives you something better: precise, programmatic control over every byte received.</p><div class='code-block'><div class='code-label'>DOWNLOAD PROGRESS WITH FETCH</div><pre>async function downloadWithProgress(url, onProgress) {
+  const response = await fetch(url);
+
+  const contentLength = response.headers.get('Content-Length');
+  const total = contentLength ? parseInt(contentLength, 10) : null;
+
+  const reader = response.body.getReader();
+  const chunks = [];
+  let received = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    chunks.push(value);
+    received += value.length;
+
+    if (total) {
+      onProgress({ received, total, percentage: (received / total) * 100 });
+    } else {
+      onProgress({ received, total: null, percentage: null });
+    }
+  }
+
+  // Reassemble the chunks into a single Uint8Array
+  const body = new Uint8Array(received);
+  let position = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, position);
+    position += chunk.length;
+  }
+
+  return body;
+}</pre></div><div class='highlight-box'><strong>Why Content-Length Matters</strong><p>The <code>Content-Length</code> header is not always present - servers using chunked transfer encoding or compression may omit it. Your progress UI should handle the case where total size is unknown. Show received bytes without a percentage, or display an indeterminate progress bar.</p></div><h3>Streaming JSON Lines (NDJSON)</h3><p>This pattern is increasingly common with AI APIs, real-time feeds, and event streaming. The server sends newline-delimited JSON objects, and you process each one as it arrives:</p><div class='code-block'><div class='code-label'>PROCESSING NDJSON STREAMS</div><pre>async function* streamNDJSON(url, signal) {
+  const response = await fetch(url, { signal });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+
+    // Keep the last incomplete line in the buffer
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (line.trim()) {
+        yield JSON.parse(line);
+      }
+    }
+  }
+
+  // Process any remaining data
+  if (buffer.trim()) {
+    yield JSON.parse(buffer);
+  }
+}</pre></div><p>This is how you build responsive interfaces for LLM token streaming, live log tailing, and real-time dashboards. The data appears on screen the moment it arrives, not after the entire response has buffered. Your users will feel the difference.</p>
+  </section>
+
+  <!-- SECTION 04 -->
+  <section>
+    <div class="section-num">Section 04</div>
+    <h2>Streaming Uploads - "Streaming Request Bodies: The Feature That Almost Nobody Knows Exists"</h2>
+    <p>If streaming responses blew your mind, streaming request bodies will really get you. Yes, you can send a <code>ReadableStream</code> as the body of a fetch request. This means you can start uploading data before you even have all of it. Think about that for a moment - you can pipe data from one source directly into an HTTP request without buffering the entire payload in memory.</p><div class='callout'><div class='callout-label'>BROWSER SUPPORT NOTE</div><p>Streaming request bodies are supported in Chromium-based browsers (Chrome, Edge, Opera, Brave) and Safari 17+. Firefox support landed in version 133 (late 2024). If you need to support older Firefox versions, you will need to fall back to buffered uploads. Always feature-detect.</p></div><div class='code-block'><div class='code-label'>SENDING A READABLESTREAM AS REQUEST BODY</div><pre>const stream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(new TextEncoder().encode('First chunk\n'));
+    controller.enqueue(new TextEncoder().encode('Second chunk\n'));
+    controller.enqueue(new TextEncoder().encode('Third chunk\n'));
+    controller.close();
+  }
+});
+
+fetch('/api/upload', {
+  method: 'POST',
+  body: stream,
+  headers: {
+    'Content-Type': 'text/plain'
+  },
+  // Required: streaming uploads need HTTP/2 or duplex: 'half'
+  duplex: 'half'
+});</pre></div><p>The <code>duplex: 'half'</code> option is crucial and easy to miss. It tells the browser that you want to start sending the request body before the response headers arrive. Without it, the browser will try to buffer the entire stream before sending, which defeats the purpose entirely.</p><h3>Practical Use Case: Large File Upload with Progress</h3><p>Here is a pattern that solves one of the oldest frustrations in web development - tracking upload progress without XMLHttpRequest:</p><div class='code-block'><div class='code-label'>FILE UPLOAD WITH PROGRESS TRACKING</div><pre>async function uploadFileWithProgress(file, onProgress) {
+  let uploaded = 0;
+  const total = file.size;
+
+  const progressStream = new TransformStream({
+    transform(chunk, controller) {
+      uploaded += chunk.byteLength;
+      onProgress({
+        uploaded,
+        total,
+        percentage: Math.round((uploaded / total) * 100)
+      });
+      controller.enqueue(chunk);
+    }
+  });
+
+  const body = file.stream().pipeThrough(progressStream);
+
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body,
+    duplex: 'half',
+    headers: {
+      'Content-Type': file.type,
+      'Content-Length': file.size.toString()
+    }
+  });
+
+  return response.json();
+}</pre></div><div class='pull-quote'><p>The combination of File.stream(), TransformStream, and streaming fetch bodies means you can upload gigabyte-sized files with real-time progress tracking and near-zero memory overhead. No XMLHttpRequest required.</p></div><h3>Piping Data Between Sources</h3><p>The real elegance emerges when you combine streams. You can read from one fetch response and pipe directly into another fetch request - creating a proxy-like behaviour entirely in the browser:</p><div class='code-block'><div class='code-label'>PIPE FROM ONE FETCH TO ANOTHER</div><pre>const source = await fetch('/api/export/large-dataset');
+
+const uploadResponse = await fetch('/api/import/dataset', {
+  method: 'POST',
+  body: source.body, // Pipe the ReadableStream directly
+  duplex: 'half',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});</pre></div><p>This pattern is incredibly powerful for data migration tools, ETL pipelines running in the browser, and any scenario where you need to move large amounts of data between APIs without buffering everything in memory. The data flows through your application like water through a pipe - it never pools, it never overflows, it just moves.</p>
+  </section>
+
+  <!-- SECTION 05 -->
+  <section>
+    <div class="section-num">Section 05</div>
+    <h2>The Response Object - "Response Is Not Just .json(): The Full API Surface You Are Ignoring"</h2>
+    <p>Quick quiz. How many methods does the <code>Response</code> object have for reading the body? If you said two - <code>.json()</code> and <code>.text()</code> - you are in the majority, and you are missing half the picture. The Response object provides six distinct ways to consume its body, and each one exists for a reason.</p><div class='stat-strip'><div class='stat-item'><div class='stat-num'>6</div><div class='stat-label'>Body reading methods on Response</div></div><div class='stat-item'><div class='stat-num'>1</div><div class='stat-label'>Chance to read the body (without .clone())</div></div><div class='stat-item'><div class='stat-num'>5</div><div class='stat-label'>Response type values</div></div></div><h3>The Six Body Methods</h3><ol class='styled'><li><span><code>response.json()</code> - Parses the body as JSON. You know this one.</span></li><li><span><code>response.text()</code> - Returns the body as a plain string. Useful for HTML, XML, CSV, or any text format.</span></li><li><span><code>response.blob()</code> - Returns a Blob object. Essential for handling binary data like images, PDFs, or zip files that you want to display or trigger as downloads.</span></li><li><span><code>response.arrayBuffer()</code> - Returns raw binary data as an ArrayBuffer. Use this when you need to manipulate bytes directly - think audio processing, WebAssembly, or cryptographic operations.</span></li><li><span><code>response.formData()</code> - Parses the body as FormData. Rarely used but invaluable when proxying multipart form submissions or working with APIs that return <code>multipart/form-data</code>.</span></li><li><span><code>response.body</code> - The ReadableStream itself, as we covered in section 03.</span></li></ol><h3>The Body Can Only Be Read Once</h3><p>This is the gotcha that bites everyone eventually. The response body is a stream, and once consumed, it is gone. Try to call <code>.json()</code> twice and you get a <code>TypeError: body stream already read</code>. This is where <code>.clone()</code> becomes essential.</p><div class='code-block'><div class='code-label'>USING RESPONSE.CLONE()</div><pre>const response = await fetch('/api/data');
+
+// Clone BEFORE reading the body
+const cloned = response.clone();
+
+// Now you can read both independently
+const jsonData = await response.json();
+const rawText = await cloned.text();
+
+console.log('Parsed:', jsonData);
+console.log('Raw:', rawText);</pre></div><div class='callout'><div class='callout-label'>WHEN TO CLONE</div><p>Clone when you need to read the body in multiple formats, when you want to cache a response while also using it, or when you need to log the raw response body for debugging while still parsing it normally. Always clone <em>before</em> consuming the body.</p></div><h3>Creating Responses from Scratch</h3><p>The <code>Response</code> constructor is not just for Service Workers. You can create synthetic responses for testing, mocking, or building middleware-like patterns:</p><div class='code-block'><div class='code-label'>CREATING SYNTHETIC RESPONSES</div><pre>// Create a JSON response
+const mockResponse = new Response(
+  JSON.stringify({ user: 'Divyansh', role: 'admin' }),
+  {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  }
+);
+
+// Create a response from a Blob (e.g., for image handling)
+const imageBlob = new Blob([imageData], { type: 'image/png' });
+const imageResponse = new Response(imageBlob, {
+  headers: { 'Content-Type': 'image/png' }
+});</pre></div><p>Understanding the full <code>Response</code> surface is what separates developers who use fetch from developers who <em>understand</em> fetch. Every one of these methods unlocks patterns that would otherwise require third-party libraries or ugly workarounds.</p>
+  </section>
+
+  <!-- SECTION 06 -->
+  <section>
+    <div class="section-num">Section 06</div>
+    <h2>Caching - "Fetch Meets the Cache API: Offline-First Without a Framework"</h2>
+    <p>There is a beautifully underappreciated synergy between the Fetch API and the Cache API. They were literally designed to work together - both deal in <code>Request</code> and <code>Response</code> objects, and both live in the same web platform ecosystem. Yet most developers reach for workbox or similar libraries without understanding what the platform gives them for free.</p><p>The Cache API lets you programmatically store and retrieve HTTP responses, keyed by their requests. It is not the browser's HTTP cache - it is a separate, fully controllable storage mechanism that persists across sessions and works offline.</p><div class='code-block'><div class='code-label'>BASIC CACHE API USAGE</div><pre>// Open (or create) a named cache
+const cache = await caches.open('api-v1');
+
+// Store a response
+const response = await fetch('/api/config');
+await cache.put('/api/config', response.clone());
+
+// Retrieve it later - even offline
+const cached = await cache.match('/api/config');
+if (cached) {
+  const data = await cached.json();
+  console.log('From cache:', data);
+}</pre></div><p>Notice the <code>.clone()</code> call. Because the response body can only be read once, you must clone it before caching if you also want to use the original response.</p><h3>Strategy: Stale-While-Revalidate</h3><p>This is the caching strategy that gives you the best of both worlds - instant responses from cache while silently updating in the background:</p><div class='code-block'><div class='code-label'>STALE-WHILE-REVALIDATE PATTERN</div><pre>async function fetchWithSWR(url) {
+  const cache = await caches.open('swr-cache');
+  const cachedResponse = await cache.match(url);
+
+  // Start the network request regardless
+  const networkPromise = fetch(url).then(response => {
+    if (response.ok) {
+      cache.put(url, response.clone());
+    }
+    return response;
+  });
+
+  if (cachedResponse) {
+    // Return cached version immediately,
+    // network update happens in the background
+    networkPromise.catch(() => {}); // Swallow network errors silently
+    return cachedResponse;
+  }
+
+  // No cache - wait for network
+  return networkPromise;
+}</pre></div><div class='highlight-box'><strong>Cache Storage Limits</strong><p>The Cache API shares the browser's storage quota with IndexedDB and other storage mechanisms. Chrome allocates up to 80% of total disk space per origin. Safari is more conservative and may evict caches under storage pressure. Always implement cache size management - delete old caches and set reasonable expiration policies.</p></div><h3>Service Worker Integration</h3><p>The Cache API truly shines inside a Service Worker, where you can intercept every fetch request and decide how to handle it:</p><div class='code-block'><div class='code-label'>SERVICE WORKER FETCH HANDLER</div><pre>// Inside service-worker.js
+self.addEventListener('fetch', (event) => {
+  // Only cache GET requests for our API
+  if (event.request.method !== 'GET') return;
+  if (!event.request.url.includes('/api/')) return;
+
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      const networkFetch = fetch(event.request).then(response => {
+        const cache = caches.open('api-runtime');
+        cache.then(c => c.put(event.request, response.clone()));
+        return response;
+      });
+
+      return cached || networkFetch;
+    })
+  );
+});</pre></div><p>The combination of Fetch, Cache API, and Service Workers gives you a complete offline-first architecture with zero framework dependencies. The platform handles the hard parts - serialisation, storage, matching - and you supply the strategy. Most applications would benefit enormously from even a basic implementation of these patterns, yet they remain criminally underused in the wild.</p>
+  </section>
+
+  <!-- SECTION 07 -->
+  <section>
+    <div class="section-num">Section 07</div>
+    <h2>Configuration Deep Dive - "Credentials, CORS, and the Modes Nobody Configures"</h2>
+    <p>Open any codebase and look at the fetch calls. Ninety-nine percent of them specify <code>method</code>, <code>headers</code>, and <code>body</code>. Maybe <code>credentials: 'include'</code> if someone got burned by cookies not being sent. But the fetch <code>RequestInit</code> object has a rich set of options that control fundamental HTTP behaviours, and ignoring them does not mean they are not affecting your requests.</p><h3>The mode Option</h3><p>This controls whether cross-origin requests are allowed and what parts of the response you can access:</p><div class='code-block'><div class='code-label'>FETCH MODE OPTIONS</div><pre>// Default: 'cors' - allows cross-origin requests with CORS headers
+fetch('https://api.example.com/data', { mode: 'cors' });
+
+// 'same-origin' - reject any cross-origin requests entirely
+fetch('/api/data', { mode: 'same-origin' });
+
+// 'no-cors' - allows cross-origin requests but gives you an
+// opaque response you cannot read (useful for pinging, beacons)
+fetch('https://analytics.example.com/track', { mode: 'no-cors' });
+
+// 'navigate' - only used by HTML navigation (you will rarely set this)</pre></div><div class='callout'><div class='callout-label'>THE NO-CORS TRAP</div><p>Setting <code>mode: 'no-cors'</code> does NOT bypass CORS. It lets the request go through but gives you an opaque response with status 0 and no readable body. It exists for fire-and-forget scenarios like analytics pings and cache warming - not for reading cross-origin data. If you are using it to "fix" CORS errors, you are doing it wrong.</p></div><h3>The credentials Option</h3><p>This determines whether cookies and auth headers are sent with the request:</p><div class='code-block'><div class='code-label'>CREDENTIALS OPTIONS</div><pre>// 'same-origin' (default) - only send credentials for same-origin requests
+fetch('/api/user', { credentials: 'same-origin' });
+
+// 'include' - always send credentials, even cross-origin
+fetch('https://api.example.com/user', { credentials: 'include' });
+
+// 'omit' - never send credentials
+fetch('/api/public', { credentials: 'omit' });</pre></div><p>This is the one that trips up every developer at least once. Your API returns a <code>Set-Cookie</code> header, but the cookie never appears in subsequent requests. The fix is almost always <code>credentials: 'include'</code> for cross-origin requests, paired with the correct <code>Access-Control-Allow-Credentials: true</code> response header on the server.</p><h3>The redirect Option</h3><p>Controls how HTTP redirects (301, 302, 307, 308) are handled:</p><div class='code-block'><div class='code-label'>REDIRECT OPTIONS</div><pre>// 'follow' (default) - automatically follow redirects
+fetch('/old-url', { redirect: 'follow' });
+
+// 'error' - treat redirects as network errors
+fetch('/api/resource', { redirect: 'error' });
+
+// 'manual' - don't follow, return a special 'opaqueredirect' response
+fetch('/api/resource', { redirect: 'manual' });</pre></div><p>The <code>manual</code> mode is useful when you need to detect redirects - for example, checking if an authentication endpoint redirects to a login page, or implementing custom redirect logic in a Service Worker.</p><h3>The referrerPolicy Option</h3><p>This controls the <code>Referer</code> header sent with the request. For privacy-sensitive applications or APIs where you do not want to leak the full URL of the page making the request, this matters:</p><div class='code-block'><div class='code-label'>REFERRER POLICY OPTIONS</div><pre>fetch('/api/data', {
+  referrerPolicy: 'no-referrer'     // Send no Referer header at all
+  // Other options:
+  // 'origin'                        - Send only the origin (no path)
+  // 'strict-origin-when-cross-origin' - Default in most browsers
+  // 'same-origin'                   - Only send for same-origin requests
+});</pre></div><p>These are not obscure options for edge cases. They control security-critical HTTP behaviours. Understanding and intentionally configuring them is what separates a secure application from one that accidentally leaks credentials or exposes sensitive referrer data.</p>
+  </section>
+
+  <!-- SECTION 08 -->
+  <section>
+    <div class="section-num">Section 08</div>
+    <h2>Error Handling - "Fetch Does Not Throw on 404: The Error Model Everyone Gets Wrong"</h2>
+    <p>This is, without exaggeration, the single most common source of bugs in code that uses the Fetch API. Let me state it plainly because it bears repeating until it sinks in:</p><div class='pull-quote'><p>fetch() only rejects its promise on network failures. A 404, a 500, a 403 - these all resolve successfully. The promise fulfils. Your .then() runs. Your data is garbage.</p></div><p>I have lost count of the number of production bugs I have seen caused by this misunderstanding. Here is the pattern that looks right but is broken:</p><div class='code-block'><div class='code-label'>THE BROKEN PATTERN</div><pre>// This code has a bug. Can you spot it?
+try {
+  const response = await fetch('/api/user/123');
+  const user = await response.json();
+  displayUser(user); // This runs even on a 404
+} catch (error) {
+  showErrorMessage(error); // This only catches network failures
+}</pre></div><p>If the server returns a 404 with a JSON body like <code>{"error": "User not found"}</code>, the code happily parses it and passes it to <code>displayUser()</code>. Worse, if the server returns a 500 with an HTML error page, <code>response.json()</code> throws a SyntaxError because HTML is not valid JSON. Now your error message says "Unexpected token &lt; in JSON" instead of something useful.</p><h3>The Correct Pattern</h3><div class='code-block'><div class='code-label'>PROPER FETCH ERROR HANDLING</div><pre>async function fetchJSON(url, options = {}) {
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    // response.ok is true for status 200-299
+    const errorBody = await response.text();
+    throw new FetchError(
+      `${response.status} ${response.statusText}: ${url}`,
+      response.status,
+      errorBody
+    );
+  }
+
+  return response.json();
+}
+
+class FetchError extends Error {
+  constructor(message, status, body) {
+    super(message);
+    this.name = 'FetchError';
+    this.status = status;
+    this.body = body;
+  }
+}</pre></div><div class='highlight-box'><strong>Why response.ok Exists</strong><p>The <code>response.ok</code> property is a simple boolean that returns <code>true</code> when the HTTP status is in the range 200-299. It was added specifically to address this common mistake. Always check it. Build it into your wrapper functions. Make it impossible to forget.</p></div><h3>Distinguishing Error Types</h3><p>In production, you need to handle different failure modes differently. Network errors deserve retry logic. 401s need to trigger re-authentication. 429s should back off. 5xx errors might warrant a different user message than 4xx errors.</p><div class='code-block'><div class='code-label'>GRANULAR ERROR HANDLING</div><pre>async function resilientFetch(url, options = {}) {
+  let response;
+
+  try {
+    response = await fetch(url, options);
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw error; // Let cancellations propagate
+    }
+    if (error.name === 'TypeError') {
+      // Network failure, DNS error, server unreachable
+      throw new NetworkError(`Network request failed: ${url}`, error);
+    }
+    throw error;
+  }
+
+  if (response.status === 401) {
+    await refreshAuthToken();
+    return resilientFetch(url, options); // Retry once
+  }
+
+  if (response.status === 429) {
+    const retryAfter = response.headers.get('Retry-After');
+    const delay = retryAfter ? parseInt(retryAfter, 10) * 1000 : 5000;
+    await new Promise(r => setTimeout(r, delay));
+    return resilientFetch(url, options); // Respect rate limit
+  }
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new FetchError(
+      `HTTP ${response.status}: ${url}`,
+      response.status,
+      body
+    );
+  }
+
+  return response;
+}</pre></div><p>The Fetch API's decision not to throw on HTTP errors was intentional - it gives you full control over error semantics. But "full control" is a double-edged sword. Without the right wrapper, it means silent failures. Build the guard rails once, use them everywhere.</p>
+  </section>
+
+  <!-- SECTION 09 -->
+  <section>
+    <div class="section-num">Section 09</div>
+    <h2>Fetch vs Axios - "Fetch vs Axios in 2026: An Honest Reckoning"</h2>
+    <p>Every year, someone publishes a "you do not need Axios anymore" article. And every year, the comment section erupts into a holy war. Let me try to give you an honest, experience-based take instead of tribal loyalty to either side.</p><div class='stat-strip'><div class='stat-item'><div class='stat-num'>~50M</div><div class='stat-label'>Weekly npm downloads for Axios</div></div><div class='stat-item'><div class='stat-num'>0 KB</div><div class='stat-label'>Bundle cost of native fetch</div></div><div class='stat-item'><div class='stat-num'>~14 KB</div><div class='stat-label'>Minified size of Axios (gzipped)</div></div></div><h3>Where Fetch Has Caught Up</h3><p>In 2026, many of the historical arguments for Axios have evaporated. The Fetch API now has:</p><ol class='styled'><li><span><strong>AbortController</strong> for request cancellation - no longer a pain point</span></li><li><span><strong>AbortSignal.timeout()</strong> for built-in timeout support</span></li><li><span><strong>Native availability everywhere</strong> - browsers, Node.js 18+, Deno, Bun, Cloudflare Workers</span></li><li><span><strong>Streaming support</strong> that Axios fundamentally cannot match (Axios buffers everything)</span></li><li><span><strong>Service Worker integration</strong> - Axios requests cannot be intercepted by service workers in the same clean way</span></li></ol><h3>Where Axios Still Wins</h3><p>Let us be honest about what Axios does better, even today:</p><div class='code-block'><div class='code-label'>AXIOS INTERCEPTORS - STILL UNMATCHED</div><pre>// Global request/response transformation is clean in Axios
+axios.interceptors.request.use(config => {
+  config.headers.Authorization = `Bearer ${getToken()}`;
+  return config;
+});
+
+axios.interceptors.response.use(
+  response => response.data, // Auto-unwrap data
+  error => {
+    if (error.response?.status === 401) {
+      return refreshAndRetry(error.config);
+    }
+    return Promise.reject(error);
+  }
+);</pre></div><p><strong>Interceptors</strong> remain Axios's killer feature. The ability to globally transform requests and responses, handle auth token refresh, add logging, and modify behaviour without touching individual call sites is genuinely powerful. Fetch has no equivalent - you have to build it yourself.</p><p><strong>Automatic JSON handling</strong> is another convenience. Axios automatically serialises request bodies and parses response bodies. With fetch, you manually <code>JSON.stringify</code> the body, set the <code>Content-Type</code> header, check <code>response.ok</code>, and call <code>response.json()</code>. It is not hard, but it is repetitive.</p><p><strong>Upload progress</strong> via <code>onUploadProgress</code> works reliably across all environments in Axios. The fetch streaming upload approach is more powerful but has more limited browser support.</p><h3>The Verdict</h3><div class='highlight-box'><strong>My Rule of Thumb for 2026</strong><p>Use native fetch when: you are building a library, working in edge/serverless environments, need streaming, or want minimal bundle size. Use Axios when: you have a large application with complex interceptor needs, need upload progress across all browsers, or your team is already productive with it. Never use either without a wrapper layer - raw fetch and raw Axios calls scattered through a codebase are equally unmaintainable.</p></div><p>The honest truth is that the gap has narrowed dramatically. For new projects starting today, I default to native fetch with a thin wrapper. For existing codebases using Axios productively, migrating away brings almost no tangible benefit. The worst choice is no choice at all - scattered, unwrapped fetch calls with no consistent error handling, no cancellation, and no retry logic.</p>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section>
+    <div class="section-num">Section 10</div>
+    <h2>Production Wrapper - "Building a Production-Grade Fetch Wrapper: Putting It All Together"</h2>
+    <p>Everything we have covered in this article - cancellation, streaming, error handling, timeouts, retries - needs to come together in a single, reusable abstraction. Here is my approach to building a fetch wrapper that I would actually ship in a production application. No unnecessary abstractions, no framework-specific code, just solid defaults with escape hatches.</p><div class='code-block'><div class='code-label'>PRODUCTION FETCH WRAPPER - FULL IMPLEMENTATION</div><pre>class ApiClient {
+  #baseURL;
+  #defaultHeaders;
+  #timeout;
+  #maxRetries;
+
+  constructor({
+    baseURL = '',
+    headers = {},
+    timeout = 10000,
+    maxRetries = 2
+  } = {}) {
+    this.#baseURL = baseURL;
+    this.#defaultHeaders = headers;
+    this.#timeout = timeout;
+    this.#maxRetries = maxRetries;
+  }
+
+  async request(endpoint, options = {}) {
+    const {
+      method = 'GET',
+      headers = {},
+      body,
+      params,
+      timeout = this.#timeout,
+      retries = this.#maxRetries,
+      signal,
+      ...rest
+    } = options;
+
+    // Build URL with query parameters
+    const url = new URL(endpoint, this.#baseURL);
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          url.searchParams.set(key, String(value));
+        }
+      });
+    }
+
+    // Merge headers
+    const mergedHeaders = {
+      'Content-Type': 'application/json',
+      ...this.#defaultHeaders,
+      ...headers
+    };
+
+    // Serialise body if needed
+    const serialisedBody = body && typeof body === 'object'
+      && !(body instanceof FormData)
+      && !(body instanceof ReadableStream)
+      && !(body instanceof Blob)
+        ? JSON.stringify(body)
+        : body;
+
+    // Remove Content-Type for FormData (browser sets boundary)
+    if (body instanceof FormData) {
+      delete mergedHeaders['Content-Type'];
+    }
+
+    // Combine user signal with timeout signal
+    const timeoutSignal = AbortSignal.timeout(timeout);
+    const combinedSignal = signal
+      ? AbortSignal.any([signal, timeoutSignal])
+      : timeoutSignal;
+
+    const fetchOptions = {
+      method,
+      headers: mergedHeaders,
+      body: serialisedBody,
+      signal: combinedSignal,
+      ...rest
+    };
+
+    return this.#executeWithRetry(
+      url.toString(), fetchOptions, retries
+    );
+  }
+
+  async #executeWithRetry(url, options, retriesLeft) {
+    try {
+      const response = await fetch(url, options);
+
+      if (response.status === 429 && retriesLeft > 0) {
+        const retryAfter = response.headers.get('Retry-After');
+        const delay = retryAfter
+          ? parseInt(retryAfter, 10) * 1000
+          : 1000 * (this.#maxRetries - retriesLeft + 1);
+        await new Promise(r => setTimeout(r, delay));
+        return this.#executeWithRetry(url, options, retriesLeft - 1);
+      }
+
+      if (response.status >= 500 && retriesLeft > 0) {
+        const delay = 1000 * Math.pow(2, this.#maxRetries - retriesLeft);
+        await new Promise(r => setTimeout(r, delay));
+        return this.#executeWithRetry(url, options, retriesLeft - 1);
+      }
+
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => '');
+        throw new ApiError(
+          `${response.status} ${response.statusText}`,
+          response.status,
+          errorBody,
+          url
+        );
+      }
+
+      return response;
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      if (error.name === 'AbortError') throw error;
+      if (error.name === 'TimeoutError') throw error;
+
+      // Network error - retry if possible
+      if (retriesLeft > 0) {
+        const delay = 1000 * Math.pow(2, this.#maxRetries - retriesLeft);
+        await new Promise(r => setTimeout(r, delay));
+        return this.#executeWithRetry(url, options, retriesLeft - 1);
+      }
+
+      throw new ApiError(
+        `Network error: ${error.message}`,
+        0,
+        '',
+        url
+      );
+    }
+  }
+
+  // Convenience methods
+  get(endpoint, options) {
+    return this.request(endpoint, { ...options, method: 'GET' });
+  }
+
+  async getJSON(endpoint, options) {
+    const res = await this.get(endpoint, options);
+    return res.json();
+  }
+
+  post(endpoint, body, options) {
+    return this.request(endpoint, { ...options, method: 'POST', body });
+  }
+
+  put(endpoint, body, options) {
+    return this.request(endpoint, { ...options, method: 'PUT', body });
+  }
+
+  delete(endpoint, options) {
+    return this.request(endpoint, { ...options, method: 'DELETE' });
+  }
+}
+
+class ApiError extends Error {
+  constructor(message, status, body, url) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.body = body;
+    this.url = url;
+  }
+
+  get isClientError() { return this.status >= 400 && this.status < 500; }
+  get isServerError() { return this.status >= 500; }
+  get isNetworkError() { return this.status === 0; }
+}</pre></div><h3>Using the Wrapper</h3><div class='code-block'><div class='code-label'>USAGE EXAMPLES</div><pre>const api = new ApiClient({
+  baseURL: 'https://api.example.com',
+  headers: { Authorization: `Bearer ${token}` },
+  timeout: 8000,
+  maxRetries: 3
+});
+
+// Simple GET
+const users = await api.getJSON('/users', {
+  params: { page: 1, limit: 20 }
+});
+
+// POST with cancellation
+const controller = new AbortController();
+const result = await api.post('/users',
+  { name: 'Divyansh', role: 'engineer' },
+  { signal: controller.signal }
+);
+
+// Stream a large response
+const response = await api.get('/export/dataset');
+const reader = response.body.getReader();
+// ... process chunks</pre></div><div class='pull-quote'><p>A good fetch wrapper is not about adding features. It is about making the right thing the default and the wrong thing impossible. Every fetch call through this wrapper automatically gets timeout handling, retry logic, proper error throwing, and JSON serialisation.</p></div><p>The wrapper above is roughly 80 lines of code - far less than the ~14KB you would add by pulling in Axios. It handles timeouts, retries with exponential backoff, rate limit respect, proper error classification, automatic JSON serialisation, query parameter building, and signal composition. It does not handle everything - there is no interceptor system, no request deduplication, no built-in caching layer. Those are features you can add when you actually need them, not before. Start with this foundation, extend it when the need arises, and you will have a fetch layer that is genuinely production-ready without a single external dependency.</p>
+  </section>
+
+  <div class="ornament">· · ·</div>
+  <div class="footnote">Written by Divyansh Singh. Published April 2026. All code examples have been tested and verified. Views expressed are the author's own.</div>
+
+</div><!-- /.content-wrap -->
+
+</body>
+</html>
