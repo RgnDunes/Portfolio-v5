@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>No Isolation in npm Workspaces</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw   { color: #569cd6; }
+  .code-fn   { color: #dcdcaa; }
+  .code-str  { color: #ce9178; }
+  .code-cmt  { color: #6a9955; font-style: italic; }
+  .code-num  { color: #b5cea8; }
+  .code-var  { color: #9cdcfe; }
+  .code-prop { color: #4ec9b0; }
+
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .arch-tree {
+    line-height: 1.9;
+    color: var(--ink);
+    white-space: pre;
+  }
+  .arch-tree .dir  { color: var(--accent2); font-weight: 500; }
+  .arch-tree .file { color: var(--ink); }
+  .arch-tree .note { color: var(--muted); font-style: italic; }
+
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green { background: var(--accent2); }
+  .flow-node.red   { background: var(--accent); }
+  .flow-node.muted { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 0.9rem;
+  }
+  .compare-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .good { color: var(--accent2); font-family: 'DM Mono', monospace; font-size: 12px; }
+  .compare-table .bad  { color: var(--accent);  font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+    .compare-table { font-size: 0.8rem; }
+    .compare-table th, .compare-table td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Node.js Deep Dives &nbsp;·&nbsp; Package Management &nbsp;·&nbsp; Monorepo Engineering</div>
+
+<div class="hero">
+  <div class="hero-label">Technical Deep Dive · npm Internals</div>
+  <h1>No Isolation in npm Workspaces, <em>And Why That Matters</em></h1>
+  <p class="hero-sub">npm workspaces make monorepo dependency management feel very convenient, but they deliberately share a single node_modules tree across every package. This design has consequences that quietly break reproducibility, open the door to phantom dependencies, and produce bugs that vanish the moment you switch CI environments.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~14 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Gotcha</span>
+    <span class="tag">Node.js</span>
+    <span class="tag">Monorepos</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <section>
+    <div class="section-num">01 · Background</div>
+    <h2>What npm Workspaces Promise</h2>
+    <p>npm workspaces landed in npm 7 with a simple promise: manage multiple packages from a single root <code>package.json</code>. Run <code>npm install</code> once, and npm takes care of deduplicating shared dependencies across your whole repository. No more <code>lerna bootstrap</code>, no manual symlinking, no juggling separate installs per package.</p>
+    <p>For teams coming from per-package installs or older tools like Lerna and Yarn Classic, workspaces genuinely feel like a relief. And they are, for simpler monorepos. The trouble starts when that installation convenience quietly becomes a correctness problem, and you only find out during a production deploy at 2am.</p>
+
+    <div class="highlight-box">
+      <strong>The Core Claim This Article Examines</strong>
+      npm workspaces do not isolate packages from one another. Any package in your workspace can import any dependency installed by any other package, even if that dependency is nowhere in its own <code>package.json</code>. This is not a bug in npm. It is a fully intentional consequence of the shared hoisting model. What is not documented well enough is how badly it can bite you.
+    </div>
+
+    <p>To understand why, we need a short detour into how Node.js module resolution actually works and how npm's hoisting strategy sits on top of it.</p>
+  </section>
+
+  <section>
+    <div class="section-num">02 · Mechanics</div>
+    <h2>How npm Workspaces Actually Install Dependencies</h2>
+    <p>When you run <code>npm install</code> at the workspace root, npm reads all workspace manifests, builds one unified dependency graph, and resolves a single flat <code>node_modules</code> tree at the root level. Each workspace package is then symlinked into that same root <code>node_modules</code> folder so packages can reference each other by name.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Workspace Directory Structure After npm install</div>
+      <div class="arch-tree"><span class="dir">my-monorepo/</span>
+&#9500;&#9472;&#9472; <span class="file">package.json</span>         <span class="note">&#8592; root, declares workspaces</span>
+&#9500;&#9472;&#9472; <span class="file">package-lock.json</span>
+&#9500;&#9472;&#9472; <span class="dir">node_modules/</span>          <span class="note">&#8592; single shared tree</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="file">lodash/</span>             <span class="note">&#8592; hoisted here, available to ALL packages</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="file">react/</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="file">express/</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="dir">@my-org/</span>
+&#9474;   &#9474;   &#9500;&#9472;&#9472; <span class="file">api/</span>            <span class="note">&#8592; symlink &#8594; packages/api</span>
+&#9474;   &#9474;   &#9492;&#9472;&#9472; <span class="file">web/</span>            <span class="note">&#8592; symlink &#8594; packages/web</span>
+&#9474;   &#9492;&#9472;&#9472; <span class="file">...</span>
+&#9492;&#9472;&#9472; <span class="dir">packages/</span>
+    &#9500;&#9472;&#9472; <span class="dir">api/</span>
+    &#9474;   &#9500;&#9472;&#9472; <span class="file">package.json</span>    <span class="note">&#8592; declares express, NOT lodash</span>
+    &#9474;   &#9492;&#9472;&#9472; <span class="file">src/index.js</span>   <span class="note">&#8592; can still require('lodash') &#8592; BUG</span>
+    &#9492;&#9472;&#9472; <span class="dir">web/</span>
+        &#9500;&#9472;&#9472; <span class="file">package.json</span>    <span class="note">&#8592; declares react AND lodash</span>
+        &#9492;&#9472;&#9472; <span class="file">src/App.jsx</span></div>
+    </div>
+
+    <p>Node.js module resolution walks up the directory tree looking for a <code>node_modules</code> folder containing the requested package. Because the root <code>node_modules</code> is an ancestor of every workspace package, every package can reach every module installed anywhere in the workspace, regardless of what is declared in its own <code>package.json</code>.</p>
+
+    <div class="pull-quote">
+      <p>"The directory tree is the access control mechanism. And in npm workspaces, the tree gives every package access to everything."</p>
+    </div>
+
+    <h3>The Hoisting Decision</h3>
+    <p>npm must decide where to physically place each resolved package. It prefers to hoist packages as high as possible, ideally to the root, to enable deduplication. When two workspace packages depend on the same version of <code>lodash</code>, npm installs it once at the root rather than twice inside each package. That is the whole deduplication benefit workspaces are built around.</p>
+    <p>The side effect is that where a package actually lands on disk is determined by the entire workspace graph, not by any individual package's needs. You cannot look at a single <code>package.json</code> and predict where its dependencies will physically reside after install. The install layout is a global property of the workspace, not a local one. This matters more than most people realise until they have shipped a broken build.</p>
+  </section>
+
+  <section>
+    <div class="section-num">03 · The Problem</div>
+    <h2>Phantom Dependencies: The Silent Failure Mode</h2>
+    <p>A phantom dependency is any module your code imports successfully at runtime but which is not declared in your package's own <code>package.json</code>. In an npm workspace, phantom dependencies are trivially easy to accumulate and nearly impossible to spot without purpose-built tooling. I have seen teams go months without realising their codebase is full of them.</p>
+
+    <div class="code-block">
+      <div class="code-label">packages/api/src/utils.js — A Phantom Dependency in the Wild</div>
+      <pre><span class="code-cmt">// packages/api/package.json only lists: express, pg, dotenv</span>
+<span class="code-cmt">// But this import works fine, because @my-org/web lists lodash</span>
+
+<span class="code-kw">const</span> <span class="code-var">_</span> = <span class="code-fn">require</span>(<span class="code-str">'lodash'</span>);  <span class="code-cmt">// phantom dependency</span>
+
+<span class="code-kw">function</span> <span class="code-fn">groupByStatus</span>(<span class="code-var">items</span>) {
+  <span class="code-kw">return</span> _.<span class="code-fn">groupBy</span>(<span class="code-var">items</span>, <span class="code-str">'status'</span>);
+}
+
+<span class="code-kw">module</span>.<span class="code-prop">exports</span> = { groupByStatus };</pre>
+    </div>
+
+    <p>This code works perfectly in development. It works in CI. It works in staging. It only breaks, with a confusing <code>Cannot find module 'lodash'</code> error, when the <code>api</code> package is deployed or published independently, without the workspace context that was silently providing <code>lodash</code> through a sibling package.</p>
+
+    <h3>Why This Is Hard to Catch</h3>
+    <p>The phantom dependency problem is particularly nasty because the failure mode simply does not appear in the environment where you do development. The workspace is always fully installed locally, so the phantom dependency is always satisfiable. The bug only shows up under conditions developers rarely test: standalone installation, Docker builds installing only one package's deps, or publishing to the npm registry.</p>
+    <p>Standard linting tools do not catch this by default. ESLint has no idea about the relationship between import statements and <code>package.json</code> declarations unless you configure it specifically for this. TypeScript resolves types from the same hoisted tree, so it also stays silent. The only reliable detection is purpose-built tooling like <code>eslint-plugin-import</code> with workspace-aware config, or Knip, or a deliberate policy of running each package in true isolation before you ship anything.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">1</div>
+        <div class="stat-label">Shared node_modules<br/>Tree Per Workspace</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">npm Warnings for<br/>Phantom Deps</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">&#8734;</div>
+        <div class="stat-label">Packages That Can<br/>Access Root Modules</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~3x</div>
+        <div class="stat-label">More Likely in<br/>Workspaces vs Solo Install</div>
+      </div>
+    </div>
+
+    <h3>Version Conflicts and the Hoisting Lottery</h3>
+    <p>The problem is not just about whether a package is present. It is also about which version you actually get. When two workspace packages depend on different versions of the same module, npm cannot hoist both to the root. It hoists one (typically the version satisfying the most dependents) and installs the other locally inside the package that specifically needs it. The package getting the non-hoisted version receives correct isolation, but entirely by accident. The one picking up the hoisted version may be consuming a version it never asked for and would never have asked for in a standalone install.</p>
+
+    <div class="code-block">
+      <div class="code-label">package.json — Version Conflict Scenario</div>
+      <pre><span class="code-cmt">// packages/api/package.json</span>
+{
+  <span class="code-prop">"dependencies"</span>: {
+    <span class="code-str">"axios"</span>: <span class="code-str">"^0.27.0"</span>   <span class="code-cmt">// wants 0.x</span>
+  }
+}
+
+<span class="code-cmt">// packages/web/package.json</span>
+{
+  <span class="code-prop">"dependencies"</span>: {
+    <span class="code-str">"axios"</span>: <span class="code-str">"^1.6.0"</span>    <span class="code-cmt">// wants 1.x</span>
+  }
+}
+
+<span class="code-cmt">// After npm install, npm hoists axios@1.6.0 to root.</span>
+<span class="code-cmt">// api/ gets axios@0.27.2 in its LOCAL node_modules -- correct.</span>
+<span class="code-cmt">// BUT: any transitive dep of api that requires 'axios' with</span>
+<span class="code-cmt">// no version constraint may resolve to 1.6.0 from root. Surprise.</span></pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">04 · Reproducibility</div>
+    <h2>The Reproducibility Problem</h2>
+    <p>Reproducibility means that a given set of source files plus a given lockfile should produce identical runtime behaviour no matter where the install happens. npm workspaces quietly undermine this in a few ways that are not at all obvious from reading the documentation.</p>
+
+    <h3>Install Order Sensitivity</h3>
+    <p>The hoisting decisions npm makes can depend on the order in which workspace packages are processed, which version ranges are declared, and which versions already exist in your local cache. Two developers with slightly different caches can get different hoisting layouts from the exact same lockfile. That should be impossible in a properly designed package manager, but here we are.</p>
+    <p>The lockfile records resolved versions but does not fully encode the physical layout of <code>node_modules</code>. Two installs producing the same lockfile can still produce different filesystem structures, because the lockfile format simply does not mandate where each resolved package physically sits on disk.</p>
+
+    <h3>The "Works on My Machine" Gradient</h3>
+    <p>Because phantom dependencies are satisfiable in any full workspace install, the classic "works on my machine" problem takes on a whole new dimension here. It is not just that someone has a different Node version. It is that their workspace has a richer transitive dependency graph that silently provides packages the deployment environment does not have. The developer's laptop is basically a better-stocked library. Production is the smaller, stricter one with half the shelves missing.</p>
+
+    <div class="pull-quote">
+      <p>"The lockfile records what npm resolved. It does not record what your code actually depends on. Those are different things, and npm workspaces widen the gap between them."</p>
+    </div>
+
+    <h3>Docker and the Isolation Cliff</h3>
+    <p>The most common place where workspace isolation failures become visible is containerisation. The typical pattern is to copy only one workspace package and its declared dependencies into a Docker image, install with <code>npm ci</code>, and run. This correctly installs only what is declared, which is exactly when phantom dependencies crash the application in the most confusing way possible.</p>
+
+    <div class="code-block">
+      <div class="code-label">Dockerfile — The Pattern That Exposes Phantom Deps</div>
+      <pre><span class="code-kw">FROM</span> <span class="code-str">node:20-alpine</span>
+
+<span class="code-kw">WORKDIR</span> /app
+
+<span class="code-cmt"># Copy ONLY the api package, no workspace siblings</span>
+<span class="code-kw">COPY</span> packages/api/package.json ./
+<span class="code-kw">COPY</span> packages/api/package-lock.json ./  <span class="code-cmt"># often doesn't exist standalone</span>
+
+<span class="code-kw">RUN</span> npm ci  <span class="code-cmt"># installs ONLY declared deps, phantom deps vanish</span>
+
+<span class="code-kw">COPY</span> packages/api/src ./src
+
+<span class="code-kw">CMD</span> [<span class="code-str">"node"</span>, <span class="code-str">"src/index.js"</span>]
+<span class="code-cmt"># Crashes with: Cannot find module 'lodash'</span></pre>
+    </div>
+
+    <p>The fix most teams reach for is copying the entire monorepo into the Docker image and running a full workspace install. That solves the immediate problem but creates a new one: Docker images that are gigabytes larger than necessary, carrying source code and dependencies for every package in the repo, not just the one you are actually deploying.</p>
+  </section>
+
+  <section>
+    <div class="section-num">05 · Comparison</div>
+    <h2>How Other Tools Handle This</h2>
+    <p>npm workspaces are not the only way to manage monorepo dependencies. Comparing them with tools that do enforce isolation is quite instructive. You can see clearly what is possible and what tradeoffs each approach is consciously making.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Isolation Model</th>
+          <th>Phantom Deps Possible?</th>
+          <th>Deduplication</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>npm workspaces</strong></td>
+          <td>Single hoisted tree at root</td>
+          <td><span class="bad">YES, by design</span></td>
+          <td>Aggressive</td>
+        </tr>
+        <tr>
+          <td><strong>Yarn Classic (v1)</strong></td>
+          <td>Single hoisted tree at root</td>
+          <td><span class="bad">YES, same model</span></td>
+          <td>Aggressive</td>
+        </tr>
+        <tr>
+          <td><strong>Yarn Berry (PnP)</strong></td>
+          <td>Strict Plug'n'Play, no node_modules</td>
+          <td><span class="good">NO, access control enforced</span></td>
+          <td>Via content-addressable cache</td>
+        </tr>
+        <tr>
+          <td><strong>pnpm workspaces</strong></td>
+          <td>Symlinked store, non-flat layout</td>
+          <td><span class="good">NO, by default</span></td>
+          <td>Via hard-linked global store</td>
+        </tr>
+        <tr>
+          <td><strong>Nx (task runner)</strong></td>
+          <td>Delegates to underlying PM</td>
+          <td>Depends on PM</td>
+          <td>Depends on PM</td>
+        </tr>
+        <tr>
+          <td><strong>Turborepo</strong></td>
+          <td>Delegates to underlying PM</td>
+          <td>Depends on PM</td>
+          <td>Depends on PM</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>pnpm's Non-Flat Layout</h3>
+    <p>pnpm is the most useful comparison here. Instead of hoisting packages to a flat root <code>node_modules</code>, pnpm creates a non-flat structure where each package's <code>node_modules</code> contains symlinks only to its declared dependencies. Those symlinks point into a global content-addressable store, achieving deduplication at the storage level without giving up isolation at the package level. Both things at once, which is exactly what you want.</p>
+
+    <div class="flow">
+      <div class="flow-node red">npm workspaces</div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node muted">Flat hoisted tree</div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node red">All packages see all deps</div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-node green">pnpm workspaces</div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node muted">Non-flat symlinked layout</div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node green">Each package sees only its deps</div>
+    </div>
+
+    <p>The practical result is that pnpm will throw a <code>Cannot find module</code> error in development, immediately and loudly, when you try to import a package that is not declared. That is the correct behaviour. npm workspaces let the import succeed silently and push the failure all the way to deployment. I know which one I prefer to deal with.</p>
+
+    <h3>Yarn Berry's Plug'n'Play</h3>
+    <p>Yarn Berry takes an even more radical approach: it eliminates <code>node_modules</code> altogether. It uses a Plug'n'Play resolver, a generated <code>.pnp.cjs</code> file that maps every import to its exact physical location in a zip-compressed package cache. Access control is enforced at the resolver level. If a package is not declared as a dependency, the resolver refuses the import with a hard error, even inside a workspace. The tradeoff is ecosystem compatibility. Some tools and native modules have not yet been updated to support PnP resolution, which creates real friction that hoisting-based approaches avoid.</p>
+  </section>
+
+  <section>
+    <div class="section-num">06 · Failure Patterns</div>
+    <h2>Real-World Failure Patterns</h2>
+    <p>The abstract problem gets very concrete very quickly when you actually hit it in a production codebase. These are the specific patterns that teams on npm workspaces run into, often more than once.</p>
+
+    <h3>The Transitive Dep That Graduates to Direct Use</h3>
+    <p>A team uses <code>date-fns</code> explicitly in their <code>web</code> package. Over time, developers in the <code>api</code> package discover they can import date utilities from <code>date-fns</code> too. It works in tests, it works in staging, nobody questions it. Nobody adds <code>date-fns</code> to <code>api/package.json</code> either, because why bother when it just works. Six months later, the web package migrates to the <code>Temporal</code> API and removes <code>date-fns</code>. The <code>api</code> package, which never declared the dependency, crashes in the next deployment. Nobody understands why at first, because the last change to <code>api</code>'s code was weeks ago and all tests are passing green.</p>
+
+    <h3>The Version Pin That Only Partially Applies</h3>
+    <p>A security advisory requires pinning <code>semver</code> to <code>^7.5.2</code>. The team updates the one package in the workspace that explicitly lists <code>semver</code> as a dependency. npm re-hoists that version to the root. Other packages silently consuming <code>semver</code> through the shared tree now get the patched version too. It looks like a success. But the team's mental model is now wrong. They think they have audited and pinned <code>semver</code> usage. Actually, multiple packages have an undeclared runtime dependency on it that will break if those packages are ever deployed on their own.</p>
+
+    <h3>The CI/CD Environment That Is Slightly Different</h3>
+    <p>CI installs the full workspace. The deployment pipeline installs only the relevant package. These two environments are not equivalent, but the gap between them is completely invisible until something breaks. Teams usually spend a fair amount of debugging time on these failures because the surface symptom, module not found, points towards the deployment configuration. Nobody thinks to look at the dependency declaration as the actual root cause.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Diagnostic Pattern</div>
+      <p>If a module-not-found error appears only in a deployment or standalone install but never in local development or CI, and your project uses npm workspaces, the first thing to check is whether the module is declared in the failing package's own <code>package.json</code>. It is almost certainly a phantom dependency being satisfied by a sibling workspace package during full installation.</p>
+      <p>Run <code>cd packages/your-package &amp;&amp; npm install &amp;&amp; node src/index.js</code> from a clean directory outside the workspace root. If it fails there but not inside the workspace, you have your answer.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">07 · Mitigation</div>
+    <h2>Mitigation Strategies Within npm Workspaces</h2>
+    <p>If moving to pnpm or Yarn Berry is not on the cards in the short term, there are practical steps to reduce the risk surface within an npm workspace. None of them are as good as structural isolation, but they are much better than nothing.</p>
+
+    <h3>eslint-plugin-import with Strict Rules</h3>
+    <p>The <code>eslint-plugin-import</code> package includes rules that flag imports of modules not listed in the nearest <code>package.json</code>. The <code>import/no-extraneous-dependencies</code> rule is the one you want. With <code>devDependencies</code> set to <code>false</code> and workspace-aware configuration, it catches phantom production dependencies at lint time rather than deployment time, which is exactly where you want to find them.</p>
+
+    <div class="code-block">
+      <div class="code-label">.eslintrc.json — Enabling Strict Import Checking</div>
+      <pre>{
+  <span class="code-prop">"plugins"</span>: [<span class="code-str">"import"</span>],
+  <span class="code-prop">"rules"</span>: {
+    <span class="code-str">"import/no-extraneous-dependencies"</span>: [
+      <span class="code-str">"error"</span>,
+      {
+        <span class="code-prop">"devDependencies"</span>: <span class="code-kw">false</span>,
+        <span class="code-prop">"optionalDependencies"</span>: <span class="code-kw">false</span>,
+        <span class="code-prop">"peerDependencies"</span>: <span class="code-kw">true</span>,
+        <span class="code-prop">"packageDir"</span>: [<span class="code-str">"."</span>, <span class="code-str">"../../"</span>]  <span class="code-cmt">// both package and workspace root</span>
+      }
+    ]
+  }
+}</pre>
+    </div>
+
+    <h3>Knip: Unused and Undeclared Dependency Detection</h3>
+    <p>Knip is a dedicated static analysis tool that scans your entire codebase to find unused exports, unused dependencies, and, critically, dependencies that are used in code but not declared in the relevant <code>package.json</code>. It understands workspace structures and can produce per-package reports. Running Knip as a required check in CI is honestly one of the most effective guardrails you can add if you are sticking with npm workspaces.</p>
+
+    <h3>Isolated Install Smoke Tests in CI</h3>
+    <p>Add a CI job that installs and runs each deployable package in isolation, completely outside the workspace context. This directly replicates what happens in your deployment environment and catches phantom dependency failures before they reach production. The job is not complicated to write, and it catches problems that no static analysis tool can reliably detect on its own.</p>
+
+    <div class="code-block">
+      <div class="code-label">GitHub Actions — Isolated Install Validation</div>
+      <pre><span class="code-prop">jobs</span>:
+  <span class="code-prop">isolated-install-check</span>:
+    <span class="code-prop">runs-on</span>: <span class="code-str">ubuntu-latest</span>
+    <span class="code-prop">strategy</span>:
+      <span class="code-prop">matrix</span>:
+        <span class="code-prop">package</span>: [<span class="code-str">api</span>, <span class="code-str">worker</span>]  <span class="code-cmt"># deployable packages only</span>
+    <span class="code-prop">steps</span>:
+      - <span class="code-prop">uses</span>: <span class="code-str">actions/checkout@v4</span>
+      - <span class="code-prop">name</span>: <span class="code-str">Copy package to temp dir</span>
+        <span class="code-prop">run</span>: <span class="code-str">cp -r packages/${{ matrix.package }} /tmp/pkg</span>
+      - <span class="code-prop">name</span>: <span class="code-str">Install in isolation</span>
+        <span class="code-prop">run</span>: <span class="code-str">cd /tmp/pkg &amp;&amp; npm install</span>
+      - <span class="code-prop">name</span>: <span class="code-str">Run startup smoke test</span>
+        <span class="code-prop">run</span>: <span class="code-str">cd /tmp/pkg &amp;&amp; node -e "require('.')"</span></pre>
+    </div>
+
+    <h3>Migrating to pnpm Workspaces</h3>
+    <p>For teams willing to invest in a proper migration, pnpm workspaces offer a structurally sound alternative. The migration from npm workspaces is often less painful than people expect. The workspace protocol is compatible, most scripts transfer directly, and pnpm's <code>shamefully-hoist</code> flag provides an escape hatch for packages that genuinely need the flat layout for compatibility reasons. The flag name is deliberately self-deprecating. It is a migration aid, not a recommended long-term configuration.</p>
+
+    <ol class="styled">
+      <li><span><strong>Audit phantom dependencies first.</strong> Run Knip across the entire workspace before migrating. It is much easier to fix phantom deps while still in the npm context than to debug them after switching to pnpm's stricter resolution.</span></li>
+      <li><span><strong>Install pnpm and run <code>pnpm import</code>.</strong> This converts your <code>package-lock.json</code> to a <code>pnpm-lock.yaml</code>, preserving all the resolved versions you currently have.</span></li>
+      <li><span><strong>Start with <code>shamefully-hoist=true</code>.</strong> This replicates npm's flat layout so existing code keeps working while you fix undeclared deps incrementally.</span></li>
+      <li><span><strong>Remove <code>shamefully-hoist</code> once things are clean.</strong> Disable hoisting and let pnpm's strict resolution surface any remaining phantom dependencies. Fix each one as it appears.</span></li>
+      <li><span><strong>Update CI and Docker pipelines.</strong> Replace <code>npm ci</code> with <code>pnpm install --frozen-lockfile</code>. Docker can now reliably install individual packages without dragging the entire workspace along.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-num">08 · Nuance</div>
+    <h2>When npm Workspaces Are Actually Fine</h2>
+    <p>Not every monorepo is equally exposed to this problem. There are genuine situations where npm workspaces are the right call and the lack of isolation causes no real harm in practice. It is worth being honest about this rather than making the tool sound universally broken.</p>
+
+    <h3>Packages That Are Never Deployed Independently</h3>
+    <p>If your monorepo has a single deployable application, say a Next.js frontend, plus a collection of shared UI libraries that are only ever consumed by that one application inside the workspace, phantom dependencies are an inconvenience but not a real risk. Nothing is ever installed in isolation. The full workspace install is always the deployment unit. The dependency graph correctness issue exists in theory, but it never actually manifests in a way that hurts you.</p>
+
+    <h3>Internal Tooling Repositories</h3>
+    <p>Repositories containing scripts, code generators, and internal developer tools where nothing is ever published to npm and everything is always run from the workspace root carry the same reduced risk profile. The isolation problem is fundamentally a publication and deployment problem. In a pure internal tooling repo, those scenarios never come up.</p>
+
+    <h3>When Strict Lint Rules Close the Gap</h3>
+    <p>Teams with mature linting pipelines, mandatory <code>import/no-extraneous-dependencies</code> enforcement, and Knip running in CI can close a large part of the gap between npm workspaces and a truly isolated tool. It does need ongoing discipline though. The tooling catches new violations quickly, but only if the rules are enforced as required checks before every merge and not as optional warnings that developers quietly learn to ignore.</p>
+
+    <div class="highlight-box">
+      <strong>The Honest Assessment</strong>
+      npm workspaces are a pragmatic choice that works well for a large fraction of monorepos. The isolation problem becomes genuinely critical only when packages are deployed, published, or run independently. If your architecture keeps those concerns cleanly separated and your lint pipeline is rigorous, the gap is manageable. If it does not, the gap will find you, probably at the worst possible time.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">09 · Conclusions</div>
+    <h2>The Design Philosophy Gap</h2>
+    <p>The absence of isolation in npm workspaces is not an oversight. It is a deliberate design choice that prioritises deduplication and installation simplicity over correctness guarantees. npm's maintainers are fully aware of the phantom dependency problem. The choice to keep the hoisted flat tree reflects a judgement that most users benefit more from the convenience than they suffer from the correctness issue. That is a reasonable product call to make.</p>
+    <p>But it does mean the responsibility for correctness falls entirely on the team using the tool. npm workspaces do not enforce any contract that your <code>package.json</code> accurately reflects your actual runtime dependencies. Only deliberate tooling, process discipline, and ideally a package manager with structural isolation can enforce that contract on your behalf.</p>
+    <p>The deeper issue is that <code>package.json</code> dependency declarations are supposed to be a machine-readable specification of exactly what a package needs. In a correctly isolated system, that specification is authoritative: install exactly what is declared, and the package works. In npm workspaces, that specification is aspirational: declare what you think you need, and the workspace will probably provide the rest anyway. The specification and the runtime drift apart silently, until the day you deploy somewhere that does not have the full workspace behind it. Then you find out all at once.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Tools Referenced</div>
+      <p><span class="tag">npm workspaces</span> <span class="tag">pnpm workspaces</span> <span class="tag">Yarn Berry PnP</span> <span class="tag">eslint-plugin-import</span> <span class="tag">Knip</span> <span class="tag">Turborepo</span> <span class="tag">Nx</span></p>
+      <p style="margin-top:14px;">The core isolation behaviour described here applies to npm 7 through npm 10 and is unlikely to change without a significant design revision, since the hoisting model is fundamental to how npm's dependency resolution algorithm works. Kindly check the official npm and pnpm documentation for the most current guidance on workspace configuration options.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    All package version numbers and tool names referenced are illustrative. Behaviour may vary across npm patch releases and specific dependency graph shapes. Always validate with a representative workspace install before drawing conclusions about hoisting decisions in your specific monorepo.
+  </div>
+
+</div>
+</body>
+</html>

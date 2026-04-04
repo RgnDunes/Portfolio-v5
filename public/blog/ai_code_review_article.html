@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Code Review Is Making Your Codebase Harder to Maintain</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Perspectives &nbsp;·&nbsp; Developer Tooling &nbsp;·&nbsp; Code Quality</div>
+
+<div class="hero">
+  <div class="hero-label">Opinion · Software Engineering</div>
+  <h1>AI Code Review Is Making Your Codebase <em>Harder to Maintain</em></h1>
+  <p class="hero-sub">Everyone is merging faster, the PR backlog is clean, and the dashboards look very good. So why does opening a module from eight months ago feel like reading someone else's fever dream? Let me tell you what actually happened with our team.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~16 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Opinion</span>
+    <span class="tag">DX</span>
+    <span class="tag">AI Tooling</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <section>
+    <div class="section-num">01 · Where It Began</div>
+    <h2>That Green Checkmark Felt So Good</h2>
+    <p>About six months back, our team adopted an AI-assisted code review tool. The pitch was genuinely compelling. Automated first-pass review on every PR, catching style violations, null-pointer issues, unhandled promise rejections, sketchy logic, all before any human engineer even opened the diff. Review cycles got shorter. Junior folks were getting instant feedback. That embarrassing backlog of unreviewed PRs, which had been sitting there since God knows when, vanished in about a week.</p>
+    <p>The numbers looked very nice. Mean time to merge dropped by 34%. On-call was quieter. People felt more confident pushing changes. We celebrated, recommended the tool to two other internal teams, and wrote one of those smug internal blog posts about productivity gains. You know the type.</p>
+    <p>Then eight weeks later, a senior engineer from a different team, someone who had nothing to do with our rollout, was reviewing a legacy module for a migration project. She flagged something that made the whole room go quiet. The codebase, she said, had become <em>coherent at the line level and incoherent at the system level.</em> Individual functions were well-commented, variable names were clear, error handling was consistent. But the architectural logic tying all those clean functions together had become nearly impossible to follow. Abstractions had multiplied. Module boundaries had blurred. The same concept was being represented four different ways across four different files, and every single one of those files had passed AI review without any issues flagged.</p>
+    <p>The AI had been optimising for correctness all along. Nobody, it turned out, had been optimising for comprehensibility.</p>
+
+    <div class="pull-quote">
+      <p>"The AI polished every sentence in a document that was increasingly about the wrong thing. Individually correct, collectively incoherent."</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">02 · The Mechanism</div>
+    <h2>What AI Code Review Is Actually Doing Under the Hood</h2>
+    <p>To understand why this happens, you need to be honest about what these tools are doing. In order of how reliably they do it, current AI code review tools are quite good at the following:</p>
+
+    <ol class="styled">
+      <li><span><strong>Syntactic correctness and style conformance.</strong> Matching against known patterns, linting rules, and style guides. Think of it as a very context-aware, very patient linter. It does this well, no doubt about it.</span></li>
+      <li><span><strong>Common bug pattern recognition.</strong> Off-by-one errors, race conditions in well-understood concurrent patterns, SQL injection risks, XSS vectors, unvalidated inputs. Pattern matching against a massive corpus of known vulnerabilities.</span></li>
+      <li><span><strong>Local logic coherence.</strong> Does the code inside this particular function do what the function name says? Does the conditional logic handle the cases it claims to? Works well within a single function or class boundary.</span></li>
+      <li><span><strong>Documentation and naming feedback.</strong> Whether variable names are expressive, whether docstrings actually reflect what the implementation is doing.</span></li>
+    </ol>
+
+    <p>These are real, useful capabilities that save real time. The problem is not that the AI does them badly. The problem is what does <em>not</em> get checked, and nobody seems to be talking much about that part.</p>
+
+    <h3>What AI Review Misses, Consistently</h3>
+    <p>AI code review tools operate on diffs and, at best, on the surrounding file context. They cannot, and largely will not given how they are deployed, reason about the following:</p>
+
+    <div class="callout">
+      <div class="callout-label">The Blind Spots</div>
+      <p><strong>Architectural intent.</strong> Whether this new abstraction is consistent with module design decisions made six months ago in a now-archived architecture decision record. The AI has no access to that record and no model of the intended system structure whatsoever.</p>
+      <p><strong>Cross-service ownership.</strong> Whether this change to a shared utility is appropriate given that three other teams depend on it in ways not visible anywhere in this PR's diff.</p>
+      <p><strong>Accumulated design drift.</strong> Whether this PR, perfectly reasonable in isolation, is the fifth one in a row that has added yet another parameter to an already overloaded function signature. That pattern is only visible to someone watching the codebase week over week.</p>
+      <p><strong>Team conventions living in people's heads, not in code.</strong> Why the original author made an unintuitive choice three releases ago that the new code is now quietly undoing, for reasons that were perfectly sensible at the time.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">03 · Human Behaviour</div>
+    <h2>How That Little Checkmark Changes the Way People Review</h2>
+    <p>Here is where it gets a bit uncomfortable, because the harm is not purely technical. It is behavioural. And it is subtle enough that most teams will not notice it happening until the damage is already done.</p>
+    <p>When an AI tool marks a PR as having no issues found, something shifts in the human review that follows. This has been documented in other domains, aviation autopilot reliance, radiology CAD systems, and it is showing up in software development now as well. The human reviewer anchors on the AI's verdict. The mental frame shifts from "let me evaluate this change" to "let me confirm the AI did not miss something obvious." Those are meaningfully different tasks, and only one of them is actually code review.</p>
+
+    <div class="highlight-box">
+      <strong>Automation Bias, Briefly</strong>
+      Automation bias is the tendency of humans to over-rely on automated systems even when those systems are demonstrably fallible in the current context. In code review, it shows up as shorter human reviews on AI-approved PRs, a higher merge rate without discussion on AI-approved PRs, and a reduced likelihood of asking architectural questions when the surface code looks clean.
+    </div>
+
+    <p>It gets worse with seniority gradients. Junior engineers, already inclined to defer to review feedback, now have two authority signals at once: the AI's approval and the senior engineer's response to it. If the AI approves and the senior engineer does a quick scan and hits merge, the junior internalises that as the correct pattern. They learn from what gets approved, not from what gets discussed. And increasingly, what gets approved is whatever the AI found acceptable.</p>
+
+    <h3>The Review That Simply Does Not Happen</h3>
+    <p>There is a second-order effect that is harder to measure but equally damaging: the review that never happens at all. When AI tools give automated first-pass feedback the moment a PR is created, the author typically addresses those AI comments before even requesting human review. By the time a human looks at it, the PR has already been through one round of revision. It looks cleaner. More finished.</p>
+    <p>The human reviewer, seeing a tidy, AI-polished diff, spends less time with it. The architectural question they might have asked on a rougher draft, something like "why are we adding another abstraction layer here when we already have one doing most of this?", just does not surface. The code looks done. The question never gets asked. The abstraction proliferates quietly, and nobody is the wiser until six months later when someone actually has to maintain the thing.</p>
+
+    <div class="pull-quote">
+      <p>"The AI cleaned the code just enough that no one looked closely enough to notice what was actually being built underneath."</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">04 · A Real Pattern</div>
+    <h2>The Abstraction Spiral: What It Looks Like in Practice</h2>
+    <p>Let me make this concrete with a pattern we observed directly in our own codebase. Details have been changed, but the structure and the trajectory are real.</p>
+
+    <h3>Before AI Review Adoption</h3>
+    <p>The team had a straightforward <code>UserNotificationService</code> with two methods: <code>sendEmail</code> and <code>sendSMS</code>. Both took a user ID, a template key, and a payload. Simple, legible, understood by every engineer on the team without needing any explanation.</p>
+
+    <div class="code-block">
+      <div class="code-label">Original Implementation · Notification Service</div>
+      <pre><span class="code-kw">class</span> <span class="code-fn">UserNotificationService</span> {
+  <span class="code-kw">async</span> <span class="code-fn">sendEmail</span>(<span class="code-var">userId</span>: <span class="code-var">string</span>, <span class="code-var">template</span>: <span class="code-var">string</span>, <span class="code-var">payload</span>: <span class="code-var">Record</span>&lt;<span class="code-var">string</span>, <span class="code-var">unknown</span>&gt;) {
+    <span class="code-kw">const</span> <span class="code-var">user</span> = <span class="code-kw">await</span> <span class="code-fn">this</span>.<span class="code-var">userRepo</span>.<span class="code-fn">findById</span>(<span class="code-var">userId</span>);
+    <span class="code-kw">const</span> <span class="code-var">rendered</span> = <span class="code-fn">this</span>.<span class="code-var">templateEngine</span>.<span class="code-fn">render</span>(<span class="code-var">template</span>, <span class="code-var">payload</span>);
+    <span class="code-kw">return</span> <span class="code-fn">this</span>.<span class="code-var">mailer</span>.<span class="code-fn">send</span>({ <span class="code-var">to</span>: <span class="code-var">user</span>.<span class="code-var">email</span>, <span class="code-var">body</span>: <span class="code-var">rendered</span> });
+  }
+
+  <span class="code-kw">async</span> <span class="code-fn">sendSMS</span>(<span class="code-var">userId</span>: <span class="code-var">string</span>, <span class="code-var">template</span>: <span class="code-var">string</span>, <span class="code-var">payload</span>: <span class="code-var">Record</span>&lt;<span class="code-var">string</span>, <span class="code-var">unknown</span>&gt;) {
+    <span class="code-kw">const</span> <span class="code-var">user</span> = <span class="code-kw">await</span> <span class="code-fn">this</span>.<span class="code-var">userRepo</span>.<span class="code-fn">findById</span>(<span class="code-var">userId</span>);
+    <span class="code-kw">const</span> <span class="code-var">rendered</span> = <span class="code-fn">this</span>.<span class="code-var">templateEngine</span>.<span class="code-fn">render</span>(<span class="code-var">template</span>, <span class="code-var">payload</span>);
+    <span class="code-kw">return</span> <span class="code-fn">this</span>.<span class="code-var">smsGateway</span>.<span class="code-fn">send</span>({ <span class="code-var">to</span>: <span class="code-var">user</span>.<span class="code-var">phone</span>, <span class="code-var">body</span>: <span class="code-var">rendered</span> });
+  }
+}</pre>
+    </div>
+
+    <h3>After Six Months of AI-Reviewed PRs</h3>
+    <p>The same concept, sending a notification to a user, now involved a <code>NotificationDispatcherFactory</code>, an <code>INotificationChannel</code> interface, a <code>ChannelRouter</code>, a <code>TemplateResolutionStrategy</code> enum, and a separate <code>UserPreferenceResolver</code>. Each class was well-named. Each had accurate docstrings. Each had passed AI review without any issues flagged. None of the PRs that introduced them had been marked as problematic, because individually each change looked like a reasonable refactoring or extension.</p>
+    <p>The AI had caught a missing null check here, suggested a more descriptive parameter name there, flagged an unhandled promise rejection in one PR. It approved the architectural trajectory at every step, because it could see each step but not the staircase.</p>
+
+    <div class="callout">
+      <div class="callout-label">Why Nobody Noticed Until It Was Too Late</div>
+      <p>Any single one of those abstractions might have been a defensible call in isolation. The AI had no way to evaluate the accumulated weight of the pattern across multiple PRs over multiple weeks. It could see each diff. It could not see the trend. And since the human reviewers were anchoring on the AI's approval, neither could they. Not until a new engineer tried to trace a notification send from the API endpoint all the way to the email provider and needed 45 minutes to understand a flow that had previously been five function calls.</p>
+      <p>We actually counted. Five function calls had become twenty-three, spread across nine files, in six months of clean and approved PRs.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">05 · Knowledge Loss</div>
+    <h2>The Slow Disappearance of Why Things Are the Way They Are</h2>
+    <p>Code review was never only about catching bugs. Its other job, arguably the more important one, is knowledge transfer. Making sure that more than one engineer understands why code was written a particular way, and that the reasoning behind design decisions lives somewhere beyond a single person's head.</p>
+    <p>AI code review short-circuits this process in a way that is completely invisible until it is far too late to fix cheaply.</p>
+
+    <h3>The Conversation That Gets Skipped</h3>
+    <p>When a human reviewer pushes back on a design decision, the author has to actually articulate their reasoning. This is genuinely useful, not just for the reviewer but for the author themselves. It forces a check on whether the reasoning holds up when said out loud. And it produces a record, a comment thread, that any future engineer can read to understand how and why a decision was made.</p>
+    <p>When the AI approves and the human reviewer skims and merges, that conversation never happens. The reasoning evaporates. The decision is made, but nobody writes down why. Six months later, when someone asks "why is the <code>UserPreferenceResolver</code> a separate class rather than a method on the <code>NotificationService</code>?", there is simply no answer anywhere. The decision was made across four PRs, each approved quickly, none of which contains a single sentence of reasoning.</p>
+
+    <h3>What New Engineers Are Learning From Your Review History</h3>
+    <p>New engineers learn a codebase through its review history. They read old PRs. They look at what got flagged, what got discussed, what the senior engineers pushed back on. This gives them a calibrated sense of the team's actual values, which architectural principles were genuinely enforced (as opposed to the ones rotting in an outdated wiki), and what kinds of decisions are supposed to warrant careful thought.</p>
+    <p>A codebase with twelve months of AI-assisted reviews produces a history that is heavily weighted toward style and syntax comments. The architectural debates are missing. A new engineer reads through it and concludes, incorrectly, that this team does not think deeply about those things. They pattern-match on what they see being discussed and model their own contributions accordingly. The culture of careful design review dies without anyone ever deciding to kill it.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">34%</div>
+        <div class="stat-label">Faster Merge<br/>Times Observed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">61%</div>
+        <div class="stat-label">Fewer Review<br/>Comments Per PR</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3x</div>
+        <div class="stat-label">Growth in<br/>Module Count</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">82%</div>
+        <div class="stat-label">Drop in<br/>Architectural Discussions</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">06 · Three Real Failures</div>
+    <h2>Things That Actually Went Wrong on Our Watch</h2>
+    <p>These are not hypotheticals. These are sanitised versions of real incidents from a twelve-month window across three of our teams after aggressive AI code review adoption. I am sharing the specifics because vague warnings are not very useful, frankly.</p>
+
+    <h3>The Dependency Inversion That Helped Nobody</h3>
+    <p>An AI review tool flagged a class as violating the dependency inversion principle because it directly instantiated a concrete implementation rather than depending on an interface. Fair enough observation in general. The author, correctly following the suggestion, introduced an interface and injected the dependency. Clean, correct, approved.</p>
+    <p>What the AI could not know: this class was an internal implementation detail of a module that was explicitly designed never to be substituted or extended. The interface added zero actual flexibility, increased test setup complexity for every unit test touching that module, and left future engineers wondering why an interface existed with exactly one implementation and no conceivable second one. The decision that made direct instantiation appropriate here was documented in an ADR that predated the AI tool by eight months. Nobody referenced it in the PR. Nobody even knew to look for it.</p>
+
+    <h3>The Naming Convention the AI Invented Out of Thin Air</h3>
+    <p>Our AI review tool kept suggesting that service classes follow a naming convention using the <code>Manager</code> suffix: <code>UserManager</code>, <code>OrderManager</code>, <code>SessionManager</code>. It noted, confidently, that this was consistent with the existing pattern in the codebase. It was partially right, but in a very misleading way: there were two legacy classes with that suffix, written by an engineer who had left the team long ago. The team had consciously moved to a <code>Service</code> suffix convention eighteen months prior.</p>
+    <p>Over the next four months, three engineers followed the AI's suggestion without questioning it. The codebase now has two incompatible naming conventions sitting side by side, with the older pattern actively growing again because an AI incorrectly weighted a minority historical pattern as the team's current convention. Fixing this will require touching dozens of files and is nobody's priority right now, so it will just stay messy.</p>
+
+    <h3>The Security Review That Got Quietly Skipped</h3>
+    <p>This is the incident that made me want to write this article. A PR introduced a change to authentication middleware. The AI tool reviewed it and flagged three things: a missing return type annotation, an inconsistent error message format, and a variable that could be <code>const</code> rather than <code>let</code>. The author fixed all three. The AI re-reviewed and approved. The human reviewer, seeing the clean second diff with the AI's green light, merged after roughly two minutes of skimming.</p>
+    <p>The change had introduced a timing side-channel in the token comparison logic. The kind of vulnerability that requires understanding the threat model, not just the code in front of you. The AI had no model of the threat context. The human reviewer, anchored on the AI's surface approval, did not engage at that depth. The vulnerability was caught six weeks later in an internal security audit, not in production. That was lucky, not a process.</p>
+
+    <div class="pull-quote">
+      <p>"The AI reviewed the code. Nobody reviewed the decision. Those are not the same thing, and treating them as equivalent is where the real danger sits."</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-num">07 · Where AI Fits</div>
+    <h2>Where AI Review Actually Belongs in Your Pipeline</h2>
+    <p>The problem is not that these AI code review tools exist at all. They add real value in specific, bounded roles. The problem is where teams are inserting them and what authority they are treating the output as having.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Current State · How Most Teams Are Using AI Review</div>
+      <div class="flow">
+        <div class="flow-node green">PR Created</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node red">AI Review ✓</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node muted">Human Skims</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Merge</div>
+      </div>
+      <div class="arch-title" style="margin-top:24px;">Better State · AI as a Scoped Pre-Filter Only</div>
+      <div class="flow">
+        <div class="flow-node green">PR Created</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">AI Flags Surface Issues</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Author Self-Fixes</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node red">Human Review (Architecture)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Merge</div>
+      </div>
+    </div>
+
+    <p>The key reframe: AI review belongs <em>before</em> human review, not <em>instead of</em> it. Its job is to clear the low-level noise so that human reviewers can spend their attention on things only humans can evaluate. When AI approval becomes a merge gate, when "the AI approved it" reduces the depth of human engagement, the tool is actively working against long-term maintainability.</p>
+
+    <h3>What Human Review Must Be Protecting</h3>
+    <p>Human reviewers, with the low-level noise already handled by the AI, should be explicitly focused on a different set of questions. Questions the AI literally cannot answer:</p>
+
+    <ol class="styled">
+      <li><span><strong>Does this change fit the intended module boundaries?</strong> Not whether the code is correct, but whether it is in the right place within the system's intended architecture. These are genuinely different questions.</span></li>
+      <li><span><strong>Is this the third time we are solving a similar problem differently?</strong> Only a human tracking the codebase over time will notice this pattern. The AI sees the diff; the reviewer should be seeing the trend.</span></li>
+      <li><span><strong>Does the author actually understand why they made this decision?</strong> Asking "why did you choose this approach over the existing X?" in a review comment is not nitpicking. It is knowledge transfer. It is the review doing its real job.</span></li>
+      <li><span><strong>What does this change make harder downstream?</strong> AI tools are optimised to find what is wrong with the change as written. Nobody is asking what options the change closes off, what assumptions it quietly bakes in, what future work it makes painful.</span></li>
+      <li><span><strong>Is there a threat model being implicitly shifted here?</strong> For any change touching auth, data access, or external interfaces, a human must evaluate whether the change is consistent with the intended security posture, regardless of what the AI found.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-num">08 · What We Changed</div>
+    <h2>What Actually Helped: No-Nonsense Interventions</h2>
+    <p>We spent about three months after identifying this problem trying different things. Some worked well. Some created new problems of their own. Here is an honest account of what had real impact.</p>
+
+    <h3>Remove AI Approval From the Merge Gate</h3>
+    <p>The single most effective change: removing AI approval as a required status check for merge. The AI tool still runs and posts its findings as comments. But engineers can no longer use "the AI approved it" as a reason to skip depth. The AI's output becomes reference material, not authorisation to merge.</p>
+    <p>This sounds trivially simple. The resistance to it was surprisingly strong. Engineers had genuinely internalised the AI approval as a time-saving mechanism and were reluctant to let it go. Getting the change through required an actual team-level conversation about what review is fundamentally for, which itself turned out to be a valuable discussion to have.</p>
+
+    <h3>Require Architecture Notes on Certain PRs</h3>
+    <p>For any change introducing a new abstraction, a new module, or a new dependency, we now require a short architecture note in the PR description. Not a formal document, just three to five sentences explaining the design decision and why it fits the existing system model. The AI cannot write this. The author must. The reviewer must engage with it before approving.</p>
+    <p>The side effect we did not anticipate: authors who are forced to articulate the architectural rationale upfront make noticeably better decisions. The act of writing "I am introducing this interface because..." forces a real check on whether the interface is actually warranted. Several PRs got simplified before they were even submitted, just because the author could not write a convincing architecture note for the original design.</p>
+
+    <h3>Hard Checklists for High-Risk Areas</h3>
+    <p>We identified three areas of the codebase where AI review is explicitly marked as insufficient in our contribution guidelines: authentication flows, data access patterns, and external API contracts. PRs touching these areas have a mandatory human review checklist that must be completed and signed off before merge, covering threat model alignment, contract versioning, and backward compatibility. The AI still reviews these PRs, but its output is clearly framed as the surface check, not the complete check.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Thing We Did Not Expect</div>
+      <p>Making the AI's limitations explicit, formally in the contribution guidelines, actually improved how engineers interacted with the tool itself. People started providing more context in PR descriptions because they understood the AI was working with limited information. Better-described PRs produced better AI feedback, which in turn helped human reviewers more. Articulating the limitation made the tool more useful in practice. Funny how that works out.</p>
+    </div>
+
+    <h3>Quarterly Codebase Walks</h3>
+    <p>Once per quarter, a rotating pair of senior engineers does a deliberate walk through a section of the codebase. Not reviewing a PR, not fixing a bug, just reading the code as it currently stands and asking honestly: does this still make sense? Are these abstractions earning their keep? Have conventions drifted without anyone noticing? This practice existed before the AI tooling. After adopting AI review, we nearly dropped it as unnecessary overhead. Reinstating it has been, without exaggeration, the most important long-term health intervention we have made.</p>
+  </section>
+
+  <section>
+    <div class="section-num">09 · Fair Assessment</div>
+    <h2>Being Straight About the Trade-offs</h2>
+    <p>None of what I have written above is an argument for removing AI code review tools entirely. The productivity gains are real. The bug-catching within its domain is legitimate. Junior engineers benefit from immediate, patient feedback that senior engineers often simply do not have time to give. These are not small things, and I do not want to dismiss them.</p>
+
+    <h3>Where AI Review Genuinely Earns Its Keep</h3>
+    <p><strong>Style and convention enforcement</strong> is a real burden lifted from human reviewers, freeing them for higher-order concerns. When this is the AI's job, and clearly only this job, it delivers well.</p>
+    <p><strong>Onboarding acceleration</strong> is genuine. New engineers get faster feedback on surface-level mistakes, the load on senior engineers for low-stakes corrections drops, and junior contributors can move faster on the things the AI can evaluate accurately.</p>
+    <p><strong>Common vulnerability pattern detection</strong> is valuable within the AI's known pattern set. A security-focused human reviewer is still better, but the AI catches the obvious patterns consistently at scale, and that matters.</p>
+
+    <h3>Where It Needs Active Management From You</h3>
+    <p><strong>Codebases with long architectural history</strong> need explicit guardrails to prevent the AI from reinforcing outdated patterns or approving changes that violate design decisions it simply cannot access.</p>
+    <p><strong>Teams with high junior-to-senior ratios</strong> need to be particularly careful. Junior engineers anchor on AI approval more strongly than senior engineers. The knowledge transfer function of review is most critical for these engineers and also most likely to get short-circuited by the AI's presence in the workflow.</p>
+    <p><strong>Security-adjacent code</strong> must always have mandatory human review with an explicit threat model check. This should be codified in your contribution guidelines, not left to individual reviewer judgment on any given day.</p>
+
+    <h3>Where It Is Actively Creating Risk</h3>
+    <p><strong>When AI approval becomes a merge gate,</strong> whether formally in your CI pipeline or informally in team culture, the automation bias effect kicks in and human review depth degrades. This is the primary failure mode and it is entirely avoidable through deliberate configuration and team norm-setting.</p>
+    <p><strong>When used without a human architectural review layer</strong> for changes that introduce new abstractions or cross module boundaries, the abstraction spiral is nearly inevitable over a six-to-twelve-month horizon. We saw this ourselves and measured it.</p>
+  </section>
+
+  <section>
+    <div class="section-num">10 · Closing Thoughts</div>
+    <h2>The Review You Automate Away Is Usually the One That Mattered</h2>
+    <p>Here is the core tension with AI code review: the things it is best at checking are not the things that most determine whether a codebase stays maintainable over time. Style, correctness, known vulnerability patterns, these matter, but they are largely recoverable if you get them wrong. Architectural incoherence, accumulated abstraction debt, eroded institutional knowledge, these are not. They compound quietly and become very expensive to reverse at exactly the moment when the team is under the most pressure to ship.</p>
+    <p>Tooling that automates the recoverable checks is genuinely useful, when it frees human attention for the things that are not recoverable. Tooling deployed in a way that reduces human attention for the non-recoverable things, even if nobody intended this, is doing real and slow harm to the systems it claims to be improving.</p>
+    <p>The engineers on your team who remember why <code>UserNotificationService</code> was built the way it was, who notice when the same abstraction is being invented for the third time, who ask "why here?" when a PR looks technically fine but architecturally off, these people are your actual review system. The AI is a useful pre-filter for the grunt work. It is not a substitute for this, and treating its approval as meaningful authorisation for a merge is the mistake I have been trying to describe throughout this whole piece.</p>
+    <p>Use the AI to protect your reviewers' time and attention. Then spend that time and attention on the questions only reviewers can answer. The codebase you will be maintaining two years from now is being shaped by those conversations, or by the absence of them, right now.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">What We Actually Recommend</div>
+      <p><span class="tag green">Do</span> Use AI review as a pre-filter, not a merge gate. Require human review to engage explicitly with architecture, design intent, and threat model rather than just surface style.</p>
+      <p><span class="tag green">Do</span> Mandate short architectural rationale notes in PR descriptions for any change introducing a new abstraction or crossing a module boundary.</p>
+      <p><span class="tag green">Do</span> Run periodic codebase walk sessions. Explicit time spent reading the existing code, not reviewing new code, is not overhead. It is maintenance.</p>
+      <p><span class="tag red">Don't</span> Let AI approval substitute for human engagement on security-adjacent code. Codify mandatory human checklists for auth, data access, and external API contracts and actually enforce them.</p>
+      <p><span class="tag red">Don't</span> Assume that because every individual PR was approved, the accumulated trajectory of those PRs is healthy. Someone on your team needs to be watching the trend, not just each individual diff.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    The statistics cited in Section 05 are drawn from internal measurements across three engineering teams over a twelve-month observation period. Figures are approximate and represent team-level aggregates, not industry benchmarks. Your experience will vary depending on team composition, codebase age, and how your AI review tooling is configured and deployed.
+  </div>
+
+</div>
+</body>
+</html>

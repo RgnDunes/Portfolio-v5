@@ -33,7 +33,7 @@ export const products: Product[] = [
     title: "CSS Unmasked -- Styling Secrets They Never Told You",
     type: "Ebook",
     description: `This book is for:
-        • Curious Beginners who have dabbled with HTML and want to finally understand how CSS actually works — without copy-pasting random snippets.
+        • Curious Beginners who have dabbled with HTML and want to finally understand how CSS actually works  - without copy-pasting random snippets.
         • Junior Developers who are tired of fighting with layout bugs, specificity wars, and mystery margins that won't behave.
         • Frontend Engineers who want to go beyond the basics and learn how to write scalable, performant, and maintainable CSS at a professional level.
         • Designers transitioning into code who want a fun, visual, and practical way to master the styling layer of the web.
@@ -54,7 +54,7 @@ export const products: Product[] = [
     type: "Ebook",
     description: `How do apps like Twitter, Google Maps, or GitHub handle millions of users, deliver blazing-fast experiences, and stay reliable at scale?
 
-        Welcome to "Frontend System Design Decoded" — a practical guide that unpacks the hidden architecture and design decisions behind the world’s most complex web platforms.
+        Welcome to "Frontend System Design Decoded"  - a practical guide that unpacks the hidden architecture and design decisions behind the world’s most complex web platforms.
 
         • Dive deep into the frontend system design of apps like Twitter, Google Maps, GitHub, Confluence, OneDrive and more  
         • Learn the trade-offs that make these platforms scalable, performant, and resilient  

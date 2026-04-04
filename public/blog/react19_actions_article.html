@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>React 19 Actions Are Not a State Management Solution</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* LAYOUT */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw   { color: #569cd6; }
+  .code-fn   { color: #dcdcaa; }
+  .code-str  { color: #ce9178; }
+  .code-cmt  { color: #6a9955; font-style: italic; }
+  .code-num  { color: #b5cea8; }
+  .code-var  { color: #9cdcfe; }
+  .code-type { color: #4ec9b0; }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 0.9rem;
+  }
+  .compare-table thead tr {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .compare-table thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+  }
+  .compare-table tbody tr:nth-child(even) { background: #fff; }
+  .compare-table tbody tr:nth-child(odd)  { background: #f9f5ee; }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .compare-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .check   { color: var(--accent2); font-weight: 700; }
+  .cross   { color: var(--accent);  font-weight: 700; }
+  .neutral { color: var(--muted);   font-weight: 700; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* FLOW NODES */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green { background: var(--accent2); }
+  .flow-node.red   { background: var(--accent); }
+  .flow-node.muted { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* NUMBERED LIST */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* DIVIDER */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82em;
+    background: rgba(0,0,0,0.06);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+    .compare-table { font-size: 0.82rem; }
+    .compare-table td, .compare-table th { padding: 9px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Perspectives &nbsp;&#183;&nbsp; React Ecosystem &nbsp;&#183;&nbsp; Frontend Architecture</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Opinion &#183; React 19 &#183; Frontend Engineering</div>
+  <h1>React 19 Actions Are <em>Not</em> a State Management Solution</h1>
+  <p class="hero-sub">The new Actions API is a solid improvement for handling async mutations and form submissions. But teams are already reaching for it as a Zustand or Redux replacement, and that's a category error that will bite them at scale.</p>
+  <div class="byline">
+    <span>Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~20 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Opinion</span>
+    <span class="tag green">React 19</span>
+    <span class="tag">Architecture</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- 01 THE NOISE -->
+  <section>
+    <div class="section-num">01 &#183; The Noise</div>
+    <h2>Every New React Feature Kills Redux. Apparently.</h2>
+    <p>I've been writing React since the class component days, and if I had a rupee for every time something was declared the "Redux killer," I'd have retired to some hill station by now. Context API was going to kill Redux. Hooks were going to kill Redux. React Query was going to kill Redux. Now, with React 19 out, it's Actions' turn to be handed the trophy.</p>
+    <p>So let me be clear about what React 19 actually shipped. <code>useTransition</code> now accepts async functions natively. <code>useActionState</code> coordinates pending and error states around a mutation. And <code>useOptimistic</code> handles speculative UI updates with a grace that previously required either a third-party library or some very careful, very fragile hand-written code. These are thoughtful additions. The React team clearly spent serious time on them, and it shows.</p>
+    <p>But here's what's happening out there. Within weeks of the release, threads started appearing with titles like "React 19 Finally Kills Redux" and "You Don't Need Zustand Anymore." Engineers are dropping state libraries from their <code>package.json</code>. Senior folks are putting together migration proposals for architectural review. In doing so, they are solving the wrong problem with the right tool.</p>
+
+    <div class="pull-quote">
+      <p>"Actions are React's answer to a specific question: how should a component coordinate an async mutation? They are not an answer to: how should shared application state flow through a large component tree?"</p>
+    </div>
+
+    <p>I'm not writing this to dismiss Actions at all. I use them in my own projects and they genuinely save time. I'm writing this because the conflation of "async mutation coordination" with "state management" is a conceptual mistake, and it's the kind of mistake that produces codebases which become quite painful to maintain a year down the line. Better to talk about it now, before the migration PRs get merged.</p>
+  </section>
+
+  <!-- 02 WHAT ACTIONS ARE -->
+  <section>
+    <div class="section-num">02 &#183; What Actions Are</div>
+    <h2>What the API Actually Does, Without the Marketing</h2>
+    <p>Before arguing about what Actions are not, I want to be precise about what they are, with real code. Conceptual debates without code tend to generate more heat than light in frontend discussions, and I'd rather just show you.</p>
+    <p>React 19 defines an Action as an async function passed to a transition. The runtime then takes care of three things on your behalf: tracking whether the async work is pending, surfacing any errors that come up, and through <code>useOptimistic</code>, applying a speculative update to local state while the request is in flight.</p>
+
+    <h3>useActionState in Practice</h3>
+    <p>The main hook is <code>useActionState</code>. You pass it an action function and an initial state value, and it gives you back a tuple of the current state, a dispatch function, and a boolean indicating whether the action is currently running.</p>
+
+    <div class="code-block">
+      <div class="code-label">useActionState &#183; Basic Form Submission</div>
+      <pre><span class="code-kw">import</span> { <span class="code-var">useActionState</span> } <span class="code-kw">from</span> <span class="code-str">'react'</span>;
+
+<span class="code-kw">async function</span> <span class="code-fn">submitProfileUpdate</span>(<span class="code-var">prevState</span>, <span class="code-var">formData</span>) {
+  <span class="code-kw">try</span> {
+    <span class="code-kw">const</span> <span class="code-var">result</span> = <span class="code-kw">await</span> <span class="code-fn">updateProfile</span>({
+      <span class="code-var">name</span>: <span class="code-var">formData</span>.<span class="code-fn">get</span>(<span class="code-str">'name'</span>),
+      <span class="code-var">bio</span>:  <span class="code-var">formData</span>.<span class="code-fn">get</span>(<span class="code-str">'bio'</span>),
+    });
+    <span class="code-kw">return</span> { <span class="code-var">success</span>: <span class="code-num">true</span>, <span class="code-var">data</span>: <span class="code-var">result</span>, <span class="code-var">error</span>: <span class="code-num">null</span> };
+  } <span class="code-kw">catch</span> (<span class="code-var">e</span>) {
+    <span class="code-kw">return</span> { <span class="code-var">success</span>: <span class="code-num">false</span>, <span class="code-var">data</span>: <span class="code-num">null</span>, <span class="code-var">error</span>: <span class="code-var">e</span>.<span class="code-var">message</span> };
+  }
+}
+
+<span class="code-kw">function</span> <span class="code-fn">ProfileForm</span>() {
+  <span class="code-kw">const</span> [<span class="code-var">state</span>, <span class="code-var">dispatch</span>, <span class="code-var">isPending</span>] = <span class="code-fn">useActionState</span>(
+    <span class="code-var">submitProfileUpdate</span>,
+    { <span class="code-var">success</span>: <span class="code-num">false</span>, <span class="code-var">data</span>: <span class="code-num">null</span>, <span class="code-var">error</span>: <span class="code-num">null</span> }
+  );
+
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-type">form</span> <span class="code-var">action</span>={<span class="code-var">dispatch</span>}&gt;
+      &lt;<span class="code-type">input</span> <span class="code-var">name</span>=<span class="code-str">"name"</span> <span class="code-var">defaultValue</span>=<span class="code-str">"Divyansh"</span> /&gt;
+      &lt;<span class="code-type">textarea</span> <span class="code-var">name</span>=<span class="code-str">"bio"</span> /&gt;
+      &lt;<span class="code-type">button</span> <span class="code-var">disabled</span>={<span class="code-var">isPending</span>}&gt;
+        {<span class="code-var">isPending</span> ? <span class="code-str">'Saving...'</span> : <span class="code-str">'Save Profile'</span>}
+      &lt;/<span class="code-type">button</span>&gt;
+      {<span class="code-var">state</span>.<span class="code-var">error</span> &amp;&amp; &lt;<span class="code-type">p</span> <span class="code-var">className</span>=<span class="code-str">"error"</span>&gt;{<span class="code-var">state</span>.<span class="code-var">error</span>}&lt;/<span class="code-type">p</span>&gt;}
+    &lt;/<span class="code-type">form</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <p>This is clean. Compare it to what we were writing before React 19: one <code>useState</code> for loading, another for error, another for data, a <code>useRef</code> to prevent double-submission, and a <code>try/catch/finally</code> to wire it together without leaving things in some inconsistent in-between state. Actions collapse all of that ceremony into something actually readable. No complaints from me here.</p>
+
+    <h3>useOptimistic: Speculative UI Done Properly</h3>
+    <p><code>useOptimistic</code> deserves equal attention. It lets you apply a temporary speculative update while an async operation is in flight, and it automatically rolls back when the operation resolves or rejects. No more snapshot-and-restore logic written by hand in a catch block.</p>
+
+    <div class="code-block">
+      <div class="code-label">useOptimistic &#183; Instant Like Button</div>
+      <pre><span class="code-kw">function</span> <span class="code-fn">LikeButton</span>({ <span class="code-var">post</span> }) {
+  <span class="code-kw">const</span> [<span class="code-var">optimisticLikes</span>, <span class="code-fn">setOptimisticLikes</span>] = <span class="code-fn">useOptimistic</span>(
+    <span class="code-var">post</span>.<span class="code-var">likes</span>,
+    (<span class="code-var">current</span>, <span class="code-var">delta</span>) =&gt; <span class="code-var">current</span> + <span class="code-var">delta</span>
+  );
+
+  <span class="code-kw">const</span> [<span class="code-var">_</span>, <span class="code-var">dispatch</span>, <span class="code-var">isPending</span>] = <span class="code-fn">useActionState</span>(
+    <span class="code-kw">async</span> () =&gt; {
+      <span class="code-fn">setOptimisticLikes</span>(<span class="code-num">+1</span>);
+      <span class="code-kw">await</span> <span class="code-fn">toggleLike</span>(<span class="code-var">post</span>.<span class="code-var">id</span>);
+    },
+    <span class="code-num">null</span>
+  );
+
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-type">button</span> <span class="code-var">onClick</span>={<span class="code-var">dispatch</span>} <span class="code-var">disabled</span>={<span class="code-var">isPending</span>}&gt;
+      &#x2665; {<span class="code-var">optimisticLikes</span>}
+    &lt;/<span class="code-type">button</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <p>Again, this is excellent. The old pattern required carefully juggling local state with server-validated state, and writing explicit rollback logic in the catch block. I've written that pattern myself more times than I'd like to count. <code>useOptimistic</code> makes it first-class and the code reads naturally.</p>
+
+    <div class="callout">
+      <div class="callout-label">Notice What Both Examples Have in Common</div>
+      <p>The state in both examples is <strong>local to the component</strong>. The pending flag, the error message, the optimistic count delta -- these all belong entirely to one UI element doing one async thing. No other component needs to know about any of it. No cross-tree coordination is required at all.</p>
+      <p>The moment another component, even a sibling, needs to react to this state, you are outside the design envelope of Actions. And that moment arrives much sooner than most teams anticipate.</p>
+    </div>
+  </section>
+
+  <!-- 03 THE CATEGORY ERROR -->
+  <section>
+    <div class="section-num">03 &#183; The Category Error</div>
+    <h2>Mixing Up Mutation Coordination With State Management</h2>
+    <p>State management is, at its core, the problem of making shared mutable state readable and writable across a component tree in a predictable way. The key word is <em>shared</em>. A shopping cart that needs to show up in the header, the sidebar, a drawer, and a checkout page is a state management problem. A form submission button showing a spinner is not.</p>
+    <p>React's model has always separated these two concerns, even if it hasn't always made both of them ergonomic to work with. Local state via <code>useState</code> and <code>useReducer</code> handles component-internal concerns. Lifted state, context, and external stores handle the shared concerns. Actions sit firmly in the local-state category. They are not a new primitive for the shared-state category, and they were never intended to be.</p>
+
+    <h3>Where the Confusion Comes From</h3>
+    <p>I do understand why people get confused, to be fair. Actions return state. <code>useActionState</code> looks, syntactically, quite like <code>useReducer</code>. And there's a line of thinking that goes: "All state in a React app is just the accumulated result of past actions against some initial value, so isn't <code>useActionState</code> basically a general-purpose state machine?" Technically yes. Practically, no.</p>
+    <p><code>useReducer</code> can also model any state machine. That doesn't make it a Zustand replacement. What matters is not whether a tool can theoretically solve a problem, but whether it gives you the right access patterns, coordination model, and debugging primitives for that specific problem. This distinction tends to get lost in the excitement around a shiny new release.</p>
+
+    <div class="pull-quote">
+      <p>"A hammer can technically drive a screw if you hit it hard enough. Actions can technically hold shared state if you lift them high enough. Neither approach ages well under maintenance pressure."</p>
+    </div>
+
+    <h3>And So the Prop-Drilling Problem Returns</h3>
+    <p>Here's what actually happens when a team decides to use Actions as their primary state management layer. Someone builds a <code>useActionState</code> in a top-level component to manage the authenticated user's session data. They need that state in a deeply nested component somewhere else in the tree. Actions have no subscription mechanism, no selector model, no way for an arbitrary descendant to tap into just the slice of state it needs. So what happens? They prop-drill. Or they reach for Context.</p>
+    <p>Context with frequent updates is a well-documented performance problem in React. Every consumer of a Context value re-renders whenever the value changes. For session state that updates once a day, fine. For anything updating frequently -- a cart, a filter panel, a real-time feed -- it becomes a significant rendering bottleneck. You then add <code>useMemo</code> here, <code>React.memo</code> there, split the context into smaller pieces. And now you've reinvented a worse version of Zustand with more ceremony and no DevTools. This is the exact problem Zustand and Jotai were built to solve in the first place.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Distinct State<br/>Categories in React</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1</div>
+        <div class="stat-label">Category Actions<br/>Actually Address</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Subscription APIs<br/>in Actions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">&#8734;</div>
+        <div class="stat-label">Rerenders if Used<br/>as Global Context</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 THREE CATEGORIES -->
+  <section>
+    <div class="section-num">04 &#183; Taxonomy</div>
+    <h2>Three Categories of State, and Where Actions Sit</h2>
+    <p>To be precise about where Actions belong, it helps to have a working taxonomy of application state. Most production React apps contain three meaningfully different kinds of state, each with different requirements. I find this framing useful during code reviews and architecture discussions with my team, so let me share it here.</p>
+
+    <h3>Category 1: Local UI State</h3>
+    <p>This is state that belongs entirely to one component or a tightly coupled cluster of components. Whether a dropdown is open. Which tab is active. The value of an uncontrolled input. Whether a button is showing its loading state. This state doesn't need to be shared, doesn't need to survive navigation, and doesn't need to be serialisable or globally debuggable.</p>
+    <p><strong>Actions live here.</strong> <code>useActionState</code> and <code>useOptimistic</code> are excellent tools for this category. They're designed for it, and they don't need to be anything more.</p>
+
+    <h3>Category 2: Shared Client State</h3>
+    <p>This is state that multiple components across the tree need to read or write. Authentication details, shopping cart contents, notification preferences, UI theme, filter and sort settings on a data-heavy page. It needs to be accessible without prop drilling, it needs to update efficiently without causing unnecessary re-renders in unrelated components, and it needs clear ownership and mutation semantics.</p>
+    <p><strong>This is where state libraries live.</strong> Zustand, Jotai, Valtio, Redux Toolkit -- all of them address this category. They give you stores with subscription semantics, meaning components can opt into specific slices of state and re-render only when those slices change. Actions provide none of this. They have no store, no selector, no subscription mechanism. This is not a gap that will be filled in some future version. It is a deliberate design boundary.</p>
+
+    <h3>Category 3: Server State</h3>
+    <p>This is state that originates on the server: API responses, paginated lists, cached query results. It has a completely different lifecycle from client state. It needs to be fetched, kept fresh, invalidated on mutation, and potentially shared across navigations. TanStack Query, SWR, and React Router's loader API all exist for this specific category. A mutation in this category -- posting a comment, updating a record -- is precisely what Actions are built to trigger. But Actions don't manage the resulting server state. Cache invalidation and refetching still belongs to a server-state library.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">State Taxonomy &#183; React 19 -- What Each Tool Owns</div>
+      <div class="flow">
+        <div class="flow-node green">Local UI State</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">useState / useReducer / <strong>useActionState</strong></div>
+      </div>
+      <div class="flow">
+        <div class="flow-node">Shared Client State</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node red">Zustand / Jotai / Redux Toolkit</div>
+      </div>
+      <div class="flow">
+        <div class="flow-node muted">Server State</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-node">TanStack Query / SWR / Router Loaders</div>
+      </div>
+      <div style="margin-top: 20px; font-size: 11px; color: var(--muted);">
+        Actions = trigger layer for mutations in Categories 1 and 3. Not a replacement for Category 2.
+      </div>
+    </div>
+
+    <p>The confusion happens because one Action can touch all three categories at once. When a user submits a checkout form, the action might update local UI state (show a confirmation message), update shared client state (empty the cart), and invalidate server state (the order history cache). Actions handle the first part well. For the second and third, they hand off to the tools built for those jobs.</p>
+  </section>
+
+  <!-- 05 COMPARISON -->
+  <section>
+    <div class="section-num">05 &#183; Comparison</div>
+    <h2>Actions vs. State Libraries: Putting It Side by Side</h2>
+    <p>Let me make the capability differences concrete. The table below compares Actions against Zustand specifically. I'm using Zustand rather than Redux so we can sidestep the "but Redux has too much boilerplate" conversation, which is a separate debate entirely. Zustand is minimal, widely adopted, and a fair representative of what modern state libraries actually offer.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th>useActionState</th>
+          <th>Zustand</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Async mutation with pending state</td>
+          <td><span class="check">&#10003;</span> First-class</td>
+          <td><span class="neutral">~</span> Manual / middleware</td>
+        </tr>
+        <tr>
+          <td>Optimistic UI rollback</td>
+          <td><span class="check">&#10003;</span> Via useOptimistic</td>
+          <td><span class="neutral">~</span> Manual pattern</td>
+        </tr>
+        <tr>
+          <td>Native form integration (action=)</td>
+          <td><span class="check">&#10003;</span> Built-in</td>
+          <td><span class="cross">&#10007;</span> Not applicable</td>
+        </tr>
+        <tr>
+          <td>Cross-component state sharing</td>
+          <td><span class="cross">&#10007;</span> Not supported</td>
+          <td><span class="check">&#10003;</span> Core feature</td>
+        </tr>
+        <tr>
+          <td>Selector-based subscriptions</td>
+          <td><span class="cross">&#10007;</span> No subscription model</td>
+          <td><span class="check">&#10003;</span> Granular re-render control</td>
+        </tr>
+        <tr>
+          <td>DevTools / time-travel debug</td>
+          <td><span class="cross">&#10007;</span> No tooling</td>
+          <td><span class="check">&#10003;</span> Redux DevTools compatible</td>
+        </tr>
+        <tr>
+          <td>State survives navigation</td>
+          <td><span class="cross">&#10007;</span> Component-scoped</td>
+          <td><span class="check">&#10003;</span> Middleware available</td>
+        </tr>
+        <tr>
+          <td>Read state outside React tree</td>
+          <td><span class="cross">&#10007;</span> Hook-only</td>
+          <td><span class="check">&#10003;</span> store.getState()</td>
+        </tr>
+        <tr>
+          <td>Bundle size impact</td>
+          <td><span class="check">&#10003;</span> 0 kB (built-in)</td>
+          <td><span class="neutral">~</span> ~1.1 kB gzipped</td>
+        </tr>
+        <tr>
+          <td>Server Actions (Next.js / RSC)</td>
+          <td><span class="check">&#10003;</span> Native integration</td>
+          <td><span class="cross">&#10007;</span> Client-only</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Look at where Actions win: async mutation ergonomics, form integration, Server Action compatibility. These are real wins, worth appreciating and using. Now look at where they come up short: every dimension related to sharing, subscribing to, persisting, or debugging state across a component tree. The absence isn't an oversight or something that'll get patched. It's a deliberate design boundary.</p>
+
+    <div class="highlight-box">
+      <strong>The Real Opportunity Here</strong>
+      The most productive pattern in React 19 is using Actions <em>alongside</em> your state library, not instead of it. An Action handles the async mutation and the pending UI; the state library holds the resulting shared state update. These tools compose quite well when you respect their respective boundaries.
+    </div>
+  </section>
+
+  <!-- 06 INTEGRATION -->
+  <section>
+    <div class="section-num">06 &#183; Integration</div>
+    <h2>The Right Pattern: Actions as the Mutation Layer</h2>
+    <p>The most useful frame for React 19 Actions is not "state management alternative" but "mutation coordination layer." An Action is the glue between a user gesture and whatever side effects that gesture requires, including updating shared state. The Action triggers; the store holds. This isn't a compromise position -- it's the intended design.</p>
+
+    <h3>A Cart Checkout Example</h3>
+    <p>Let's look at a checkout flow. Cart state is shared because it needs to show in the header, the checkout page, and a confirmation drawer. A purchase action needs to hit an API, update the cart, and handle the pending and error states on the button itself. Here is how the two tools compose when used properly.</p>
+
+    <div class="code-block">
+      <div class="code-label">Correct Integration &#183; Actions + Zustand</div>
+      <pre><span class="code-cmt">// store.ts -- Zustand owns shared cart state</span>
+<span class="code-kw">const</span> <span class="code-var">useCartStore</span> = <span class="code-fn">create</span>((<span class="code-var">set</span>) =&gt; ({
+  <span class="code-var">items</span>: [] <span class="code-kw">as</span> <span class="code-type">CartItem</span>[],
+  <span class="code-fn">clearCart</span>: () =&gt; <span class="code-fn">set</span>({ <span class="code-var">items</span>: [] }),
+  <span class="code-fn">removeItem</span>: (<span class="code-var">id</span>: <span class="code-type">string</span>) =&gt;
+    <span class="code-fn">set</span>((<span class="code-var">s</span>) =&gt; ({ <span class="code-var">items</span>: <span class="code-var">s</span>.<span class="code-var">items</span>.<span class="code-fn">filter</span>(<span class="code-var">i</span> =&gt; <span class="code-var">i</span>.<span class="code-var">id</span> !== <span class="code-var">id</span>) })),
+}));
+
+<span class="code-cmt">// CheckoutButton.tsx -- Action owns the mutation ceremony</span>
+<span class="code-kw">function</span> <span class="code-fn">CheckoutButton</span>() {
+  <span class="code-kw">const</span> { <span class="code-var">items</span>, <span class="code-var">clearCart</span> } = <span class="code-fn">useCartStore</span>();
+  <span class="code-kw">const</span> [<span class="code-var">optimisticItems</span>, <span class="code-fn">setOptimisticItems</span>] = <span class="code-fn">useOptimistic</span>(<span class="code-var">items</span>);
+
+  <span class="code-kw">const</span> [<span class="code-var">state</span>, <span class="code-var">dispatch</span>, <span class="code-var">isPending</span>] = <span class="code-fn">useActionState</span>(
+    <span class="code-kw">async</span> () =&gt; {
+      <span class="code-fn">setOptimisticItems</span>([]);         <span class="code-cmt">// optimistic: empty the cart immediately</span>
+      <span class="code-kw">const</span> <span class="code-var">order</span> = <span class="code-kw">await</span> <span class="code-fn">placeOrder</span>(<span class="code-var">items</span>);
+      <span class="code-var">clearCart</span>();                     <span class="code-cmt">// confirmed: now update the Zustand store</span>
+      <span class="code-kw">return</span> { <span class="code-var">orderId</span>: <span class="code-var">order</span>.<span class="code-var">id</span> };
+    },
+    <span class="code-num">null</span>
+  );
+
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-type">div</span>&gt;
+      &lt;<span class="code-type">CartPreview</span> <span class="code-var">items</span>={<span class="code-var">optimisticItems</span>} /&gt;
+      &lt;<span class="code-type">button</span> <span class="code-var">onClick</span>={<span class="code-var">dispatch</span>} <span class="code-var">disabled</span>={<span class="code-var">isPending</span>}&gt;
+        {<span class="code-var">isPending</span> ? <span class="code-str">'Placing order...'</span> : <span class="code-str">'Place Order'</span>}
+      &lt;/<span class="code-type">button</span>&gt;
+      {<span class="code-var">state</span>?.<span class="code-var">orderId</span> &amp;&amp; &lt;<span class="code-type">p</span>&gt;Order #{<span class="code-var">state</span>.<span class="code-var">orderId</span>} confirmed!&lt;/<span class="code-type">p</span>&gt;}
+    &lt;/<span class="code-type">div</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <p>See how the division of labour works here. Zustand holds the cart items. Every component showing a cart badge, checkout summary, or drawer is subscribed to the same store and re-renders efficiently only when items change. The Action handles the async coordination: it fires the optimistic update, makes the network call, writes the confirmed change back to the store on success, and rolls back automatically on failure. Each tool is doing exactly what it's good at.</p>
+
+    <h3>With Server Actions and TanStack Query</h3>
+    <p>This three-tool pattern becomes even more natural in a Next.js App Router setup. <code>useActionState</code> coordinates the client-side pending and error UI. The Server Action runs on the server and revalidates the cache. TanStack Query handles the resulting refetch and shared cache invalidation on the client side. Each tool owns exactly one concern, and none of them step on each other's toes.</p>
+
+    <div class="callout">
+      <div class="callout-label">A Note on Server Components</div>
+      <p>React Server Components do change this picture in one important way. A lot of what was previously shared client state, specifically fetched data, can now simply be server state rendered at the component level. RSC genuinely shrinks the "shared client state" category for many applications. You may need less Zustand if your data is server-rendered.</p>
+      <p>But please don't credit Actions for this. RSC is doing that work, not Actions. They happen to ship in the same major version, but they are separate features addressing separate problems.</p>
+    </div>
+  </section>
+
+  <!-- 07 ANTI-PATTERNS -->
+  <section>
+    <div class="section-num">07 &#183; Anti-Patterns</div>
+    <h2>What Goes Wrong When Teams Over-Reach</h2>
+    <p>Teams that push Actions beyond their design envelope tend to land on one of three anti-patterns. I've seen all three show up in pull requests and Slack threads within weeks of React 19 going stable. Each one looks reasonable when it first appears in a codebase, and each one becomes a genuine maintenance headache as the codebase grows.</p>
+
+    <h3>Anti-Pattern 1: The Context-Wrapped Action Store</h3>
+    <p>A developer needs to share the result of a <code>useActionState</code> across components. The path of least resistance is to put it in Context. This works initially, but the moment the state starts updating frequently, every context consumer re-renders on every update, including the components that don't care about the changed slice. So the team adds <code>useMemo</code>. Then context splitting. And now they've reinvented a worse version of Zustand with more ceremony and zero DevTools support.</p>
+
+    <div class="code-block">
+      <div class="code-label">Anti-Pattern &#183; Action State Tunnelled Through Context</div>
+      <pre><span class="code-cmt">// &#9888; This pattern collapses under scale</span>
+<span class="code-kw">const</span> <span class="code-type">CartContext</span> = <span class="code-fn">createContext</span>(<span class="code-num">null</span>);
+
+<span class="code-kw">function</span> <span class="code-fn">CartProvider</span>({ <span class="code-var">children</span> }) {
+  <span class="code-kw">const</span> [<span class="code-var">state</span>, <span class="code-var">dispatch</span>, <span class="code-var">isPending</span>] = <span class="code-fn">useActionState</span>(
+    <span class="code-var">cartReducerAction</span>,
+    <span class="code-var">initialCart</span>
+  );
+  <span class="code-cmt">// Every context consumer re-renders on every cart change.</span>
+  <span class="code-cmt">// Header badge, drawer, summary, checkout -- all re-render together.</span>
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-type">CartContext.Provider</span> <span class="code-var">value</span>={{ <span class="code-var">state</span>, <span class="code-var">dispatch</span>, <span class="code-var">isPending</span> }}&gt;
+      {<span class="code-var">children</span>}
+    &lt;/<span class="code-type">CartContext.Provider</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <h3>Anti-Pattern 2: The Chained Action Dependency Graph</h3>
+    <p>A developer needs one async action to trigger another in sequence. Because Actions have no built-in composition model, they wire this together with <code>useEffect</code> watching the state of the first action to kick off the second. This is the classic derived-state-as-effect problem, one of React's most documented footguns, now reimplemented with a new API. When something in the chain fails, debugging it is just as painful as effect-chaining has always been. The new hook does not fix the underlying pattern.</p>
+
+    <h3>Anti-Pattern 3: The Missing Rollback on Multi-Component Optimism</h3>
+    <p>A developer applies <code>useOptimistic</code> in one component for a mutation whose results also appear in a sibling component. The sibling has no corresponding optimistic update. The mutation fails, rolls back in the first component automatically, but the sibling has already re-rendered from stale server state. The UI is now inconsistent. Because the Action's state is local, there is no single source of truth to roll back from. This bug is subtle, hard to reproduce in tests, and easy to miss in code review entirely.</p>
+
+    <div class="pull-quote">
+      <p>"Optimistic state only rolls back where it was applied. If your optimistic update and your shared state live in different places, you have created a consistency problem for yourself."</p>
+    </div>
+  </section>
+
+  <!-- 08 DECISION GUIDE -->
+  <section>
+    <div class="section-num">08 &#183; Decision Guide</div>
+    <h2>A Practical Guide: When to Use What</h2>
+    <p>The decision of when to reach for Actions, when to use a state library, and when to use a server-state tool is not philosophically complicated. It comes down to a few concrete questions about the specific state you're working with. I use something like this during code reviews when the choice isn't immediately obvious.</p>
+
+    <ol class="styled">
+      <li><span><strong>Does any component outside this one need to read or write this state?</strong> If yes, you need a store. Actions are not the right fit here. If no, Actions may be all you need.</span></li>
+      <li><span><strong>Does this state need to survive a component unmount?</strong> If the user navigates away and comes back, should the state still be there? Actions reset on unmount. A store persists as long as the app is running.</span></li>
+      <li><span><strong>Is this state the result of a server fetch?</strong> If yes, it is server state. Use TanStack Query, SWR, or a router loader. Use an Action to trigger mutations against it, but not to hold the fetched value itself.</span></li>
+      <li><span><strong>Do you need to debug state changes over time?</strong> Actions leave no audit trail whatsoever. If you want DevTools support or time-travel debugging for this state, you need a store with DevTools integration.</span></li>
+      <li><span><strong>Is this a form submission that needs a loading state and an error display?</strong> This is precisely the Actions use case. Use <code>useActionState</code> and don't reach for a state library here -- that's overkill.</span></li>
+    </ol>
+
+    <div class="highlight-box">
+      <strong>The Short Version</strong>
+      If the state is about <em>what's happening right now in this component</em> -- loading, error, optimistic preview -- use Actions. If the state is about <em>what the application knows</em> -- user session, cart contents, filter settings, notification count -- use a store. If the state <em>came from a server</em>, use a server-state library. These categories rarely overlap, and when they do, the right answer is usually all three tools working together, each doing its part.
+    </div>
+  </section>
+
+  <!-- 09 WHAT ACTUALLY CHANGES -->
+  <section>
+    <div class="section-num">09 &#183; What Actually Changes</div>
+    <h2>What React 19 Genuinely Makes Obsolete</h2>
+    <p>I've spent most of this piece arguing about what Actions don't replace. Let me be equally direct about what they do replace, because there is real code that becomes unnecessary with React 19, and that is worth celebrating properly.</p>
+
+    <h3>The Loading/Error useState Triplet</h3>
+    <p>Every async component that wasn't using a data-fetching library had this pattern. Three separate <code>useState</code> calls -- <code>isLoading</code>, <code>error</code>, <code>data</code> -- manually set in the right order inside a <code>try/catch/finally</code> block. <code>useActionState</code> collapses this into one hook call with better semantics and fewer opportunities to leave state in an inconsistent condition during an error. This is a genuine improvement with no downsides.</p>
+
+    <h3>Manual Optimistic State With Rollback</h3>
+    <p>The pattern of snapshotting pre-mutation state, applying a speculative update, and conditionally rolling back inside a catch block was common and quite fragile. I've written it myself more times than I'd care to admit. <code>useOptimistic</code> makes this first-class. If your only reason for having a state library in a particular component was to enable this pattern locally, you may genuinely be able to remove that dependency.</p>
+
+    <h3>Submission-Guarding Refs</h3>
+    <p>The <code>const isSubmitting = useRef(false)</code> trick, used to prevent double-submission while an async action is in flight. <code>useActionState</code>'s <code>isPending</code> handles this automatically. While an action is running, new dispatches are queued rather than duplicated. One less manual guard to forget to add.</p>
+
+    <h3>Some Custom useAsync Hooks</h3>
+    <p>Many codebases have a custom <code>useAsync</code> utility that wraps the loading/error/data triplet into something reusable. If that hook was mainly used for mutation coordination rather than data fetching, <code>useActionState</code> is a cleaner, more integrated replacement. If it was primarily used for fetching data, TanStack Query is still the better tool and nothing has changed on that front.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">~40%</div>
+        <div class="stat-label">Less Boilerplate<br/>for Form Mutations</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">State Libraries<br/>Actions Replace</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Patterns Genuinely<br/>Made Obsolete</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1</div>
+        <div class="stat-label">Problem Space<br/>Correctly Targeted</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 CONCLUSION -->
+  <section>
+    <div class="section-num">10 &#183; Conclusions</div>
+    <h2>Respect the Boundary, and the API Gets Better</h2>
+    <p>React 19 Actions are a meaningful quality-of-life improvement for a specific, real problem: coordinating the pending and error states of an async mutation in a form or UI element. They do this with less code, better semantics, and native form integration than anything React has offered before. The design is thoughtful and it shows.</p>
+    <p>The problem is not the feature. The problem is the story we tell around it. When a new API ships that reduces boilerplate, the community's first instinct is to expand its scope until it covers everything, including use cases it was never designed for. This is how Redux became a verb for "any state management at all," and it's how Actions risk becoming a verb for "any async anything."</p>
+    <p>I see this pattern repeat every couple of years. A genuinely useful tool ships. People overfit it to every problem they have. The backlash arrives. The tool gets labelled "overcomplicated" or "a mistake." Then someone writes a new library that does the thing the original tool was actually good at, and the cycle starts again. We'd collectively save ourselves a lot of trouble if we got better at reading the design intent of a tool before expanding its use.</p>
+    <p>Use Actions for what they're built for: async mutation coordination local to a component. Keep <code>useOptimistic</code> for instant UI feedback before the server confirms. Let TanStack Query own your fetched data. Keep your state library for shared client state. These tools are not competing with each other. They form a stack, and the stack is better than the sum of its parts precisely because each tool stays in its lane.</p>
+
+    <div class="ornament">&#183; &#183; &#183;</div>
+
+    <div class="callout">
+      <div class="callout-label">Recommended Stack &#183; React 19 Production Baseline</div>
+      <p><span class="tag green">useActionState</span> <span class="tag green">useOptimistic</span> <span class="tag">Zustand 5</span> <span class="tag">TanStack Query v5</span> <span class="tag">React Hook Form</span> <span class="tag">Zod</span></p>
+      <p style="margin-top:14px;">This stack covers all three state categories cleanly. Actions handle mutation coordination; Zustand handles shared client state with selector subscriptions and DevTools; TanStack Query manages server state with caching, background refetch, and optimistic updates for server-state mutations; React Hook Form manages form field state without causing unnecessary re-renders; Zod validates at the boundary. Nothing overlaps, everything composes, and six months from now you won't regret the choices.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    Code examples are illustrative and simplified for clarity. Type annotations are TypeScript. React 19 API surface was accurate at time of writing (April 2026). Figures such as the 40% boilerplate reduction are rough estimates based on common form mutation patterns and should not be taken as precise measurements.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>

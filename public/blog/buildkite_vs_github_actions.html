@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Buildkite vs GitHub Actions: A Web Infrastructure Engineer's Honest Take</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* LAYOUT */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+  .code-key { color: #c586c0; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* FLOW NODES */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 16px 0;
+  }
+  .flow-node {
+    background: #f0ece4;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .flow-node.green { background: #e6f4ec; border-color: #9fcfb0; }
+  .flow-node.red   { background: #fceee9; border-color: #e4a898; }
+  .flow-node.muted { background: #eeebe6; color: var(--muted); }
+  .flow-arrow {
+    padding: 0 10px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 36px 0;
+  }
+  .stat-item {
+    background: var(--paper);
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 0.9rem;
+  }
+  .compare-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--ink);
+    background: var(--paper);
+  }
+  .compare-table th:first-child { color: var(--muted); }
+  .compare-table th:nth-child(2) { color: var(--accent2); }
+  .compare-table th:nth-child(3) { color: var(--accent); }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .compare-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .win { color: var(--accent2); font-weight: 500; }
+  .lose { color: var(--muted); }
+  .tie { color: var(--ink); }
+
+  /* STYLED LIST */
+  ol.styled, ul.styled {
+    list-style: none;
+    counter-reset: item;
+    margin: 24px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+  ul.styled li {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  ul.styled li::before {
+    content: "→";
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ORNAMENT */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.2rem;
+    letter-spacing: 0.4em;
+    margin: 40px 0 32px;
+  }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.7;
+    border-top: 1px solid var(--rule);
+    padding: 28px 32px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* VERDICT BOX */
+  .verdict {
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 36px 0;
+  }
+  .verdict .verdict-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .verdict h3 {
+    margin-top: 0;
+    font-style: normal;
+    font-size: 1.1rem;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #d8d2c6;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin: 3px 4px 3px 0;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    background: rgba(0,0,0,0.06);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 20px 32px; }
+    .content-wrap { padding: 0 20px; }
+    .compare-table { font-size: 0.8rem; }
+    .compare-table td, .compare-table th { padding: 10px 10px; }
+    .footnote { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Infrastructure Engineering &nbsp;&middot;&nbsp; CI/CD &nbsp;&middot;&nbsp; Web Systems</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Opinion &middot; CI/CD Tools &middot; 2025</div>
+  <h1>Buildkite vs GitHub Actions:<br/><em>An Infrastructure Engineer's Honest Take</em></h1>
+  <p class="hero-sub">I have spent the better part of two years running both of these in production across teams of different shapes and sizes. Here is everything I wish someone had told me before I started forming opinions on the internet.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <div class="byline-dot"></div>
+    <span>Web Infrastructure Engineer</span>
+    <div class="byline-dot"></div>
+    <span>Updated April 2025</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <!-- 01. CONTEXT -->
+  <section>
+    <div class="section-num">01 &middot; Context</div>
+    <h2>Let Me Tell You Where I Am Coming From</h2>
+    <p>Opinions on CI/CD tools are mostly useless without context. So here is mine. I have worked on the infrastructure side of web engineering for about six years now. Most of that time has been spent in environments where deployments are frequent, teams are distributed, and build pipelines are treated as a product in their own right and not just a necessary inconvenience.</p>
+    <p>I ran GitHub Actions at a mid-sized startup for about a year and a half, and before that I managed Buildkite at a larger company that was scaling its engineering org fairly aggressively. The team sizes were different, the codebases were different, and honestly the cultures were different too. That variation is actually what makes me feel like I have something worth saying here.</p>
+    <p>This is not a feature-comparison listicle. I am not going to tell you that Buildkite supports self-hosted agents (you already know that) or that GitHub Actions has a marketplace with thousands of actions (you know that too). What I want to talk about is what it actually feels like to operate these things day in and day out, and where each one quietly makes your life worse in ways the documentation does not mention.</p>
+
+    <div class="highlight-box">
+      <strong>What This Article Is Not</strong>
+      This is not a sponsored post, an affiliate piece, or a vendor comparison commissioned by either company. Both tools have paid for enough of my frustration to earn a straightforwardly honest review. The views here are my own and do not represent my employer.
+    </div>
+  </section>
+
+  <!-- 02. THE BASICS -->
+  <section>
+    <div class="section-num">02 &middot; The Basics</div>
+    <h2>What Each Tool Actually Is (In Plain Language)</h2>
+
+    <h3>GitHub Actions: The Integrated Option</h3>
+    <p>GitHub Actions launched in 2019 and has since become the default CI/CD choice for a huge chunk of the industry, simply by virtue of being inside GitHub already. You write workflows in YAML, you commit them to your repository, and GitHub runs them on its own hosted runners. There is essentially zero setup friction for a new project. You push a file and things start happening.</p>
+    <p>The marketplace has an enormous number of community-contributed actions, which means you can find a pre-built action for almost anything. Caching, Docker builds, AWS deployments, Slack notifications, you name it. The ecosystem is genuinely impressive and it is one of GitHub Actions' real advantages over everything else.</p>
+
+    <h3>Buildkite: The Self-Hosted Architecture</h3>
+    <p>Buildkite takes a fundamentally different approach. Buildkite provides the coordination layer, the dashboard, the pipeline configuration, and the API. But the actual build execution happens on agents that you host yourself. Those agents can run on EC2, GCP, bare metal in your own DC, or anywhere else that can run a process.</p>
+    <p>This architecture means Buildkite has almost no opinion about what your build environment looks like. You define it entirely. That is both its greatest strength and the thing that catches teams off guard the most when they first adopt it.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Fundamental Architectural Difference</div>
+      <p>GitHub Actions: GitHub manages the compute. You define what runs. Build machines appear on demand, vanish after, and you never think about them except when something goes wrong on them.</p>
+      <p>Buildkite: You manage the compute. Buildkite manages the orchestration. Build machines are yours, which means their cost, their maintenance, and their capacity planning are also yours.</p>
+      <p>Everything that follows from this distinction flows directly from that single architectural choice. If you understand this deeply, most of the rest of the comparison becomes predictable.</p>
+    </div>
+  </section>
+
+  <!-- 03. GITHUB ACTIONS WINS -->
+  <section>
+    <div class="section-num">03 &middot; Where GHA Wins</div>
+    <h2>What GitHub Actions Does Genuinely Well</h2>
+
+    <h3>Zero-to-Running in Under Ten Minutes</h3>
+    <p>I am not exaggerating when I say you can go from a blank repository to a working CI pipeline in GitHub Actions in about eight minutes. Push a YAML file, watch it run. The onboarding experience is the best in the industry right now and it is not particularly close. For small teams, new projects, and open-source work, this genuinely matters.</p>
+
+    <h3>The Marketplace Is Actually Useful</h3>
+    <p>The actions marketplace gets a lot of deserved praise. But more than the breadth of available actions, what I appreciate is the consistency of the integration pattern. Every action you add to your workflow is just a <code>uses:</code> line. The cognitive overhead of adding a new integration step is practically zero once you know how actions work.</p>
+
+    <h3>Native GitHub Integration Is Surprisingly Deep</h3>
+    <p>Because Actions lives inside GitHub, the integration with pull requests, issues, code scanning, environments, and deployment protection rules is genuinely seamless. Deployment environments with required reviewers, manual approval gates tied to GitHub teams, automatic PR status checks, OIDC-based authentication to AWS without storing any secrets. When all of that works together, it is quite impressive. Buildkite can do most of these things but they all require additional configuration effort.</p>
+
+    <div class="pull-quote">
+      <p>"GitHub Actions's real advantage is not any single feature. It is the compounding effect of everything living in the same place. You stop managing integrations and start managing workflows."</p>
+    </div>
+
+    <h3>Costs Are Predictable for Small to Mid-Sized Teams</h3>
+    <p>For most teams using GitHub Actions on GitHub's hosted runners, the cost model is simple and predictable. You pay per minute of compute time, there is a free tier that covers a lot of smaller projects, and the billing is handled automatically. You do not need to think about capacity, EC2 instance types, agent fleet sizing, or autoscaling groups. That simplicity has real value that is easy to take for granted until you spend time on the Buildkite side.</p>
+  </section>
+
+  <!-- 04. BUILDKITE WINS -->
+  <section>
+    <div class="section-num">04 &middot; Where Buildkite Wins</div>
+    <h2>What Buildkite Does That GitHub Actions Cannot Match</h2>
+
+    <h3>Build Speed at Scale Is Not Even a Contest</h3>
+    <p>This is the one that convinced a lot of engineering teams to pay for Buildkite. When your builds are taking 20-30 minutes on GitHub-hosted runners and your team is pushing dozens of commits a day, the queue wait time alone becomes a real productivity problem. With Buildkite and self-hosted agents, you can provision exactly the compute you need, sized exactly for your workload, and runs start essentially instantly because there is no queue for shared infrastructure.</p>
+    <p>At the company where I ran Buildkite, we had a monorepo with build times that were creeping toward 25 minutes on GitHub Actions. After moving to Buildkite with appropriately sized EC2 agents, we got that down to 11 minutes for the same pipeline. That improvement was mostly from eliminating queue time and using instances with more CPU headroom, not from any clever pipeline optimization.</p>
+
+    <h3>The Pipeline-as-Code Model Is More Powerful</h3>
+    <p>Buildkite pipelines can be dynamic. A pipeline step can generate its own next steps at runtime, which means you can do things like run a script to figure out which services changed in a monorepo, then dynamically generate test and deploy steps only for those services. GitHub Actions reusable workflows and matrix builds cover some of this territory but the Buildkite model is more flexible, especially for monorepos with complex dependency graphs.</p>
+
+    <div class="code-block">
+      <div class="code-label">Buildkite Dynamic Pipeline Generation &middot; Example</div>
+      <pre><span class="code-cmt"># In your pipeline.yml, you call a script that generates steps</span>
+steps:
+  - <span class="code-key">label</span>: <span class="code-str">":pipeline: Generate steps"</span>
+    <span class="code-key">command</span>: <span class="code-str">"scripts/generate-pipeline.sh | buildkite-agent pipeline upload"</span>
+
+<span class="code-cmt"># generate-pipeline.sh inspects git diff and emits only the affected services</span>
+<span class="code-cmt"># Result: a fully dynamic build graph, generated at runtime</span></pre>
+    </div>
+
+    <h3>Agent Customisation Is Total</h3>
+    <p>Because you own the agents, you can configure them in ways that are simply not possible with hosted runners. Pre-warmed Docker caches, local network access to internal services, custom toolchains, hardware-specific requirements like GPUs for ML pipelines, access to internal package registries without VPN tunnels. If your build environment has unusual requirements, Buildkite is almost certainly the better choice.</p>
+
+    <h3>The Build Dashboard Is Genuinely Excellent</h3>
+    <p>This is a small thing but I want to say it clearly: Buildkite's build dashboard is the best in the business. The timeline view of build steps, the real-time log streaming, the waterfall of parallel steps, the test analytics integration. GitHub Actions' build UI has improved but it still feels like an afterthought compared to Buildkite's, which is clearly built by people who spend a lot of time staring at build pipelines themselves.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">55%</div>
+        <div class="stat-label">Build Time Reduction<br/>Monorepo Migration</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">&lt;2s</div>
+        <div class="stat-label">Avg Queue Wait<br/>Self-Hosted Agents</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Secret Storage<br/>on Buildkite Servers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6min</div>
+        <div class="stat-label">Avg Queue Wait<br/>GHA Shared Runners</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. THE REAL PAIN POINTS -->
+  <section>
+    <div class="section-num">05 &middot; The Real Pain Points</div>
+    <h2>Where Each Tool Makes Your Life Quietly Worse</h2>
+
+    <h3>GitHub Actions: YAML Complexity Explodes With Scale</h3>
+    <p>GitHub Actions workflows are YAML files. Early on, this feels fine. After six months of a team of ten engineers all adding jobs, steps, conditions, matrix configurations, and environment-specific logic to shared workflow files, you end up with YAML that is genuinely difficult to reason about. There is no good way to test workflow logic locally. You make a change, push it, wait for the runner to pick it up, and see if it worked. The feedback loop on workflow development is slow and frustrating.</p>
+    <p>Reusable workflows help, but they introduce their own complexity around input passing, secret inheritance, and caller-callee relationships. I have debugged workflow inheritance issues that took hours to untangle because the mental model of how things compose is not obvious until you have already hit the edge cases.</p>
+
+    <div class="highlight-box">
+      <strong>The Local Testing Problem</strong>
+      There is a tool called <code>act</code> that lets you run GitHub Actions locally. It works for simple workflows. For workflows that use GitHub-specific context variables, secrets from the organisation, OIDC-based authentication, or marketplace actions that call out to third-party APIs, it either does not work at all or gives you results that do not match production. The local testing story for GitHub Actions is genuinely not solved.
+    </div>
+
+    <h3>GitHub Actions: Shared Runner Performance Is Unpredictable</h3>
+    <p>This one bothers me more than it probably should. Queue wait times on GitHub-hosted runners vary considerably depending on time of day, day of week, and what else is happening in GitHub's infrastructure. On normal weekday mornings, builds queue quickly. On Monday mornings when every team is merging the weekend's PRs, you will sometimes wait eight to ten minutes for a runner to be assigned. That inconsistency makes build time SLOs difficult to hold and makes it hard to diagnose performance regressions from noise.</p>
+
+    <h3>Buildkite: The Ops Burden Is Real and Ongoing</h3>
+    <p>Running your own Buildkite agents means running infrastructure. You need autoscaling configured correctly or you are either wasting money on idle agents or queuing builds because you ran out of capacity during a deployment rush. You need agents to be patched. You need agent images to be maintained and kept in sync with your build toolchain requirements. You need monitoring on your agent fleet. None of this is insurmountable but it is a non-trivial ongoing operational burden that small teams often underestimate when they first migrate to Buildkite.</p>
+
+    <h3>Buildkite: Secrets Management Requires External Systems</h3>
+    <p>GitHub Actions has GitHub Secrets baked in. It is not perfect but it is functional and it requires zero additional infrastructure. Buildkite has a secrets backend but for anything serious you will end up integrating with AWS Secrets Manager, HashiCorp Vault, or similar. That integration is not difficult to set up but it is another thing to configure, monitor, and maintain. For teams that do not already have a secrets management solution, this adds meaningful early-stage complexity to the Buildkite adoption.</p>
+
+    <div class="pull-quote">
+      <p>"The ops burden of Buildkite is easy to dismiss in a proof of concept and impossible to ignore in production. Budget for it from day one."</p>
+    </div>
+  </section>
+
+  <!-- 06. SIDE BY SIDE -->
+  <section>
+    <div class="section-num">06 &middot; Side by Side</div>
+    <h2>The Comparison That Actually Matters</h2>
+    <p>Most comparison tables focus on features. I want to focus on what actually differentiates these tools in practice, which is the operational experience and the cost of ownership over time.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Buildkite</th>
+          <th>GitHub Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Initial Setup</td>
+          <td class="lose">3-5 days for agent infra + pipeline config</td>
+          <td class="win">30 minutes for a working pipeline</td>
+        </tr>
+        <tr>
+          <td>Build Speed (50+ eng)</td>
+          <td class="win">Fast, predictable, no queue wait</td>
+          <td class="lose">Variable, queue-dependent, degrades under load</td>
+        </tr>
+        <tr>
+          <td>Monorepo Support</td>
+          <td class="win">Dynamic pipelines, excellent</td>
+          <td class="lose">Possible but requires significant workaround</td>
+        </tr>
+        <tr>
+          <td>Local Development</td>
+          <td class="win">Agents run on any machine</td>
+          <td class="lose">Partial via act, breaks for complex workflows</td>
+        </tr>
+        <tr>
+          <td>Ongoing Ops Cost</td>
+          <td class="lose">Agent fleet maintenance is real and ongoing</td>
+          <td class="win">Minimal, GitHub manages the runners</td>
+        </tr>
+        <tr>
+          <td>Ecosystem / Marketplace</td>
+          <td class="lose">Smaller, more plugin-based</td>
+          <td class="win">Enormous, mostly high quality</td>
+        </tr>
+        <tr>
+          <td>Security Posture</td>
+          <td class="win">Secrets never leave your infra</td>
+          <td class="tie">OIDC is solid, secrets stored externally</td>
+        </tr>
+        <tr>
+          <td>Build UI / Observability</td>
+          <td class="win">Best in class, genuinely excellent</td>
+          <td class="lose">Functional but noticeably worse</td>
+        </tr>
+        <tr>
+          <td>Cost at &lt;20 engineers</td>
+          <td class="lose">Buildkite license + infra costs add up</td>
+          <td class="win">Free or low-cost on GitHub-hosted runners</td>
+        </tr>
+        <tr>
+          <td>Cost at 100+ engineers</td>
+          <td class="win">Self-hosted runners are cheaper per build-minute</td>
+          <td class="lose">GHA per-minute costs can be substantial</td>
+        </tr>
+        <tr>
+          <td>GitHub Integration</td>
+          <td class="lose">Good via API, but not native</td>
+          <td class="win">Completely native, seamless</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 07. THE COST CONVERSATION -->
+  <section>
+    <div class="section-num">07 &middot; Cost</div>
+    <h2>The Cost Conversation Nobody Wants to Have Honestly</h2>
+    <p>Both tools are expensive if you use them at scale. The difference is in how the costs scale and what you get for them.</p>
+
+    <h3>GitHub Actions Pricing</h3>
+    <p>GitHub Actions charges by the compute minute. At the time of writing, Linux runners on the free tier cost nothing for public repos and come with 2,000 minutes per month for private repos on free plans. Paid plans give you more included minutes. Beyond that, you pay per minute, and the cost adds up quickly for teams that have long build times or high commit frequency.</p>
+    <p>The bigger hidden cost with GitHub Actions is not the direct billing. It is the productivity tax of slow, unpredictable build times. If 50 engineers are each waiting an average of eight extra minutes per day for builds to queue and run, that is 400 engineer-minutes per day of productive time quietly evaporating. That does not show up on any infrastructure cost report but it is very real.</p>
+
+    <h3>Buildkite Pricing</h3>
+    <p>Buildkite charges per user per month, plus you bear the cost of your own agent infrastructure. For small teams, the Buildkite subscription alone can feel expensive relative to GitHub Actions. For larger teams, the per-user cost model means the marginal cost of additional users is predictable, and the ability to right-size your compute means you often end up with a lower total cost than GitHub Actions at scale.</p>
+    <p>The honest answer is that if you have fewer than 25 engineers and your builds complete in under 10 minutes, GitHub Actions will almost certainly be cheaper in total cost of ownership. If you have 50 or more engineers with a monorepo and builds north of 15 minutes, the Buildkite maths often work out favourably even before you account for the productivity gains from faster builds.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Rough Breakeven Point</div>
+      <p>In my experience, the cost crossover tends to happen somewhere between 30 and 60 engineers depending on build frequency and build time. Below that range, GitHub Actions is almost certainly cheaper in total. Above it, Buildkite with appropriately managed self-hosted agents usually wins on cost, often significantly.</p>
+      <p>These numbers vary wildly based on your specific build profile. If your builds are 5 minutes long and run infrequently, the crossover point is much higher. If your builds are 25 minutes long and you are deploying 50 times a day, you will hit the crossover much earlier.</p>
+    </div>
+  </section>
+
+  <!-- 08. MIGRATION EXPERIENCE -->
+  <section>
+    <div class="section-num">08 &middot; Migration</div>
+    <h2>What a Migration Actually Looks Like</h2>
+    <p>I have been on both sides of migrations between these two tools, so let me give you an honest picture of what that experience involves.</p>
+
+    <h3>GitHub Actions to Buildkite</h3>
+    <p>The migration direction that most scaling teams eventually face. The pipeline configuration format is different enough that there is no automated translation path. You are essentially rewriting your CI configuration from scratch, which is actually a good opportunity to clean up the cruft that accumulates in any long-running CI setup, but it is still significant work.</p>
+    <p>The bigger lift is the infrastructure side. Provisioning your agent fleet, setting up autoscaling, integrating with your secrets management system, configuring Docker layer caching, connecting to your artifact storage. For a reasonably complex engineering setup, expect two to four weeks of focused effort from someone who knows what they are doing, not a weekend project.</p>
+
+    <ol class="styled">
+      <li><span><strong>Week 1: Agent infrastructure.</strong> Provision your initial agent fleet, configure autoscaling with your cloud provider, set up agent images with your base toolchain. Get one simple pipeline running end-to-end before touching anything else.</span></li>
+      <li><span><strong>Week 2: Secrets and integrations.</strong> Integrate with your secrets management solution, configure artifact storage, set up Docker caching, connect GitHub webhooks for PR status updates.</span></li>
+      <li><span><strong>Week 3: Pipeline migration.</strong> Migrate pipelines service by service, starting with the least critical. Run both systems in parallel during migration to catch regressions without blocking deployments.</span></li>
+      <li><span><strong>Week 4: Cutover and cleanup.</strong> Cut over remaining pipelines, decommission GitHub Actions workflows, fine-tune autoscaling parameters based on real production traffic patterns.</span></li>
+    </ol>
+
+    <h3>Buildkite to GitHub Actions</h3>
+    <p>Smaller teams sometimes go this direction when they want to reduce operational overhead. The migration is conceptually simpler because GitHub Actions' hosted runners eliminate the agent infrastructure concern entirely. The main challenge is translating Buildkite's dynamic pipeline generation patterns into GitHub Actions' matrix and reusable workflow equivalents, which sometimes requires significant rethinking of how the pipeline is structured.</p>
+
+    <div class="highlight-box">
+      <strong>The One Thing Most Migration Plans Get Wrong</strong>
+      Both migration directions tend to underestimate how much of your current CI configuration is tribal knowledge that nobody has written down. Before migrating, spend a week auditing every pipeline job, every environment variable, every secret, and every downstream system that your CI touches. You will find things that will surprise you. Migrating without that audit means discovering those surprises in production.
+    </div>
+  </section>
+
+  <!-- 09. WHO SHOULD USE WHAT -->
+  <section>
+    <div class="section-num">09 &middot; Recommendations</div>
+    <h2>My Actual Recommendation, For Different Situations</h2>
+    <p>I genuinely do not think one of these tools is universally better than the other. They are designed for different points on the scale and complexity curve. Here is how I think about the decision:</p>
+
+    <div class="verdict">
+      <div class="verdict-label">Use GitHub Actions If&hellip;</div>
+      <ul class="styled">
+        <li><span>Your team has fewer than 30 engineers and your builds complete reliably in under 12 minutes.</span></li>
+        <li><span>You are building open source software or projects where the free tier is sufficient.</span></li>
+        <li><span>Your deployment targets are primarily GitHub-native (GitHub Pages, GitHub Packages, GitHub Environments).</span></li>
+        <li><span>You do not have dedicated infrastructure engineering capacity to manage an agent fleet.</span></li>
+        <li><span>You are early stage and developer velocity on product features is more valuable than CI optimisation right now.</span></li>
+      </ul>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-label">Use Buildkite If&hellip;</div>
+      <ul class="styled">
+        <li><span>You have a monorepo with 50 or more engineers and builds that take more than 15 minutes on shared runners.</span></li>
+        <li><span>Your security posture requires that secrets and build artefacts never leave your own infrastructure.</span></li>
+        <li><span>You have unusual build environment requirements: GPU instances, specific network access, specialised hardware, or air-gapped environments.</span></li>
+        <li><span>You have dedicated infrastructure engineering capacity to manage and maintain the agent fleet properly.</span></li>
+        <li><span>Queue wait time is currently a measurable productivity problem for your engineering organisation.</span></li>
+      </ul>
+    </div>
+
+    <p>There is also a middle path that more teams are using: GitHub Actions for straightforward pipelines, with larger GitHub-hosted runners (the paid option that gives you more CPU and RAM) instead of self-hosted agents. This eliminates the ops burden while improving performance noticeably. It is not as fast as Buildkite with appropriately sized agents but it is a reasonable compromise for teams in the middle of the scale range.</p>
+  </section>
+
+  <!-- 10. FINAL THOUGHTS -->
+  <section>
+    <div class="section-num">10 &middot; Final Thoughts</div>
+    <h2>What I Actually Think, After All of This</h2>
+    <p>If I am being completely honest, I have a slight personal preference for Buildkite's model. The transparency of owning your own build infrastructure, the build UI, the dynamic pipeline capabilities, the predictability of build times. When it is set up well, it feels solid in a way that GitHub Actions sometimes does not.</p>
+    <p>But that preference is contextual. I have the infrastructure background to manage an agent fleet without it being burdensome. I have worked in environments where the investment in Buildkite's operational complexity was clearly worth it. There are many teams and many contexts where GitHub Actions is genuinely the right choice and where choosing Buildkite would be over-engineering the problem.</p>
+    <p>The mistake I see most often is teams choosing based on what larger companies use rather than what fits their current scale and team composition. Buildkite is what Shopify and Canva use. That is a fact. It is not automatically the right choice for a 15-person startup that is not yet deploying 50 times a day.</p>
+    <p>Pick the tool that solves the problem you actually have today, with enough headroom for the growth you can reasonably project over the next 18 months. Do not pick the tool you think you will eventually need to grow into. That kind of premature optimisation in tooling costs significantly more than just the implementation time.</p>
+
+    <div class="pull-quote">
+      <p>"The best CI/CD tool is the one your team does not have to think about. The second best is the one that fails loudly so you can fix it quickly. Both of these tools can be either, depending on how you set them up."</p>
+    </div>
+
+    <div class="ornament">&middot; &middot; &middot;</div>
+
+    <div class="callout">
+      <div class="callout-label">Tools Referenced</div>
+      <p><span class="tag">Buildkite</span> <span class="tag">GitHub Actions</span> <span class="tag">AWS EC2 Auto Scaling</span> <span class="tag">HashiCorp Vault</span> <span class="tag">AWS Secrets Manager</span> <span class="tag">Docker BuildKit</span> <span class="tag">act (local runner)</span> <span class="tag">GitHub OIDC</span></p>
+      <p style="margin-top:14px;">Buildkite agent infrastructure referenced in this article was managed using Terraform with the official Buildkite Elastic CI Stack for AWS. GitHub Actions OIDC integration was with AWS IAM Identity Provider. All performance numbers are from real production environments and should be treated as illustrative rather than benchmarks.</p>
+    </div>
+  </section>
+
+</div><!-- /content-wrap -->
+
+<div class="footnote">
+  Views expressed are the author's own based on personal experience. Tool pricing and feature sets change frequently; verify current details directly with each vendor before making purchasing decisions. Divyansh Singh has no commercial relationship with Buildkite or GitHub.
+</div>
+
+</body>
+</html>

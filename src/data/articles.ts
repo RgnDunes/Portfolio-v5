@@ -12,6 +12,106 @@ export interface Article {
 
 export const articles: Article[] = [
   {
+    title: "What \"Zero Bundle Size\" Frameworks Actually Cost in Developer Experience",
+    type: "Performance",
+    description:
+      "The pitch is very attractive: ship no JavaScript, score 100 on Lighthouse. But the developer experience of working with Qwik, Astro Islands, and their cousins is a different story altogether.",
+    link: "/blog/zero-bundle-size-dx-cost.html",
+    icon: FaBookmark,
+    date: "May 2025",
+    stats: "Blog",
+  },
+  {
+    title: "Rollup Is Not Just for Libraries Anymore",
+    type: "Tooling",
+    description:
+      "For years we quietly assumed Rollup was the library bundler and Webpack was the application bundler. That line has blurred considerably. Here is why Rollup deserves a second look for your next production application.",
+    link: "/blog/rollup_article.html",
+    icon: FaBookmark,
+    date: "May 2025",
+    stats: "Blog",
+  },
+  {
+    title: "React 19 Actions Are Not a State Management Solution",
+    type: "React",
+    description:
+      "The new Actions API is a solid improvement for handling async mutations and form submissions. But teams are already reaching for it as a Zustand or Redux replacement, and that's a category error that will bite them at scale.",
+    link: "/blog/react19_actions_article.html",
+    icon: FaBookmark,
+    date: "May 2025",
+    stats: "Blog",
+  },
+  {
+    title: "No Isolation in npm Workspaces, And Why That Matters",
+    type: "Tooling",
+    description:
+      "npm workspaces make monorepo dependency management feel very convenient, but they deliberately share a single node_modules tree across every package. This design has consequences that quietly break reproducibility.",
+    link: "/blog/npm_workspaces_isolation.html",
+    icon: FaBookmark,
+    date: "April 2025",
+    stats: "Blog",
+  },
+  {
+    title: "npm Supply Chain Attacks: What Actually Happens Inside Your Registry",
+    type: "Security & Testing",
+    description:
+      "A proper look at how attackers get into your dependency tree, what they do once they are in, and why your lockfile alone is not going to save you.",
+    link: "/blog/npm_supply_chain_attacks.html",
+    icon: FaBookmark,
+    date: "April 2025",
+    stats: "Blog",
+  },
+  {
+    title: "Frontend Observability is Not a Backend Problem",
+    type: "Performance",
+    description:
+      "Your servers are green. Your APIs are healthy. Your dashboards look perfectly fine. And somewhere out there, a real user is staring at a blank white screen. Here is why that gap exists, and what you can actually do about it.",
+    link: "/blog/frontend_observability_article.html",
+    icon: FaBookmark,
+    date: "April 2025",
+    stats: "Blog",
+  },
+  {
+    title: "The Death of the Traditional CI/CD Pipeline",
+    type: "Tooling",
+    description:
+      "How AI-assisted deployments, platform engineering, and a new generation of tooling are dismantling the pipeline model we've relied on for a decade, and what actually comes next.",
+    link: "/blog/cicd_pipeline_article.html",
+    icon: FaBookmark,
+    date: "April 2025",
+    stats: "Blog",
+  },
+  {
+    title: "Buildkite vs GitHub Actions: A Web Infrastructure Engineer's Honest Take",
+    type: "Tooling",
+    description:
+      "I have spent the better part of two years running both of these in production across teams of different shapes and sizes. Here is everything I wish someone had told me before I started forming opinions.",
+    link: "/blog/buildkite_vs_github_actions.html",
+    icon: FaBookmark,
+    date: "April 2025",
+    stats: "Blog",
+  },
+  {
+    title: "AI Code Review Is Making Your Codebase Harder to Maintain",
+    type: "Best Practices",
+    description:
+      "Everyone is merging faster, the PR backlog is clean, and the dashboards look very good. So why does opening a module from eight months ago feel like reading someone else's fever dream?",
+    link: "/blog/ai_code_review_article.html",
+    icon: FaBookmark,
+    date: "April 2025",
+    stats: "Blog",
+  },
+  {
+    title: "I Let Claude & GPT-4 Play My Board Game Until It Was Bug-Free",
+    type: "Security & Testing",
+    description:
+      "How I used two competing AI models as adversarial test players to stress-test a web version of Monopoly Deal and Scotland Yard — and what the simulation taught me about edge cases no human tester would ever find.",
+    link: "/blog/ai_boardgame_testing_article.html",
+    icon: FaBookmark,
+    date: "April 2025",
+    stats: "Blog",
+  },
+  {
     title: "Frontend System Design of Google Docs (High-Level Design)",
     type: "System Design",
     description:
@@ -66,7 +166,7 @@ export const articles: Article[] = [
       "The Shadow DOM Explained: Achieving True Encapsulation in Web Components",
     type: "UI / CSS",
     description:
-      "This article unpacks the Shadow DOM — a powerful browser feature that enables true encapsulation in web components. Learn how it helps isolate styles and structure, making your components more modular and maintainable.",
+      "This article unpacks the Shadow DOM  - a powerful browser feature that enables true encapsulation in web components. Learn how it helps isolate styles and structure, making your components more modular and maintainable.",
     link: "https://medium.com/@rgndunes/exploring-javascript-engines-how-v8-optimises-code-execution-9d54ef1e551c",
     icon: FaMedium,
     date: "December 2024",
@@ -128,7 +228,7 @@ export const articles: Article[] = [
   },
   {
     title:
-      "Playing with Binary data — ArrayBuffer, TypedArray (Uint8, Uint16), DataView, Blob",
+      "Playing with Binary data  - ArrayBuffer, TypedArray (Uint8, Uint16), DataView, Blob",
     type: "Browser APIs",
     description:
       "This article breaks down how JavaScript handles binary data using ArrayBuffer, TypedArray, DataView, and Blob. It’s a hands-on guide for developers looking to work with low-level binary formats and memory-efficient data structures.",
@@ -150,7 +250,7 @@ export const articles: Article[] = [
   },
   {
     title:
-      "Balancing Act: Navigating Choices in Frontend Architecture — Micro-frontends vs. Monoliths",
+      "Balancing Act: Navigating Choices in Frontend Architecture  - Micro-frontends vs. Monoliths",
     type: "System Design",
     description:
       "This article explores the trade-offs between micro-frontends and monolithic architectures in frontend development. It helps developers and teams make informed decisions based on scalability, maintainability, and team structure.",
@@ -164,7 +264,7 @@ export const articles: Article[] = [
       "DOM - DOM API, Intersection observer, Mutation observer, Resize observer, iframes",
     type: "Browser APIs",
     description:
-      "This article dives deep into the DOM and its powerful APIs — covering essentials like the DOM API, Intersection Observer, Mutation Observer, Resize Observer, and working with iframes — to help developers build responsive, dynamic interfaces.",
+      "This article dives deep into the DOM and its powerful APIs  - covering essentials like the DOM API, Intersection Observer, Mutation Observer, Resize Observer, and working with iframes  - to help developers build responsive, dynamic interfaces.",
     link: "https://www.linkedin.com/pulse/dom-api-intersection-observer-mutation-resize-iframes-singh-azufc/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "August 2024",
@@ -174,7 +274,7 @@ export const articles: Article[] = [
     title: "Maximising Web Performance: Asset Management Techniques",
     type: "Performance",
     description:
-      "This article focuses on effective asset management techniques—like compression, caching, lazy loading, and CDN usage—to improve web performance, reduce load times, and enhance user experience.",
+      "This article focuses on effective asset management techniques -like compression, caching, lazy loading, and CDN usage -to improve web performance, reduce load times, and enhance user experience.",
     link: "https://www.linkedin.com/pulse/maximising-web-performance-asset-management-techniques-divyansh-singh-9dnvc/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "April 2024",
@@ -184,7 +284,7 @@ export const articles: Article[] = [
     title: "The Power of CSS Preprocessors - Sass vs. Less vs. Stylus",
     type: "UI / CSS",
     description:
-      "This article compares popular CSS preprocessors—Sass, Less, and Stylus—highlighting their features, syntax differences, and use cases to help developers choose the right tool for scalable and maintainable stylesheets.",
+      "This article compares popular CSS preprocessors -Sass, Less, and Stylus -highlighting their features, syntax differences, and use cases to help developers choose the right tool for scalable and maintainable stylesheets.",
     link: "https://www.linkedin.com/pulse/power-css-preprocessors-sass-vs-less-stylus-divyansh-singh-kiwtc/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "February 2024",
@@ -224,7 +324,7 @@ export const articles: Article[] = [
     title: "Exploring Modern JavaScript Tooling: Babel, Webpack, and Rollup",
     type: "",
     description:
-      "This article explores essential modern JavaScript tools—Babel, Webpack, and Rollup—detailing how they transform, bundle, and optimize code for efficient and scalable application development.",
+      "This article explores essential modern JavaScript tools -Babel, Webpack, and Rollup -detailing how they transform, bundle, and optimize code for efficient and scalable application development.",
     link: "https://www.linkedin.com/pulse/exploring-modern-javascript-tooling-babel-webpack-rollup-singh-d6a0c/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "January 2024",
@@ -255,7 +355,7 @@ export const articles: Article[] = [
     title: "Data Fetching Techniques in React Applications",
     type: "React",
     description:
-      "This article explores various data fetching techniques in React applications, including fetch, axios, React Query, SWR, and custom hooks—highlighting when and how to use each for efficient and scalable state management.",
+      "This article explores various data fetching techniques in React applications, including fetch, axios, React Query, SWR, and custom hooks -highlighting when and how to use each for efficient and scalable state management.",
     link: "https://www.linkedin.com/pulse/data-fetching-techniques-react-applications-divyansh-singh-whoac/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "October 2024",
@@ -265,7 +365,7 @@ export const articles: Article[] = [
     title: "Understanding Browser Rendering: The Critical Rendering Path",
     type: "Performance",
     description:
-      "This article breaks down the browser’s Critical Rendering Path—explaining how HTML, CSS, and JavaScript are processed to render pixels on screen—and offers tips to optimize rendering performance for faster load times.",
+      "This article breaks down the browser’s Critical Rendering Path -explaining how HTML, CSS, and JavaScript are processed to render pixels on screen -and offers tips to optimize rendering performance for faster load times.",
     link: "https://www.linkedin.com/pulse/understanding-browser-rendering-critical-path-divyansh-singh/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "October 2024",
@@ -285,7 +385,7 @@ export const articles: Article[] = [
     title: "Exploring Decorators in JavaScript",
     type: "JavaScript",
     description:
-      "This article explores decorators in JavaScript — a powerful proposed feature for adding behavior to classes and methods — explaining their syntax, use cases, and real-world applications in modern development.",
+      "This article explores decorators in JavaScript  - a powerful proposed feature for adding behavior to classes and methods  - explaining their syntax, use cases, and real-world applications in modern development.",
     link: "https://www.linkedin.com/pulse/exploring-decorators-javascript-divyansh-singh/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "September 2023",
@@ -295,7 +395,7 @@ export const articles: Article[] = [
     title: "Design Patterns in Frontend Development",
     type: "System Design",
     description:
-      "This article explores common design patterns in frontend development—such as Singleton, Observer, and Component patterns—helping developers write scalable, maintainable, and efficient UI code.",
+      "This article explores common design patterns in frontend development -such as Singleton, Observer, and Component patterns -helping developers write scalable, maintainable, and efficient UI code.",
     link: "https://www.linkedin.com/pulse/design-patterns-frontend-development-divyansh-singh/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "September 2023",
@@ -305,7 +405,7 @@ export const articles: Article[] = [
     title: "Reconciliation in ReactJS",
     type: "React",
     description:
-      "This article explains the concept of reconciliation in ReactJS—how React efficiently updates the DOM by comparing virtual DOM trees—and explores the heuristics it uses to ensure optimal rendering performance.",
+      "This article explains the concept of reconciliation in ReactJS -how React efficiently updates the DOM by comparing virtual DOM trees -and explores the heuristics it uses to ensure optimal rendering performance.",
     link: "https://www.linkedin.com/pulse/reconciliation-reactjs-divyansh-singh/?trackingId=vam50i31Qve44T6uX0Rgvw%3D%3D",
     icon: FaLinkedin,
     date: "September 2023",
@@ -376,7 +476,7 @@ export const articles: Article[] = [
     title: "The Role of Data Structures and Algorithms in Frontend Development",
     type: "Beginner",
     description:
-      "This article highlights how data structures and algorithms play a crucial role in frontend development—from optimizing rendering and DOM manipulation to improving performance and handling complex UI interactions.",
+      "This article highlights how data structures and algorithms play a crucial role in frontend development -from optimizing rendering and DOM manipulation to improving performance and handling complex UI interactions.",
     link: "https://www.linkedin.com/pulse/role-data-structures-algorithms-frontend-development-divyansh-singh/?trackingId=NSce1cTiR2SoRZy%2BTZZsbw%3D%3D",
     icon: FaLinkedin,
     date: "August 2023",
@@ -387,7 +487,7 @@ export const articles: Article[] = [
       "Web Security in Frontend Development: Common Vulnerabilities and How to Prevent Them",
     type: "Security & Testing",
     description:
-      "This article covers common web security vulnerabilities in frontend development—like XSS, CSRF, and insecure storage—and provides practical strategies to prevent them and build safer user-facing applications.",
+      "This article covers common web security vulnerabilities in frontend development -like XSS, CSRF, and insecure storage -and provides practical strategies to prevent them and build safer user-facing applications.",
     link: "https://www.linkedin.com/pulse/web-security-frontend-development-common-how-prevent-them-singh/?trackingId=NSce1cTiR2SoRZy%2BTZZsbw%3D%3D",
     icon: FaLinkedin,
     date: "July 2023",
@@ -408,7 +508,7 @@ export const articles: Article[] = [
       "A Guide to Browser Storage: Cookies, Local Storage, and Session Storage",
     type: "Browser APIs",
     description:
-      "This article explores the different browser storage options—Cookies, Local Storage, and Session Storage—comparing their use cases, limitations, and best practices for managing client-side data securely and efficiently.",
+      "This article explores the different browser storage options -Cookies, Local Storage, and Session Storage -comparing their use cases, limitations, and best practices for managing client-side data securely and efficiently.",
     link: "https://www.linkedin.com/pulse/guide-browser-storage-cookies-local-session-divyansh-singh/?trackingId=NSce1cTiR2SoRZy%2BTZZsbw%3D%3D",
     icon: FaLinkedin,
     date: "July 2023",
@@ -439,7 +539,7 @@ export const articles: Article[] = [
     title: "What is 'combineReducers'​ ?",
     type: "React",
     description:
-      "This article explains combineReducers in Redux—how it helps split the Redux state into multiple slices, each managed by its own reducer, for better scalability and maintainability of application state.",
+      "This article explains combineReducers in Redux -how it helps split the Redux state into multiple slices, each managed by its own reducer, for better scalability and maintainability of application state.",
     link: "https://www.linkedin.com/pulse/what-combinereducers-divyansh-singh/?trackingId=NSce1cTiR2SoRZy%2BTZZsbw%3D%3D",
     icon: FaLinkedin,
     date: "February 2023",
@@ -450,7 +550,7 @@ export const articles: Article[] = [
       "What are Promises ? What is the difference between a Promise and Async/Await ?",
     type: "JavaScript",
     description:
-      "This article explains JavaScript Promises—objects that represent the eventual completion or failure of asynchronous operations—and compares them with async/await, highlighting syntax differences, readability, and error handling.",
+      "This article explains JavaScript Promises -objects that represent the eventual completion or failure of asynchronous operations -and compares them with async/await, highlighting syntax differences, readability, and error handling.",
     link: "https://www.linkedin.com/pulse/what-promises-difference-between-promise-asyncawait-divyansh-singh/?trackingId=NSce1cTiR2SoRZy%2BTZZsbw%3D%3D",
     icon: FaLinkedin,
     date: "May 2023",
