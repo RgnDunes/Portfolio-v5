@@ -53,7 +53,7 @@ export const blogPosts: BlogPost[] = [
     title: "The Death of the Traditional CI/CD Pipeline",
     description: "How AI-assisted deployments, platform engineering, and a new generation of tooling are dismantling the pipeline model we've relied on for a decade, and what actually comes next.",
     contentPath: "/blog/cicd_pipeline_article.html",
-    publishedAt: "2026-04-17",
+    publishedAt: "2026-04-01",
     tags: ["CI/CD", "DevOps", "AI"],
     readingTime: "12 min read",
     author: { name: "Divyansh Singh" },
