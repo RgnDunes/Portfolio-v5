@@ -53,6 +53,9 @@ coverage
 .git/objects/pack/*.idx
 .git/objects/pack/*.pack.gz
 
+# TypeScript
+tsconfig.tsbuildinfo
+
 # Misc
 .DS_Store
 *.pem
