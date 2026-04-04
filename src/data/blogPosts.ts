@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "web-workers-are-not-threads",
+    title: "Web Workers Are Not Threads: What JavaScript Developers Get Wrong About Browser Parallelism",
+    description: "Most JavaScript developers think Web Workers give them multithreading. They don't. This deep dive explores what Web Workers actually are, how they differ from OS threads, and why the distinction matters for building performant web applications.",
+    contentPath: "/blog/web-workers-are-not-threads_article.html",
+    publishedAt: "2026-04-05",
+    tags: ["JavaScript", "Web Workers", "Concurrency"],
+    readingTime: "18 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "ai-boardgame-testing",
     title: "I Let Claude & GPT-4 Play My Board Game Until It Was Bug-Free",
     description: "How I used two competing AI models as adversarial test players to stress-test a web version of Monopoly Deal and Scotland Yard — and what the simulation taught me about edge cases no human tester would ever find.",
