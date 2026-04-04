@@ -23,7 +23,7 @@ export const blogPosts: BlogPost[] = [
     title: "I Let Claude & GPT-4 Play My Board Game Until It Was Bug-Free",
     description: "How I used two competing AI models as adversarial test players to stress-test a web version of Monopoly Deal and Scotland Yard — and what the simulation taught me about edge cases no human tester would ever find.",
     contentPath: "/blog/ai_boardgame_testing_article.html",
-    publishedAt: "2026-04-08",
+    publishedAt: "2026-03-28",
     tags: ["AI", "Testing", "Games"],
     readingTime: "18 min read",
     author: { name: "Divyansh Singh" },

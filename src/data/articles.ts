@@ -108,7 +108,7 @@ export const articles: Article[] = [
       "How I used two competing AI models as adversarial test players to stress-test a web version of Monopoly Deal and Scotland Yard — and what the simulation taught me about edge cases no human tester would ever find.",
     link: "/blog/ai_boardgame_testing_article.html",
     icon: FaBookmark,
-    date: "April 2025",
+    date: "March 2025",
     stats: "Blog",
   },
   {
