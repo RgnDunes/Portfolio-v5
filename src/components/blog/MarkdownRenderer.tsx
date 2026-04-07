@@ -42,7 +42,9 @@ export default function MarkdownRenderer({
           return response.text();
         })
         .then((html) => {
-          setLoadedContent(html);
+          // Strip the first <h1> from HTML since the page header already shows the title
+          const stripped = html.replace(/<h1[^>]*>[\s\S]*?<\/h1>/, "");
+          setLoadedContent(stripped);
           setIsLoading(false);
         })
         .catch((err) => {
