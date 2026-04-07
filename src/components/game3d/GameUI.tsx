@@ -48,9 +48,13 @@ export default function GameUI({ onExit, exploredCount = 0 }: GameUIProps) {
           <div className="font-mono text-[10px] text-white/60">
             <span className="text-yellow-400/80">WASD</span> Move
             <span className="mx-1.5 text-white/30">|</span>
+            <span className="text-yellow-400/80">Space</span> Jump
+            <span className="mx-1.5 text-white/30">|</span>
             <span className="text-yellow-400/80">Click</span> Explore
             <span className="mx-1.5 text-white/30">|</span>
             <span className="text-yellow-400/80">Drag</span> Rotate
+            <span className="mx-1.5 text-white/30">|</span>
+            <span className="text-yellow-400/80">ESC</span> Exit
           </div>
         </div>
       </div>

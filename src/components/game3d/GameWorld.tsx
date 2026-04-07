@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Sky, KeyboardControls } from "@react-three/drei";
+import { KeyboardControls } from "@react-three/drei";
 import { Suspense } from "react";
 import Terrain from "./Terrain";
 import Landmarks from "./Landmarks";
@@ -12,6 +12,7 @@ import Animals from "./Animals";
 import Particles from "./Particles";
 import Paths from "./Paths";
 import Clouds from "./Clouds";
+import DayNightCycle from "./DayNightCycle";
 import DirectionIndicators from "./DirectionIndicators";
 import GameUI from "./GameUI";
 import Minimap from "./Minimap";
@@ -46,27 +47,8 @@ export default function GameWorld({ onExit, onSelectSection, exploredCount = 0 }
           style={{ width: "100%", height: "100%" }}
         >
           <Suspense fallback={null}>
-            <ambientLight intensity={0.5} />
-            <directionalLight
-              position={[60, 100, 40]}
-              intensity={1.5}
-              castShadow
-              shadow-mapSize={[2048, 2048]}
-              shadow-camera-far={200}
-              shadow-camera-left={-80}
-              shadow-camera-right={80}
-              shadow-camera-top={80}
-              shadow-camera-bottom={-80}
-            />
-            <hemisphereLight args={["#87ceeb", "#556b2f", 0.4]} />
-
-            <Sky
-              sunPosition={[100, 60, 100]}
-              turbidity={6}
-              rayleigh={2}
-              mieCoefficient={0.005}
-              mieDirectionalG={0.8}
-            />
+            {/* Day/Night cycle handles sky, sun, moon, stars, and lighting */}
+            <DayNightCycle />
 
             <fog attach="fog" args={["#c9daea", 60, 200]} />
 

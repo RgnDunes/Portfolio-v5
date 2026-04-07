@@ -6,6 +6,9 @@ import { useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
 
 const SPEED = 12;
+const GRAVITY = -25;
+const JUMP_FORCE = 10;
+const GROUND_Y = 0.5;
 
 interface CharacterProps {
   onPositionChange?: (pos: [number, number, number]) => void;
@@ -17,6 +20,8 @@ export default function Character({ onPositionChange }: CharacterProps) {
   const rightArmRef = useRef<THREE.Mesh>(null);
   const leftLegRef = useRef<THREE.Mesh>(null);
   const rightLegRef = useRef<THREE.Mesh>(null);
+  const velocityY = useRef(0);
+  const isGrounded = useRef(true);
   const { camera, gl } = useThree();
 
   const [, getKeys] = useKeyboardControls();
@@ -106,8 +111,30 @@ export default function Character({ onPositionChange }: CharacterProps) {
 
     if (moveDir.length() > 0) {
       moveDir.normalize();
-      groupRef.current.position.x += moveDir.x * SPEED * delta;
-      groupRef.current.position.z += moveDir.z * SPEED * delta;
+      const newX = groupRef.current.position.x + moveDir.x * SPEED * delta;
+      const newZ = groupRef.current.position.z + moveDir.z * SPEED * delta;
+
+      // Collision check against landmarks and lake
+      const colliders = [
+        { x: -25, z: -10, r: 4 },   // Campfire
+        { x: -40, z: -50, r: 5 },   // Monument
+        { x: 5, z: -55, r: 5 },     // Waterfall
+        { x: 40, z: -15, r: 4 },    // Treehouse
+        { x: 35, z: -60, r: 4 },    // Library
+        { x: -5, z: 35, r: 3 },     // Dock
+        { x: 10, z: 20, r: 13 },    // Lake
+      ];
+
+      let blocked = false;
+      for (const c of colliders) {
+        const dist = Math.sqrt((newX - c.x) ** 2 + (newZ - c.z) ** 2);
+        if (dist < c.r) { blocked = true; break; }
+      }
+
+      if (!blocked) {
+        groupRef.current.position.x = newX;
+        groupRef.current.position.z = newZ;
+      }
 
       // Rotate character to face movement direction
       const targetAngle = Math.atan2(moveDir.x, moveDir.z);
@@ -117,12 +144,25 @@ export default function Character({ onPositionChange }: CharacterProps) {
       groupRef.current.rotation.y += angleDiff * 15 * delta;
     }
 
+    // Jump
+    const { jump } = getKeys();
+    if (jump && isGrounded.current) {
+      velocityY.current = JUMP_FORCE;
+      isGrounded.current = false;
+    }
+
+    velocityY.current += GRAVITY * delta;
+    groupRef.current.position.y += velocityY.current * delta;
+
+    if (groupRef.current.position.y <= GROUND_Y) {
+      groupRef.current.position.y = GROUND_Y;
+      velocityY.current = 0;
+      isGrounded.current = true;
+    }
+
     // World bounds
     groupRef.current.position.x = Math.max(-90, Math.min(90, groupRef.current.position.x));
     groupRef.current.position.z = Math.max(-90, Math.min(90, groupRef.current.position.z));
-
-    // Terrain height (simple: keep on ground)
-    groupRef.current.position.y = 0.5;
 
     // Walking animation
     const time = Date.now() * 0.008;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import SectionOverlay from "./SectionOverlay";
 
@@ -62,6 +62,22 @@ export default function GameModeWrapper({ isActive, onExit }: GameModeWrapperPro
     },
     [onExit]
   );
+
+  // ESC key to exit game or close overlay
+  useEffect(() => {
+    if (!isActive) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (selectedSection) {
+          setSelectedSection(null);
+        } else {
+          onExit();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isActive, selectedSection, onExit]);
 
   if (!isActive) return null;
 
