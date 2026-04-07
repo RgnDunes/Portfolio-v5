@@ -5,8 +5,8 @@ import { useFrame } from "@react-three/fiber";
 import { Sky } from "@react-three/drei";
 import * as THREE from "three";
 
-// Full day/night cycle in ~120 seconds (2 minutes)
-const CYCLE_DURATION = 120;
+// Full day/night cycle in ~180 seconds (3 minutes), starts at morning
+const CYCLE_DURATION = 180;
 
 export default function DayNightCycle() {
   const sunRef = useRef<THREE.DirectionalLight>(null);
@@ -46,16 +46,16 @@ export default function DayNightCycle() {
     }
 
     if (ambientRef.current) {
-      ambientRef.current.intensity = 0.15 + dayFactor * 0.4;
-      if (dayFactor < 0.2) {
-        ambientRef.current.color.setHex(0x334466); // blue night
+      ambientRef.current.intensity = 0.5 + dayFactor * 0.3;
+      if (dayFactor < 0.3) {
+        ambientRef.current.color.setHex(0x8899bb); // bright moonlit blue
       } else {
         ambientRef.current.color.setHex(0xffffff);
       }
     }
 
     if (hemiRef.current) {
-      hemiRef.current.intensity = 0.1 + dayFactor * 0.35;
+      hemiRef.current.intensity = 0.35 + dayFactor * 0.25;
     }
 
     // Fog color changes with time of day

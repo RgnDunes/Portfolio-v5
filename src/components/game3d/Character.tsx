@@ -240,6 +240,8 @@ export default function Character({ onPositionChange }: CharacterProps) {
         <circleGeometry args={[0.6, 16]} />
         <meshBasicMaterial color="black" transparent opacity={0.15} />
       </mesh>
+      {/* Torch light - always illuminates the character */}
+      <pointLight position={[0, 4, 0]} color="#ffeedd" intensity={3} distance={15} />
     </group>
   );
 }
