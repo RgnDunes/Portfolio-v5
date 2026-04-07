@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaTimes, FaGamepad } from "react-icons/fa";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import portfolioLogo from "../assets/images/portfolio-logo.png";
@@ -19,7 +19,11 @@ const navigation = [
 // For resume, use the direct path
 const resumePath = "/resume.pdf";
 
-export default function Navbar() {
+interface NavbarProps {
+  onGameModeToggle?: () => void;
+}
+
+export default function Navbar({ onGameModeToggle }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -60,6 +64,20 @@ export default function Navbar() {
                 </Link>
               </motion.div>
             ))}
+            {onGameModeToggle && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.35 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onGameModeToggle}
+                className="flex items-center gap-1.5 rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-sm font-medium text-accent transition-all hover:bg-accent hover:text-white"
+              >
+                <FaGamepad className="text-xs" />
+                <span>3D <sup className="text-[8px] opacity-60">Beta</sup></span>
+              </motion.button>
+            )}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -112,16 +130,27 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
-              <Link
-                href="/resume.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-base font-bold text-white shadow-md transition-all hover:bg-[#a03b25]"
-                onClick={() => setIsOpen(false)}
-              >
-                Resume
-                <span aria-hidden="true">→</span>
-              </Link>
+              <div className="mt-4 flex gap-3">
+                {onGameModeToggle && (
+                  <button
+                    onClick={() => { setIsOpen(false); onGameModeToggle(); }}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-base font-semibold text-accent transition-all hover:bg-accent hover:text-white"
+                  >
+                    <FaGamepad />
+                    3D <span className="text-[10px] opacity-60">Beta</span>
+                  </button>
+                )}
+                <Link
+                  href="/resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-base font-bold text-white shadow-md transition-all hover:bg-[#a03b25]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Resume
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

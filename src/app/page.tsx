@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
@@ -7,6 +8,7 @@ import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
 import Experience from "@/components/sections/Experience";
 import Skills from "@/components/sections/Skills";
+import GameModeWrapper from "@/components/game3d/GameModeWrapper";
 
 // Dynamically import components that are below the fold
 const Projects = dynamic(() => import("@/components/sections/Projects"), {
@@ -41,27 +43,35 @@ const LatestBlogPosts = dynamic(
 );
 
 export default function Home() {
+  const [gameMode, setGameMode] = useState(false);
+
+  const enterGameMode = useCallback(() => setGameMode(true), []);
+  const exitGameMode = useCallback(() => setGameMode(false), []);
+
   return (
     <>
-      <Navbar />
-      <motion.main
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="min-h-screen"
-        style={{ background: '#dad4cc', color: '#0f0e0c' }}
-      >
-        <Hero />
-        <About />
-        <Experience />
-        <Skills />
-        <Projects />
-        <DigitalProducts />
-        <ArticlesAndProducts />
-        <LatestBlogPosts />
-        <Testimonials />
-        <Contact />
-      </motion.main>
+      <Navbar onGameModeToggle={enterGameMode} />
+      {!gameMode && (
+        <motion.main
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="min-h-screen"
+          style={{ background: '#dad4cc', color: '#0f0e0c' }}
+        >
+          <Hero />
+          <About />
+          <Experience />
+          <Skills />
+          <Projects />
+          <DigitalProducts />
+          <ArticlesAndProducts />
+          <LatestBlogPosts />
+          <Testimonials />
+          <Contact />
+        </motion.main>
+      )}
+      <GameModeWrapper isActive={gameMode} onExit={exitGameMode} />
     </>
   );
 }
