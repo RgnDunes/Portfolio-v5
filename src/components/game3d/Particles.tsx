@@ -6,14 +6,14 @@ import * as THREE from "three";
 
 // ====== Fireflies ======
 function Fireflies() {
-  const count = 35;
+  const count = 15;
   const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   const offsets = useMemo(
     () =>
       Array.from({ length: count }, () => ({
-        x: (Math.random() - 0.5) * 160,
-        z: (Math.random() - 0.5) * 160,
+        x: (Math.random() - 0.5) * 90,
+        z: (Math.random() - 0.5) * 90,
         yBase: 1 + Math.random() * 4,
         speedX: (Math.random() - 0.5) * 0.3,
         speedZ: (Math.random() - 0.5) * 0.3,
@@ -58,7 +58,7 @@ function Fireflies() {
 
 // ====== Campfire Sparks ======
 function CampfireSparks() {
-  const count = 12;
+  const count = 6;
   const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   const offsets = useMemo(
@@ -112,7 +112,7 @@ function CampfireSparks() {
 
 // ====== Waterfall Mist ======
 function WaterfallMist() {
-  const count = 10;
+  const count = 5;
   const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   const offsets = useMemo(

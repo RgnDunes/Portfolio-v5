@@ -78,7 +78,7 @@ export default function DayNightCycle() {
         position={[100, 60, 50]}
         intensity={1.5}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-camera-far={200}
         shadow-camera-left={-80}
         shadow-camera-right={80}

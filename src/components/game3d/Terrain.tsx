@@ -19,7 +19,7 @@ export default function Terrain() {
 }
 
 function GrassGround() {
-  const count = 181 * 181;
+  const count = 101 * 101;
 
   const initMesh = useCallback((mesh: THREE.InstancedMesh) => {
     if (!mesh) return;
@@ -27,8 +27,8 @@ function GrassGround() {
     const color = new THREE.Color();
     let i = 0;
 
-    for (let x = -90; x <= 90; x++) {
-      for (let z = -90; z <= 90; z++) {
+    for (let x = -50; x <= 50; x++) {
+      for (let z = -50; z <= 50; z++) {
         const distFromLake = Math.sqrt((x - 10) ** 2 + (z - 20) ** 2);
         if (distFromLake < 15) {
           matrix.setPosition(x, -1, z);
@@ -96,13 +96,11 @@ function Mountains() {
     <group>
       {/* Far mountains */}
       {[
-        [-60, 0, -85, 30, 25],
-        [-30, 0, -90, 25, 20],
-        [0, 0, -88, 35, 30],
-        [35, 0, -85, 28, 22],
-        [65, 0, -90, 32, 28],
-        [-80, 0, -80, 20, 18],
-        [80, 0, -82, 22, 20],
+        [-35, 0, -48, 25, 22],
+        [0, 0, -50, 30, 26],
+        [35, 0, -48, 24, 20],
+        [-45, 0, -45, 18, 16],
+        [45, 0, -46, 20, 18],
       ].map(([x, y, z, w, h], i) => (
         <mesh key={i} position={[x, h / 2 - 2, z]}>
           <boxGeometry args={[w, h, w * 0.6]} />
@@ -111,10 +109,9 @@ function Mountains() {
       ))}
       {/* Snow caps */}
       {[
-        [0, 26, -88, 12],
-        [-60, 21, -85, 10],
-        [35, 18, -85, 8],
-        [65, 24, -90, 10],
+        [0, 22, -50, 10],
+        [-35, 18, -48, 8],
+        [35, 16, -48, 7],
       ].map(([x, y, z, w], i) => (
         <mesh key={`snow-${i}`} position={[x, y, z]}>
           <boxGeometry args={[w, 4, w * 0.5]} />
@@ -133,8 +130,8 @@ function Decorations() {
       return x - Math.floor(x);
     };
     for (let i = 0; i < 80; i++) {
-      const x = (rng(i * 7) - 0.5) * 160;
-      const z = (rng(i * 7 + 1) - 0.5) * 160;
+      const x = (rng(i * 7) - 0.5) * 90;
+      const z = (rng(i * 7 + 1) - 0.5) * 90;
       const distFromLake = Math.sqrt((x - 10) ** 2 + (z - 20) ** 2);
       if (distFromLake < 18) continue;
       result.push({ type: rng(i * 7 + 2) > 0.5 ? "rock" : "flower", x, z });

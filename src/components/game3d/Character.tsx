@@ -201,8 +201,8 @@ export default function Character({ onPositionChange, onSprintChange }: Characte
     }
 
     // World bounds
-    groupRef.current.position.x = Math.max(-90, Math.min(90, groupRef.current.position.x));
-    groupRef.current.position.z = Math.max(-90, Math.min(90, groupRef.current.position.z));
+    groupRef.current.position.x = Math.max(-50, Math.min(50, groupRef.current.position.x));
+    groupRef.current.position.z = Math.max(-50, Math.min(50, groupRef.current.position.z));
 
     // Walking animation — faster when sprinting
     const animSpeed = sprintingRef.current ? 0.012 : 0.008;
@@ -294,7 +294,7 @@ export default function Character({ onPositionChange, onSprintChange }: Characte
         <meshBasicMaterial color="black" transparent opacity={0.15} />
       </mesh>
       {/* Torch light - always illuminates the character */}
-      <pointLight position={[0, 4, 0]} color="#ffeedd" intensity={3} distance={15} />
+      <pointLight position={[0, 4, 0]} color="#ffeedd" intensity={2} distance={10} />
     </group>
   );
 }

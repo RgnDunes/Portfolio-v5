@@ -15,9 +15,9 @@ export default function Trees() {
       [-25, -10], [-40, -50], [5, -55], [40, -15], [35, -60], [-5, 35], [10, 20], // lake center
     ];
 
-    for (let i = 0; i < 150; i++) {
-      const x = (rng(i * 3) - 0.5) * 170;
-      const z = (rng(i * 3 + 1) - 0.5) * 170;
+    for (let i = 0; i < 60; i++) {
+      const x = (rng(i * 3) - 0.5) * 90;
+      const z = (rng(i * 3 + 1) - 0.5) * 90;
 
       const tooClose = avoid.some(([ax, az]) => Math.abs(x - ax) < 8 && Math.abs(z - az) < 8);
       const inLake = Math.sqrt((x - 10) ** 2 + (z - 20) ** 2) < 18;

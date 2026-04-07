@@ -9,25 +9,17 @@ export default function Animals() {
     <group>
       <Deer position={[-20, 0, 15]} rotation={0.5} />
       <Deer position={[30, 0, -30]} rotation={1.5} />
-      <Deer position={[-50, 0, -40]} rotation={0.8} />
-      <Deer position={[55, 0, 10]} rotation={2.2} />
 
       <Rabbit position={[15, 0, -5]} />
       <Rabbit position={[-35, 0, 20]} />
-      <Rabbit position={[50, 0, -45]} />
-      <Rabbit position={[-15, 0, -60]} />
-      <Rabbit position={[-55, 0, 30]} />
+      <Rabbit position={[-15, 0, -40]} />
 
       <Bird startPosition={[0, 20, 0]} radius={30} speed={0.3} />
       <Bird startPosition={[20, 24, -20]} radius={25} speed={0.4} />
-      <Bird startPosition={[-30, 18, 10]} radius={35} speed={0.25} />
-      <Bird startPosition={[10, 22, -40]} radius={28} speed={0.35} />
-      <Bird startPosition={[-40, 26, -30]} radius={20} speed={0.32} />
+      <Bird startPosition={[-30, 18, 10]} radius={25} speed={0.25} />
 
       <Fish position={[8, -0.2, 18]} />
       <Fish position={[12, -0.2, 22]} />
-      <Fish position={[6, -0.2, 24]} />
-      <Fish position={[14, -0.2, 16]} />
     </group>
   );
 }
@@ -55,7 +47,7 @@ function Deer({ position, rotation = 0 }: { position: [number, number, number]; 
   return (
     <group position={position} rotation={[0, rotation, 0]} scale={1.8}>
       {/* Body */}
-      <mesh position={[0, 1.5, 0]} castShadow>
+      <mesh position={[0, 1.5, 0]}>
         <boxGeometry args={[1.2, 1, 2.5]} />
         <meshStandardMaterial color="#b8860b" />
       </mesh>
@@ -65,13 +57,13 @@ function Deer({ position, rotation = 0 }: { position: [number, number, number]; 
         <meshStandardMaterial color="#d4a760" />
       </mesh>
       {/* Neck */}
-      <mesh position={[0, 2.1, 1]} rotation={[0.3, 0, 0]} castShadow>
+      <mesh position={[0, 2.1, 1]} rotation={[0.3, 0, 0]}>
         <boxGeometry args={[0.6, 1, 0.6]} />
         <meshStandardMaterial color="#c49630" />
       </mesh>
       {/* Head */}
       <group ref={headRef} position={[0, 2.6, 1.4]}>
-        <mesh castShadow>
+        <mesh>
           <boxGeometry args={[0.7, 0.6, 0.9]} />
           <meshStandardMaterial color="#c49630" />
         </mesh>
@@ -117,19 +109,19 @@ function Deer({ position, rotation = 0 }: { position: [number, number, number]; 
         </mesh>
       </group>
       {/* Legs */}
-      <mesh ref={leg1} position={[-0.35, 0.5, -0.8]} castShadow>
+      <mesh ref={leg1} position={[-0.35, 0.5, -0.8]}>
         <boxGeometry args={[0.25, 1, 0.25]} />
         <meshStandardMaterial color="#8B6914" />
       </mesh>
-      <mesh ref={leg2} position={[0.35, 0.5, -0.8]} castShadow>
+      <mesh ref={leg2} position={[0.35, 0.5, -0.8]}>
         <boxGeometry args={[0.25, 1, 0.25]} />
         <meshStandardMaterial color="#8B6914" />
       </mesh>
-      <mesh ref={leg3} position={[-0.35, 0.5, 0.8]} castShadow>
+      <mesh ref={leg3} position={[-0.35, 0.5, 0.8]}>
         <boxGeometry args={[0.25, 1, 0.25]} />
         <meshStandardMaterial color="#8B6914" />
       </mesh>
-      <mesh ref={leg4} position={[0.35, 0.5, 0.8]} castShadow>
+      <mesh ref={leg4} position={[0.35, 0.5, 0.8]}>
         <boxGeometry args={[0.25, 1, 0.25]} />
         <meshStandardMaterial color="#8B6914" />
       </mesh>
@@ -154,12 +146,12 @@ function Rabbit({ position }: { position: [number, number, number] }) {
   return (
     <group ref={groupRef} position={position} scale={1.5}>
       {/* Body */}
-      <mesh position={[0, 0.5, 0]} castShadow>
+      <mesh position={[0, 0.5, 0]}>
         <boxGeometry args={[0.7, 0.6, 1]} />
         <meshStandardMaterial color="#d4c5a9" />
       </mesh>
       {/* Head */}
-      <mesh position={[0, 0.85, 0.4]} castShadow>
+      <mesh position={[0, 0.85, 0.4]}>
         <boxGeometry args={[0.55, 0.5, 0.5]} />
         <meshStandardMaterial color="#e0d5c0" />
       </mesh>

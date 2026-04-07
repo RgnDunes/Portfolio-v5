@@ -27,8 +27,8 @@ function Indicator({
   const dz = target.z - playerPosition[2];
   const distance = Math.sqrt(dx * dx + dz * dz);
 
-  // Only show for landmarks > 15 units away
-  if (distance <= 15) return null;
+  // Only show for landmarks > 20 units away
+  if (distance <= 20) return null;
 
   // Position on a circle of radius 5 around the player, in the direction of the target
   const angle = Math.atan2(dx, dz);
@@ -61,9 +61,23 @@ function Indicator({
 }
 
 export default function DirectionIndicators({ playerPosition }: DirectionIndicatorsProps) {
+  // Only show the nearest 3 landmarks that are more than 20 units away
+  const visible = useMemo(() => {
+    return LANDMARK_TARGETS
+      .map((target) => {
+        const dx = target.x - playerPosition[0];
+        const dz = target.z - playerPosition[2];
+        return { target, distance: Math.sqrt(dx * dx + dz * dz) };
+      })
+      .filter(({ distance }) => distance > 20)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 3)
+      .map(({ target }) => target);
+  }, [playerPosition]);
+
   return (
     <group>
-      {LANDMARK_TARGETS.map((target) => (
+      {visible.map((target) => (
         <Indicator key={target.id} playerPosition={playerPosition} target={target} />
       ))}
     </group>

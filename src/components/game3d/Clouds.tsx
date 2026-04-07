@@ -25,7 +25,7 @@ function Cloud({ data, groupRef }: { data: CloudData; groupRef: (el: THREE.Group
 }
 
 export default function Clouds() {
-  const count = 18;
+  const count = 10;
   const groupRefs = useRef<(THREE.Group | null)[]>([]);
 
   const clouds = useMemo<CloudData[]>(() => {
@@ -43,9 +43,9 @@ export default function Clouds() {
         });
       }
       return {
-        x: (Math.random() - 0.5) * 160,
+        x: (Math.random() - 0.5) * 100,
         y: 35 + Math.random() * 10,
-        z: (Math.random() - 0.5) * 160,
+        z: (Math.random() - 0.5) * 100,
         blocks,
       };
     });

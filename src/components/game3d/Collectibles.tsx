@@ -12,24 +12,24 @@ const GEMS = [
   { id: "css-1", label: "CSS", color: "#264de4", position: [15, 1.5, -35] as [number, number, number] },
   { id: "node-1", label: "Node.js", color: "#68a063", position: [-45, 1.5, 15] as [number, number, number] },
   { id: "next-1", label: "Next.js", color: "#ffffff", position: [25, 1.5, 25] as [number, number, number] },
-  { id: "docker-1", label: "Docker", color: "#2496ed", position: [-60, 1.5, -30] as [number, number, number] },
-  { id: "aws-1", label: "AWS", color: "#ff9900", position: [50, 1.5, -35] as [number, number, number] },
+  { id: "docker-1", label: "Docker", color: "#2496ed", position: [-48, 1.5, -30] as [number, number, number] },
+  { id: "aws-1", label: "AWS", color: "#ff9900", position: [48, 1.5, -35] as [number, number, number] },
   { id: "git-1", label: "Git", color: "#f05032", position: [-20, 1.5, -45] as [number, number, number] },
   { id: "redux-1", label: "Redux", color: "#764abc", position: [30, 1.5, 10] as [number, number, number] },
-  { id: "webpack-1", label: "Webpack", color: "#8dd6f9", position: [-50, 1.5, -55] as [number, number, number] },
-  { id: "graphql-1", label: "GraphQL", color: "#e535ab", position: [55, 1.5, 0] as [number, number, number] },
+  { id: "webpack-1", label: "Webpack", color: "#8dd6f9", position: [-48, 1.5, -48] as [number, number, number] },
+  { id: "graphql-1", label: "GraphQL", color: "#e535ab", position: [48, 1.5, 0] as [number, number, number] },
   { id: "tailwind-1", label: "Tailwind", color: "#06b6d4", position: [-10, 1.5, 30] as [number, number, number] },
-  { id: "jest-1", label: "Jest", color: "#c21325", position: [45, 1.5, -50] as [number, number, number] },
+  { id: "jest-1", label: "Jest", color: "#c21325", position: [45, 1.5, -48] as [number, number, number] },
   { id: "vue-1", label: "Vue", color: "#42b883", position: [-35, 1.5, 5] as [number, number, number] },
-  { id: "python-1", label: "Python", color: "#3776ab", position: [60, 1.5, -20] as [number, number, number] },
-  { id: "rust-1", label: "Rust", color: "#dea584", position: [-55, 1.5, 25] as [number, number, number] },
-  { id: "k8s-1", label: "Kubernetes", color: "#326ce5", position: [20, 1.5, -55] as [number, number, number] },
-  { id: "mongo-1", label: "MongoDB", color: "#47a248", position: [-40, 1.5, -65] as [number, number, number] },
+  { id: "python-1", label: "Python", color: "#3776ab", position: [48, 1.5, -20] as [number, number, number] },
+  { id: "rust-1", label: "Rust", color: "#dea584", position: [-48, 1.5, 25] as [number, number, number] },
+  { id: "k8s-1", label: "Kubernetes", color: "#326ce5", position: [20, 1.5, -48] as [number, number, number] },
+  { id: "mongo-1", label: "MongoDB", color: "#47a248", position: [-40, 1.5, -48] as [number, number, number] },
   { id: "redis-1", label: "Redis", color: "#dc382d", position: [35, 1.5, -25] as [number, number, number] },
-  { id: "vite-1", label: "Vite", color: "#646cff", position: [-15, 1.5, -70] as [number, number, number] },
+  { id: "vite-1", label: "Vite", color: "#646cff", position: [-15, 1.5, -48] as [number, number, number] },
   { id: "html-1", label: "HTML", color: "#e34f26", position: [10, 1.5, 15] as [number, number, number] },
-  { id: "sass-1", label: "Sass", color: "#cc6699", position: [-65, 1.5, -10] as [number, number, number] },
-  { id: "cypress-1", label: "Cypress", color: "#17202c", position: [65, 1.5, -40] as [number, number, number] },
+  { id: "sass-1", label: "Sass", color: "#cc6699", position: [-48, 1.5, -10] as [number, number, number] },
+  { id: "cypress-1", label: "Cypress", color: "#17202c", position: [48, 1.5, -40] as [number, number, number] },
   { id: "rollup-1", label: "Rollup", color: "#ec4a3f", position: [-25, 1.5, 40] as [number, number, number] },
 ];
 
@@ -107,7 +107,7 @@ function Gem({ id, label, color, position, playerPosition, onCollect, collected 
         <meshStandardMaterial
           color={color}
           emissive={color}
-          emissiveIntensity={0.8}
+          emissiveIntensity={2}
           transparent
           opacity={0.9}
         />
@@ -122,12 +122,6 @@ function Gem({ id, label, color, position, playerPosition, onCollect, collected 
           side={THREE.BackSide}
         />
       </mesh>
-      <pointLight
-        position={[position[0], position[1], position[2]]}
-        color={color}
-        intensity={1}
-        distance={5}
-      />
       {hovered && !collecting && (
         <Html
           position={[position[0], position[1] + 1, position[2]]}

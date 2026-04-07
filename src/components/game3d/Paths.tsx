@@ -82,13 +82,6 @@ function Torch({ position }: { position: [number, number, number] }) {
           emissiveIntensity={2}
         />
       </mesh>
-      {/* Light */}
-      <pointLight
-        position={[0, 1.5, 0]}
-        color="#ff6b35"
-        intensity={1.5}
-        distance={8}
-      />
     </group>
   );
 }
@@ -98,7 +91,7 @@ function PathWithTorches({ from, to }: { from: PathPoint; to: PathPoint }) {
     const dx = to.x - from.x;
     const dz = to.z - from.z;
     const dist = Math.sqrt(dx * dx + dz * dz);
-    const torchSpacing = 9;
+    const torchSpacing = 15;
     const numTorches = Math.floor(dist / torchSpacing);
     const positions: [number, number, number][] = [];
     // Perpendicular offset so torches sit beside the path
