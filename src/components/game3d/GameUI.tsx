@@ -42,23 +42,6 @@ export default function GameUI({ onExit, exploredCount = 0 }: GameUIProps) {
         </div>
       </div>
 
-      {/* Controls hint - bottom */}
-      <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2">
-        <div className="rounded-lg bg-black/40 px-4 py-2 text-center backdrop-blur-sm">
-          <div className="font-mono text-[10px] text-white/60">
-            <span className="text-yellow-400/80">WASD</span> Move
-            <span className="mx-1.5 text-white/30">|</span>
-            <span className="text-yellow-400/80">Space</span> Jump
-            <span className="mx-1.5 text-white/30">|</span>
-            <span className="text-yellow-400/80">Click</span> Explore
-            <span className="mx-1.5 text-white/30">|</span>
-            <span className="text-yellow-400/80">Drag</span> Rotate
-            <span className="mx-1.5 text-white/30">|</span>
-            <span className="text-yellow-400/80">ESC</span> Exit
-          </div>
-        </div>
-      </div>
-
       {/* Exit button */}
       <button
         onClick={onExit}
@@ -91,12 +74,20 @@ export default function GameUI({ onExit, exploredCount = 0 }: GameUIProps) {
               Portfolio Quest
             </h2>
             <p className="mt-2 font-mono text-sm text-white/60">
-              Walk your character through the world and explore different sections of the portfolio
+              Collect knowledge gems scattered across the world and explore different sections of the portfolio
             </p>
             <div className="mt-6 space-y-2 text-left font-mono text-xs text-white/80">
               <div className="flex items-center gap-3">
                 <kbd className="rounded bg-white/20 px-2 py-1 text-yellow-400">WASD</kbd>
                 <span>Move your character</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <kbd className="rounded bg-white/20 px-2 py-1 text-yellow-400">SHIFT</kbd>
+                <span>Hold to sprint (uses stamina)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <kbd className="rounded bg-white/20 px-2 py-1 text-yellow-400">Space</kbd>
+                <span>Jump</span>
               </div>
               <div className="flex items-center gap-3">
                 <kbd className="rounded bg-white/20 px-2 py-1 text-yellow-400">Click</kbd>

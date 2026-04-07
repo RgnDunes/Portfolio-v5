@@ -6,15 +6,19 @@ import { useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
 
 const SPEED = 12;
+const SPRINT_MULTIPLIER = 1.8;
 const GRAVITY = -25;
 const JUMP_FORCE = 10;
 const GROUND_Y = 0.5;
+const STAMINA_DRAIN = 30; // per second
+const STAMINA_REGEN = 20; // per second
 
 interface CharacterProps {
   onPositionChange?: (pos: [number, number, number]) => void;
+  onSprintChange?: (sprinting: boolean, stamina: number) => void;
 }
 
-export default function Character({ onPositionChange }: CharacterProps) {
+export default function Character({ onPositionChange, onSprintChange }: CharacterProps) {
   const groupRef = useRef<THREE.Group>(null);
   const leftArmRef = useRef<THREE.Mesh>(null);
   const rightArmRef = useRef<THREE.Mesh>(null);
@@ -24,7 +28,31 @@ export default function Character({ onPositionChange }: CharacterProps) {
   const isGrounded = useRef(true);
   const { camera, gl } = useThree();
 
+  // Sprint state via window events (Shift key)
+  const shiftHeld = useRef(false);
+  const staminaRef = useRef(100);
+  const sprintingRef = useRef(false);
+
   const [, getKeys] = useKeyboardControls();
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
+        shiftHeld.current = true;
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
+        shiftHeld.current = false;
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
 
   // Orbit camera state
   const orbit = useRef({ angle: 0, pitch: 0.5, distance: 14, dragging: false, lastX: 0, lastY: 0 });
@@ -98,6 +126,18 @@ export default function Character({ onPositionChange }: CharacterProps) {
     const { forward, backward, left, right } = getKeys();
     const moving = forward || backward || left || right;
 
+    // Sprint logic
+    const wantsSprint = shiftHeld.current && moving;
+    if (wantsSprint && staminaRef.current > 0) {
+      staminaRef.current = Math.max(0, staminaRef.current - STAMINA_DRAIN * delta);
+      sprintingRef.current = true;
+    } else {
+      staminaRef.current = Math.min(100, staminaRef.current + STAMINA_REGEN * delta);
+      sprintingRef.current = false;
+    }
+
+    const currentSpeed = sprintingRef.current ? SPEED * SPRINT_MULTIPLIER : SPEED;
+
     // Camera-relative movement
     const angle = orbit.current.angle;
     const camForward = new THREE.Vector3(-Math.sin(angle), 0, -Math.cos(angle));
@@ -111,8 +151,8 @@ export default function Character({ onPositionChange }: CharacterProps) {
 
     if (moveDir.length() > 0) {
       moveDir.normalize();
-      const newX = groupRef.current.position.x + moveDir.x * SPEED * delta;
-      const newZ = groupRef.current.position.z + moveDir.z * SPEED * delta;
+      const newX = groupRef.current.position.x + moveDir.x * currentSpeed * delta;
+      const newZ = groupRef.current.position.z + moveDir.z * currentSpeed * delta;
 
       // Collision check against landmarks and lake
       const colliders = [
@@ -164,30 +204,43 @@ export default function Character({ onPositionChange }: CharacterProps) {
     groupRef.current.position.x = Math.max(-90, Math.min(90, groupRef.current.position.x));
     groupRef.current.position.z = Math.max(-90, Math.min(90, groupRef.current.position.z));
 
-    // Walking animation
-    const time = Date.now() * 0.008;
+    // Walking animation — faster when sprinting
+    const animSpeed = sprintingRef.current ? 0.012 : 0.008;
+    const time = Date.now() * animSpeed;
     const swing = moving ? Math.sin(time) * 0.8 : 0;
     if (leftArmRef.current) leftArmRef.current.rotation.x = swing;
     if (rightArmRef.current) rightArmRef.current.rotation.x = -swing;
     if (leftLegRef.current) leftLegRef.current.rotation.x = -swing;
     if (rightLegRef.current) rightLegRef.current.rotation.x = swing;
 
-    // Orbit camera
+    // Orbit camera — slight forward tilt when sprinting
     const { distance, pitch } = orbit.current;
     const charPos = groupRef.current.position;
+    const sprintFovOffset = sprintingRef.current ? 0.05 : 0;
+    const effectivePitch = pitch - sprintFovOffset;
+
     const desiredCameraPos = new THREE.Vector3(
-      charPos.x + Math.sin(angle) * distance * Math.cos(pitch),
-      charPos.y + distance * Math.sin(pitch),
-      charPos.z + Math.cos(angle) * distance * Math.cos(pitch)
+      charPos.x + Math.sin(angle) * distance * Math.cos(effectivePitch),
+      charPos.y + distance * Math.sin(effectivePitch),
+      charPos.z + Math.cos(angle) * distance * Math.cos(effectivePitch)
     );
 
     currentCameraPos.lerp(desiredCameraPos, 8 * delta);
     camera.position.copy(currentCameraPos);
-    cameraTarget.set(charPos.x, charPos.y + 2, charPos.z);
+
+    const lookAheadOffset = sprintingRef.current ? 1.5 : 0;
+    cameraTarget.set(
+      charPos.x - Math.sin(angle) * lookAheadOffset,
+      charPos.y + 2,
+      charPos.z - Math.cos(angle) * lookAheadOffset
+    );
     camera.lookAt(cameraTarget);
 
     if (onPositionChange) {
       onPositionChange([charPos.x, charPos.y, charPos.z]);
+    }
+    if (onSprintChange) {
+      onSprintChange(sprintingRef.current, staminaRef.current);
     }
   });
 
