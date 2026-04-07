@@ -75,7 +75,7 @@ export default function Navbar({ onGameModeToggle }: NavbarProps) {
                 className="flex items-center gap-1.5 rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-sm font-medium text-accent transition-all hover:bg-accent hover:text-white"
               >
                 <FaGamepad className="text-xs" />
-                <span>3D</span>
+                <span>3D <sup className="text-[8px] opacity-60">Beta</sup></span>
               </motion.button>
             )}
             <motion.div
@@ -137,7 +137,7 @@ export default function Navbar({ onGameModeToggle }: NavbarProps) {
                     className="flex items-center justify-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-base font-semibold text-accent transition-all hover:bg-accent hover:text-white"
                   >
                     <FaGamepad />
-                    3D
+                    3D <span className="text-[10px] opacity-60">Beta</span>
                   </button>
                 )}
                 <Link
