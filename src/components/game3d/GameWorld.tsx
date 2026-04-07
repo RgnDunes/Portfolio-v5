@@ -5,9 +5,10 @@ import { Canvas } from "@react-three/fiber";
 import { Sky, KeyboardControls } from "@react-three/drei";
 import { Suspense } from "react";
 import Terrain from "./Terrain";
-import Buildings from "./Buildings";
+import Landmarks from "./Landmarks";
 import Character from "./Character";
 import Trees from "./Trees";
+import Animals from "./Animals";
 import GameUI from "./GameUI";
 import Minimap from "./Minimap";
 
@@ -25,7 +26,7 @@ const keyboardMap = [
 ];
 
 export default function GameWorld({ onExit, onSelectSection }: GameWorldProps) {
-  const [playerPos, setPlayerPos] = useState<[number, number, number]>([0, 0, 12]);
+  const [playerPos, setPlayerPos] = useState<[number, number, number]>([0, 0, 0]);
 
   const handlePositionChange = useCallback((pos: [number, number, number]) => {
     setPlayerPos(pos);
@@ -36,48 +37,42 @@ export default function GameWorld({ onExit, onSelectSection }: GameWorldProps) {
       <KeyboardControls map={keyboardMap}>
         <Canvas
           shadows
-          camera={{ fov: 50, near: 0.1, far: 200, position: [0, 8, 26] }}
+          camera={{ fov: 50, near: 0.1, far: 300, position: [0, 10, 20] }}
           style={{ width: "100%", height: "100%" }}
         >
           <Suspense fallback={null}>
-            {/* Lighting */}
             <ambientLight intensity={0.5} />
             <directionalLight
-              position={[50, 80, 30]}
+              position={[60, 100, 40]}
               intensity={1.5}
               castShadow
               shadow-mapSize={[2048, 2048]}
-              shadow-camera-far={150}
-              shadow-camera-left={-50}
-              shadow-camera-right={50}
-              shadow-camera-top={50}
-              shadow-camera-bottom={-50}
+              shadow-camera-far={200}
+              shadow-camera-left={-80}
+              shadow-camera-right={80}
+              shadow-camera-top={80}
+              shadow-camera-bottom={-80}
             />
             <hemisphereLight args={["#87ceeb", "#556b2f", 0.4]} />
 
-            {/* Sky */}
             <Sky
               sunPosition={[100, 60, 100]}
-              turbidity={8}
+              turbidity={6}
               rayleigh={2}
               mieCoefficient={0.005}
               mieDirectionalG={0.8}
             />
 
-            {/* Fog */}
-            <fog attach="fog" args={["#c9daea", 50, 150]} />
+            <fog attach="fog" args={["#c9daea", 60, 200]} />
 
-            {/* World */}
             <Terrain />
             <Trees />
-            <Buildings onSelectSection={onSelectSection} />
-
-            {/* Third-person character */}
+            <Animals />
+            <Landmarks onSelectSection={onSelectSection} />
             <Character onPositionChange={handlePositionChange} />
           </Suspense>
         </Canvas>
 
-        {/* UI Overlays */}
         <GameUI onExit={onExit} />
         <Minimap playerPosition={playerPos} />
       </KeyboardControls>
