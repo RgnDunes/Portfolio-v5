@@ -17,9 +17,12 @@ const STAMINA_REGEN = 20; // per second
 interface CharacterProps {
   onPositionChange?: (pos: [number, number, number], rotation: number) => void;
   onSprintChange?: (sprinting: boolean, stamina: number) => void;
+  mobileInput?: { x: number; z: number };
+  mobileJump?: number; // increment to trigger jump
+  mobileSprint?: boolean;
 }
 
-export default function Character({ onPositionChange, onSprintChange }: CharacterProps) {
+export default function Character({ onPositionChange, onSprintChange, mobileInput, mobileJump, mobileSprint }: CharacterProps) {
   const groupRef = useRef<THREE.Group>(null);
   const leftArmRef = useRef<THREE.Mesh>(null);
   const rightArmRef = useRef<THREE.Mesh>(null);
@@ -27,6 +30,7 @@ export default function Character({ onPositionChange, onSprintChange }: Characte
   const rightLegRef = useRef<THREE.Mesh>(null);
   const velocityY = useRef(0);
   const isGrounded = useRef(true);
+  const lastMobileJump = useRef(0);
   const { camera, gl } = useThree();
 
   // Sprint state via window events (Shift key)
@@ -124,11 +128,16 @@ export default function Character({ onPositionChange, onSprintChange }: Characte
   useFrame((_, delta) => {
     if (!groupRef.current) return;
 
+    // Detect mobile jump trigger (value increments)
+    const mobileJumpTriggered = mobileJump !== undefined && mobileJump > lastMobileJump.current;
+    if (mobileJump !== undefined) lastMobileJump.current = mobileJump;
+
     const { forward, backward, left, right } = getKeys();
-    const moving = forward || backward || left || right;
+    const hasMobileInput = mobileInput && (Math.abs(mobileInput.x) > 0.1 || Math.abs(mobileInput.z) > 0.1);
+    const moving = forward || backward || left || right || hasMobileInput;
 
     // Sprint logic
-    const wantsSprint = shiftHeld.current && moving;
+    const wantsSprint = (shiftHeld.current || mobileSprint) && moving;
     if (wantsSprint && staminaRef.current > 0) {
       staminaRef.current = Math.max(0, staminaRef.current - STAMINA_DRAIN * delta);
       sprintingRef.current = true;
@@ -149,6 +158,12 @@ export default function Character({ onPositionChange, onSprintChange }: Characte
     if (backward) moveDir.sub(camForward);
     if (left) moveDir.sub(camRight);
     if (right) moveDir.add(camRight);
+
+    // Mobile joystick input
+    if (hasMobileInput && mobileInput) {
+      moveDir.add(camRight.clone().multiplyScalar(mobileInput.x));
+      moveDir.add(camForward.clone().multiplyScalar(-mobileInput.z));
+    }
 
     if (moveDir.length() > 0) {
       moveDir.normalize();
@@ -190,9 +205,9 @@ export default function Character({ onPositionChange, onSprintChange }: Characte
       groupRef.current.rotation.y += angleDiff * 15 * delta;
     }
 
-    // Jump
+    // Jump (keyboard or mobile)
     const { jump } = getKeys();
-    if (jump && isGrounded.current) {
+    if ((jump || mobileJumpTriggered) && isGrounded.current) {
       velocityY.current = JUMP_FORCE;
       isGrounded.current = false;
     }

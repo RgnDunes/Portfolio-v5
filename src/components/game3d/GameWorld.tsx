@@ -19,6 +19,7 @@ import Minimap from "./Minimap";
 import Collectibles, { GEMS } from "./Collectibles";
 import CollectionEffect from "./CollectionEffect";
 import GameHUD from "./GameHUD";
+import MobileControls from "./MobileControls";
 
 interface GameWorldProps {
   onExit: () => void;
@@ -51,6 +52,19 @@ export default function GameWorld({ onExit, onSelectSection, exploredCount = 0 }
   const [stamina, setStamina] = useState(100);
   const [lastCollected, setLastCollected] = useState<{ label: string; color: string } | null>(null);
   const lastCollectedKey = useRef(0);
+  const [mobileInput, setMobileInput] = useState({ x: 0, z: 0 });
+  const [mobileJump, setMobileJump] = useState(0);
+  const [mobileSprint, setMobileSprint] = useState(false);
+
+  const handleMobileMove = useCallback((x: number, z: number) => {
+    setMobileInput({ x, z });
+  }, []);
+  const handleMobileJump = useCallback(() => {
+    setMobileJump((v) => v + 1);
+  }, []);
+  const handleMobileSprint = useCallback((s: boolean) => {
+    setMobileSprint(s);
+  }, []);
 
   const handlePositionChange = useCallback((pos: [number, number, number], rotation: number) => {
     setPlayerPos(pos);
@@ -120,6 +134,9 @@ export default function GameWorld({ onExit, onSelectSection, exploredCount = 0 }
             <Character
               onPositionChange={handlePositionChange}
               onSprintChange={handleSprintChange}
+              mobileInput={mobileInput}
+              mobileJump={mobileJump}
+              mobileSprint={mobileSprint}
             />
           </Suspense>
         </Canvas>
@@ -134,6 +151,7 @@ export default function GameWorld({ onExit, onSelectSection, exploredCount = 0 }
           lastCollected={lastCollected}
         />
         <Minimap playerPosition={playerPos} playerRotation={playerRotation} />
+        <MobileControls onMove={handleMobileMove} onJump={handleMobileJump} onSprint={handleMobileSprint} />
       </KeyboardControls>
     </div>
   );
