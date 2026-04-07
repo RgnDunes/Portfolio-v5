@@ -22,7 +22,7 @@ export default function Character({ onPositionChange }: CharacterProps) {
   const [, getKeys] = useKeyboardControls();
 
   // Orbit camera state
-  const orbit = useRef({ angle: 0, pitch: 0.6, distance: 16, dragging: false, lastX: 0, lastY: 0 });
+  const orbit = useRef({ angle: 0, pitch: 0.5, distance: 14, dragging: false, lastX: 0, lastY: 0 });
 
   // Mouse controls for orbiting camera
   useEffect(() => {
@@ -39,12 +39,12 @@ export default function Character({ onPositionChange }: CharacterProps) {
       const dx = e.clientX - orbit.current.lastX;
       const dy = e.clientY - orbit.current.lastY;
       orbit.current.angle -= dx * 0.005;
-      orbit.current.pitch = Math.max(0.2, Math.min(1.2, orbit.current.pitch + dy * 0.005));
+      orbit.current.pitch = Math.max(0.25, Math.min(0.85, orbit.current.pitch + dy * 0.004));
       orbit.current.lastX = e.clientX;
       orbit.current.lastY = e.clientY;
     };
     const onWheel = (e: WheelEvent) => {
-      orbit.current.distance = Math.max(8, Math.min(30, orbit.current.distance + e.deltaY * 0.02));
+      orbit.current.distance = Math.max(10, Math.min(22, orbit.current.distance + e.deltaY * 0.015));
     };
     // Touch controls
     const onTouchStart = (e: TouchEvent) => {
@@ -60,7 +60,7 @@ export default function Character({ onPositionChange }: CharacterProps) {
       const dx = e.touches[0].clientX - orbit.current.lastX;
       const dy = e.touches[0].clientY - orbit.current.lastY;
       orbit.current.angle -= dx * 0.005;
-      orbit.current.pitch = Math.max(0.2, Math.min(1.2, orbit.current.pitch + dy * 0.005));
+      orbit.current.pitch = Math.max(0.25, Math.min(0.85, orbit.current.pitch + dy * 0.004));
       orbit.current.lastX = e.touches[0].clientX;
       orbit.current.lastY = e.touches[0].clientY;
     };
@@ -141,7 +141,7 @@ export default function Character({ onPositionChange }: CharacterProps) {
       charPos.z + Math.cos(angle) * distance * Math.cos(pitch)
     );
 
-    currentCameraPos.lerp(desiredCameraPos, 5 * delta);
+    currentCameraPos.lerp(desiredCameraPos, 8 * delta);
     camera.position.copy(currentCameraPos);
     cameraTarget.set(charPos.x, charPos.y + 2, charPos.z);
     camera.lookAt(cameraTarget);

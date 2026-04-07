@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 export default function Terrain() {
@@ -20,49 +20,46 @@ export default function Terrain() {
 
 function GrassGround() {
   const count = 181 * 181;
-  const meshRef = useRef<THREE.InstancedMesh>(null);
 
-  useMemo(() => {
-    if (!meshRef.current) return;
+  const initMesh = useCallback((mesh: THREE.InstancedMesh) => {
+    if (!mesh) return;
     const matrix = new THREE.Matrix4();
     const color = new THREE.Color();
     let i = 0;
 
     for (let x = -90; x <= 90; x++) {
       for (let z = -90; z <= 90; z++) {
-        // Skip lake area
         const distFromLake = Math.sqrt((x - 10) ** 2 + (z - 20) ** 2);
         if (distFromLake < 15) {
           matrix.setPosition(x, -1, z);
-          meshRef.current.setMatrixAt(i, matrix);
-          color.setRGB(0.15, 0.25, 0.35); // lake bottom
-          meshRef.current.setColorAt(i, color);
+          mesh.setMatrixAt(i, matrix);
+          color.setRGB(0.15, 0.25, 0.35);
+          mesh.setColorAt(i, color);
           i++;
           continue;
         }
 
         const noise = Math.sin(x * 0.15) * Math.cos(z * 0.15) * 0.2;
         matrix.setPosition(x, noise - 0.5, z);
-        meshRef.current.setMatrixAt(i, matrix);
+        mesh.setMatrixAt(i, matrix);
 
-        // Varied grass colors
         const shade = 0.6 + Math.random() * 0.4;
         const isBeach = distFromLake < 18;
         if (isBeach) {
-          color.setRGB(0.6 * shade, 0.55 * shade, 0.35 * shade); // sandy
+          color.setRGB(0.6 * shade, 0.55 * shade, 0.35 * shade);
         } else {
-          color.setRGB(0.2 * shade, 0.5 * shade, 0.15 * shade); // grass
+          color.setRGB(0.2 * shade, 0.5 * shade, 0.15 * shade);
         }
-        meshRef.current.setColorAt(i, color);
+        mesh.setColorAt(i, color);
         i++;
       }
     }
-    meshRef.current.instanceMatrix.needsUpdate = true;
-    if (meshRef.current.instanceColor) meshRef.current.instanceColor.needsUpdate = true;
-  }, [meshRef.current]);
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, []);
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} receiveShadow>
+    <instancedMesh ref={initMesh} args={[undefined, undefined, count]} receiveShadow>
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial vertexColors />
     </instancedMesh>

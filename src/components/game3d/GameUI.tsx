@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 
 interface GameUIProps {
   onExit: () => void;
+  exploredCount?: number;
 }
 
-export default function GameUI({ onExit }: GameUIProps) {
+export default function GameUI({ onExit, exploredCount = 0 }: GameUIProps) {
   const [showIntro, setShowIntro] = useState(true);
 
   // Auto-dismiss intro after 4 seconds
@@ -19,13 +20,37 @@ export default function GameUI({ onExit }: GameUIProps) {
 
   return (
     <>
+      {/* Mini compass - top center */}
+      <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
+          <div className="relative flex h-7 w-7 items-center justify-center">
+            <div className="font-mono text-[10px] font-bold text-red-400">N</div>
+            <div className="absolute -top-0.5 left-1/2 h-1.5 w-0.5 -translate-x-1/2 bg-red-400" />
+          </div>
+        </div>
+      </div>
+
+      {/* Landmarks explored counter */}
+      <div className="fixed right-4 top-14 z-50">
+        <div className="rounded-lg bg-black/50 px-3 py-1.5 backdrop-blur-sm">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-white/50">
+            Explored
+          </div>
+          <div className="font-mono text-sm font-bold text-yellow-400">
+            {exploredCount}/6
+          </div>
+        </div>
+      </div>
+
       {/* Controls hint - bottom */}
-      <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-        <div className="rounded-lg bg-black/60 px-6 py-3 text-center backdrop-blur-sm">
-          <div className="font-mono text-xs text-white/90">
-            <span className="text-yellow-400">WASD</span> Move &nbsp;|&nbsp;
-            <span className="text-yellow-400">Click</span> buildings to explore &nbsp;|&nbsp;
-            Walk to a building and click it!
+      <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2">
+        <div className="rounded-lg bg-black/40 px-4 py-2 text-center backdrop-blur-sm">
+          <div className="font-mono text-[10px] text-white/60">
+            <span className="text-yellow-400/80">WASD</span> Move
+            <span className="mx-1.5 text-white/30">|</span>
+            <span className="text-yellow-400/80">Click</span> Explore
+            <span className="mx-1.5 text-white/30">|</span>
+            <span className="text-yellow-400/80">Drag</span> Rotate
           </div>
         </div>
       </div>
@@ -72,6 +97,10 @@ export default function GameUI({ onExit }: GameUIProps) {
               <div className="flex items-center gap-3">
                 <kbd className="rounded bg-white/20 px-2 py-1 text-yellow-400">Click</kbd>
                 <span>Click on buildings to explore sections</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <kbd className="rounded bg-white/20 px-2 py-1 text-yellow-400">Drag</kbd>
+                <span>Drag to rotate camera</span>
               </div>
             </div>
             <button

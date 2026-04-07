@@ -22,23 +22,57 @@ interface GameModeWrapperProps {
   onExit: () => void;
 }
 
+const SECTION_HASH: Record<string, string> = {
+  about: "#about",
+  experience: "#experience",
+  skills: "#skills",
+  projects: "#projects",
+  blog: "#blog",
+  contact: "#contact",
+};
+
 export default function GameModeWrapper({ isActive, onExit }: GameModeWrapperProps) {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [exploredSections, setExploredSections] = useState<Set<string>>(new Set());
 
   const handleSelectSection = useCallback((section: string) => {
     setSelectedSection(section);
+    setExploredSections((prev) => {
+      const next = new Set(prev);
+      next.add(section);
+      return next;
+    });
   }, []);
 
   const handleCloseOverlay = useCallback(() => {
     setSelectedSection(null);
   }, []);
 
+  const handleViewPortfolio = useCallback(
+    (section: string) => {
+      setSelectedSection(null);
+      onExit();
+      // Small delay to let the game exit animation complete before scrolling
+      setTimeout(() => {
+        const hash = SECTION_HASH[section];
+        if (hash) {
+          window.location.hash = hash;
+        }
+      }, 150);
+    },
+    [onExit]
+  );
+
   if (!isActive) return null;
 
   return (
     <>
-      <GameWorld onExit={onExit} onSelectSection={handleSelectSection} />
-      <SectionOverlay section={selectedSection} onClose={handleCloseOverlay} />
+      <GameWorld onExit={onExit} onSelectSection={handleSelectSection} exploredCount={exploredSections.size} />
+      <SectionOverlay
+        section={selectedSection}
+        onClose={handleCloseOverlay}
+        onViewPortfolio={handleViewPortfolio}
+      />
     </>
   );
 }

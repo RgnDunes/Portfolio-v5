@@ -9,12 +9,17 @@ import Landmarks from "./Landmarks";
 import Character from "./Character";
 import Trees from "./Trees";
 import Animals from "./Animals";
+import Particles from "./Particles";
+import Paths from "./Paths";
+import Clouds from "./Clouds";
+import DirectionIndicators from "./DirectionIndicators";
 import GameUI from "./GameUI";
 import Minimap from "./Minimap";
 
 interface GameWorldProps {
   onExit: () => void;
   onSelectSection: (section: string) => void;
+  exploredCount?: number;
 }
 
 const keyboardMap = [
@@ -25,7 +30,7 @@ const keyboardMap = [
   { name: "jump", keys: ["Space"] },
 ];
 
-export default function GameWorld({ onExit, onSelectSection }: GameWorldProps) {
+export default function GameWorld({ onExit, onSelectSection, exploredCount = 0 }: GameWorldProps) {
   const [playerPos, setPlayerPos] = useState<[number, number, number]>([0, 0, 0]);
 
   const handlePositionChange = useCallback((pos: [number, number, number]) => {
@@ -66,14 +71,18 @@ export default function GameWorld({ onExit, onSelectSection }: GameWorldProps) {
             <fog attach="fog" args={["#c9daea", 60, 200]} />
 
             <Terrain />
+            <Paths />
             <Trees />
             <Animals />
             <Landmarks onSelectSection={onSelectSection} />
+            <Particles />
+            <Clouds />
+            <DirectionIndicators playerPosition={playerPos} />
             <Character onPositionChange={handlePositionChange} />
           </Suspense>
         </Canvas>
 
-        <GameUI onExit={onExit} />
+        <GameUI onExit={onExit} exploredCount={exploredCount} />
         <Minimap playerPosition={playerPos} />
       </KeyboardControls>
     </div>
