@@ -8,7 +8,7 @@ import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
 import Experience from "@/components/sections/Experience";
 import Skills from "@/components/sections/Skills";
-import GameModeWrapper from "@/components/game2d/GameModeWrapper";
+import GameModeWrapper from "@/components/game3d/GameModeWrapper";
 
 // Dynamically import components that are below the fold
 const Projects = dynamic(() => import("@/components/sections/Projects"), {

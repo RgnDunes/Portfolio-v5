@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 
-interface SectionModalProps {
+interface SectionOverlayProps {
   section: string | null;
   onClose: () => void;
   onViewPortfolio?: (section: string) => void;
@@ -101,11 +101,11 @@ const SECTION_CONTENT: Record<
   },
 };
 
-export default function SectionModal({
+export default function SectionOverlay({
   section,
   onClose,
   onViewPortfolio,
-}: SectionModalProps) {
+}: SectionOverlayProps) {
   const content = section ? SECTION_CONTENT[section] : null;
 
   const handleViewPortfolio = () => {
@@ -176,7 +176,7 @@ export default function SectionModal({
                       className="mt-0.5 text-xs"
                       style={{ color: content.accent }}
                     >
-                      &#9656;
+                      ▸
                     </span>
                     <span className="text-sm leading-relaxed text-white/85">
                       {item}
