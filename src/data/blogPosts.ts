@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "css-has-changed-everything",
+    title: "CSS :has() Changed Everything: The Selector That Eliminated JavaScript From My Stylesheets",
+    description: "A deep dive into CSS :has() - the parent selector that finally arrived, and how it fundamentally changes the relationship between CSS and JavaScript in modern web development.",
+    contentPath: "/blog/css-has-changed-everything_article.html",
+    publishedAt: "2026-04-13",
+    tags: ["CSS", "Web Development", "Frontend"],
+    readingTime: "~18 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "fetch-api-streams-cancellation-features",
     title: "The Fetch API Is Not What You Think: Streams, Cancellation, and the Features Nobody Uses",
     description: "Most developers treat fetch() as a glorified XMLHttpRequest. This deep dive explores the powerful features hiding in plain sight - streaming, cancellation, caching, and the patterns that separate hobby projects from production-grade code.",
