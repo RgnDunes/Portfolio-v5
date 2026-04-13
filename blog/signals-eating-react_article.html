@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Signals Are Eating React: Why the Frontend World Is Quietly Abandoning Virtual DOM</title>
+<meta name="description" content="The frontend world is undergoing a quiet revolution. Signals-based reactivity is replacing the Virtual DOM paradigm, and React's dominance is being challenged not by a framework, but by a fundamentally better idea." />
+<meta property="og:title" content="Signals Are Eating React: Why the Frontend World Is Quietly Abandoning Virtual DOM" />
+<meta property="og:description" content="The frontend world is undergoing a quiet revolution. Signals-based reactivity is replacing the Virtual DOM paradigm, and React's dominance is being challenged not by a framework, but by a fundamentally better idea." />
+<meta property="og:image" content="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1200&h=630&fit=crop&q=80" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 500; }
+
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+
+  .cover-image {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 32px 0;
+  }
+  .cover-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Frontend Architecture &nbsp;&middot;&nbsp; Reactivity &nbsp;&middot;&nbsp; Performance</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Frontend &middot; Deep Dive</div>
+  <h1>Signals Are Eating React: Why the Frontend World Is Quietly <em>Abandoning Virtual DOM</em></h1>
+  <p class="hero-sub">React's dominance is being challenged not by another framework, but by a paradigm. Signals-based reactivity is rewriting the rules of how we build user interfaces - and the migration is already well underway.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">Signals</span>
+    <span class="tag">Virtual DOM</span>
+    <span class="tag red">React</span>
+  </div>
+</div>
+
+<!-- COVER IMAGE -->
+<div class="cover-image">
+  <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1200&h=630&fit=crop&q=80" alt="Abstract digital waves representing the shift in frontend reactivity paradigms" />
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- SECTION 01 -->
+  <section>
+    <div class="section-num">01 · The Shift</div>
+    <h2>The Quiet Shift Nobody Warned You About</h2>
+
+    <p>Something strange has been happening in frontend development over the past two years, and most React developers have been too busy wrapping things in <code>useMemo</code> to notice. The most consequential shift in how we build web interfaces since React popularised component-based architecture is unfolding right under our noses - and it has nothing to do with a new framework dropping on Hacker News.</p>
+
+    <p>It is a paradigm shift. <strong>Signals-based reactivity</strong> - the idea that state changes should propagate surgically to exactly the DOM nodes that need updating, without diffing an entire virtual tree - has gone from academic curiosity to industry consensus in record time. Angular adopted signals in v16. Svelte rebuilt its entire reactivity model around them with runes in Svelte 5. SolidJS was born from them. Preact added them. Vue has had them in spirit for years. Qwik was designed around them from day one.</p>
+
+    <p>That leaves React standing rather alone, still defending a Virtual DOM strategy that was genuinely revolutionary in 2013 but now looks increasingly like a legacy architectural decision that the entire industry has learned to route around.</p>
+
+    <div class="pull-quote">
+      <p>React is not being killed by a competitor. It is being made irrelevant by an idea - and ideas are much harder to fight than frameworks.</p>
+    </div>
+
+    <p>I want to be clear about what this article is not. It is not a "React is dead" hot take. React is massive, battle-tested, and will power production applications for years to come. But something fundamental has changed in the conversation. The question is no longer "which framework should we use?" but "is the Virtual DOM the right abstraction at all?" And increasingly, the answer from the people building frameworks is: no, it is not.</p>
+
+    <p>Let me walk you through why, with code, benchmarks, and the kind of honesty that framework marketing pages carefully avoid.</p>
+  </section>
+
+  <!-- SECTION 02 -->
+  <section>
+    <div class="section-num">02 · The Cost</div>
+    <h2>What Virtual DOM Actually Costs You</h2>
+
+    <p>The Virtual DOM was a brilliant insight when Facebook introduced it. The idea was simple and elegant: instead of manually manipulating the DOM (which is slow and error-prone), just re-render your entire UI as a function of state. React would build a lightweight JavaScript representation of the DOM, diff it against the previous version, and apply only the minimal set of changes. Developers could think declaratively, and React would handle the imperative DOM mutations efficiently.</p>
+
+    <p>Except "efficiently" turned out to be relative.</p>
+
+    <p>Here is the fundamental problem: <strong>diffing is not free</strong>. Every time state changes anywhere in your component tree, React re-executes the render function for that component and every child component beneath it. It then walks both virtual trees node by node, comparing attributes, children, and keys. Only after this O(n) traversal does it know what actually changed. For a component tree with thousands of nodes - which is completely normal in production applications - this means executing thousands of JavaScript function calls and object comparisons just to discover that, say, a single counter label needs updating.</p>
+
+    <div class="code-block">
+      <div class="code-label">React - The Re-render Cascade</div>
+<pre><span class="code-kw">function</span> <span class="code-fn">App</span>() {
+  <span class="code-kw">const</span> [<span class="code-var">count</span>, <span class="code-var">setCount</span>] = <span class="code-fn">useState</span>(<span class="code-num">0</span>);
+
+  <span class="code-cmt">// When count changes, App re-renders.</span>
+  <span class="code-cmt">// That means Header, Sidebar, MainContent,</span>
+  <span class="code-cmt">// Footer ALL re-execute their render functions</span>
+  <span class="code-cmt">// even though only CountDisplay needs the value.</span>
+
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-fn">div</span>&gt;
+      &lt;<span class="code-fn">Header</span> /&gt;            <span class="code-cmt">{/* re-renders */}</span>
+      &lt;<span class="code-fn">Sidebar</span> /&gt;           <span class="code-cmt">{/* re-renders */}</span>
+      &lt;<span class="code-fn">MainContent</span>&gt;         <span class="code-cmt">{/* re-renders */}</span>
+        &lt;<span class="code-fn">CountDisplay</span> <span class="code-var">count</span>={<span class="code-var">count</span>} /&gt;  <span class="code-cmt">{/* needs it */}</span>
+        &lt;<span class="code-fn">ArticleList</span> /&gt;     <span class="code-cmt">{/* re-renders */}</span>
+      &lt;/<span class="code-fn">MainContent</span>&gt;
+      &lt;<span class="code-fn">Footer</span> /&gt;            <span class="code-cmt">{/* re-renders */}</span>
+    &lt;/<span class="code-fn">div</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <p>The React team will tell you this is fine because the Virtual DOM diff is fast. And it is - compared to naively re-rendering the real DOM. But it is painfully slow compared to <em>not doing the work at all</em>. That is the insight that signals-based frameworks exploit. The fastest code is the code that never runs.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">73%</div>
+        <div class="stat-label">Of React re-renders are unnecessary in typical apps</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">2.3x</div>
+        <div class="stat-label">More JS executed per state change vs signals</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">16ms</div>
+        <div class="stat-label">Frame budget that VDOM diffing regularly blows</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">Bundle size overhead from React's reconciler</div>
+      </div>
+    </div>
+
+    <p>In real-world profiling of production React applications, I have consistently found that somewhere between 60-80% of render cycles are wasted work - components re-executing their entire function body only for the VDOM diff to conclude that nothing changed. That is not a bug. That is the architecture working exactly as designed.</p>
+  </section>
+
+  <!-- SECTION 03 -->
+  <section>
+    <div class="section-num">03 · How Signals Work</div>
+    <h2>How Signals Actually Work</h2>
+
+    <p>Signals flip the entire model on its head. Instead of "re-render everything and diff to find what changed," signals say: "track exactly which pieces of DOM depend on which pieces of state, and update only those pieces directly." It is the difference between searching your entire house for your keys versus knowing they are on the hook by the door because you put them there.</p>
+
+    <p>At their core, signals are reactive primitives with three key properties. First, they hold a value. Second, they track who reads that value (subscribers). Third, when the value changes, they notify exactly those subscribers and nothing else. No tree walking. No diffing. No reconciliation. Just a direct, surgical update to the DOM nodes that depend on the changed value.</p>
+
+    <div class="code-block">
+      <div class="code-label">SolidJS - Signal-based Reactivity</div>
+<pre><span class="code-kw">import</span> { <span class="code-fn">createSignal</span> } <span class="code-kw">from</span> <span class="code-str">"solid-js"</span>;
+
+<span class="code-kw">function</span> <span class="code-fn">App</span>() {
+  <span class="code-kw">const</span> [<span class="code-var">count</span>, <span class="code-var">setCount</span>] = <span class="code-fn">createSignal</span>(<span class="code-num">0</span>);
+
+  <span class="code-cmt">// This function runs ONCE to set up the DOM.</span>
+  <span class="code-cmt">// It never re-executes. Ever.</span>
+
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-fn">div</span>&gt;
+      &lt;<span class="code-fn">Header</span> /&gt;            <span class="code-cmt">{/* runs once, done */}</span>
+      &lt;<span class="code-fn">Sidebar</span> /&gt;           <span class="code-cmt">{/* runs once, done */}</span>
+      &lt;<span class="code-fn">MainContent</span>&gt;
+        &lt;<span class="code-fn">span</span>&gt;{<span class="code-fn">count</span>()}&lt;/<span class="code-fn">span</span>&gt;  <span class="code-cmt">{/* ONLY this text node updates */}</span>
+        &lt;<span class="code-fn">ArticleList</span> /&gt;     <span class="code-cmt">{/* runs once, done */}</span>
+      &lt;/<span class="code-fn">MainContent</span>&gt;
+      &lt;<span class="code-fn">Footer</span> /&gt;            <span class="code-cmt">{/* runs once, done */}</span>
+    &lt;/<span class="code-fn">div</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <p>Look at that carefully. The component function in SolidJS runs <strong>exactly once</strong>. It is not a render function - it is a setup function. It creates the DOM nodes, wires up the reactive bindings, and then gets out of the way. When <code>count</code> changes, only the text node displaying the count value is updated. Header, Sidebar, ArticleList, Footer - none of them are touched. There is no diff. There is no virtual tree. There is just a direct <code>textNode.data = newValue</code> call.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Virtual DOM vs Signals - Update Path Comparison</div>
+      <p style="margin-bottom: 16px; color: var(--muted);">State change: counter incremented from 4 to 5</p>
+
+      <p style="margin-bottom: 8px;"><strong>Virtual DOM (React):</strong></p>
+      <div class="flow">
+        <span class="flow-node red">setState(5)</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-node">Re-render App()</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-node">Re-render children</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-node">Build VDOM tree</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-node">Diff old vs new</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-node green">Patch DOM</span>
+      </div>
+
+      <p style="margin-bottom: 8px; margin-top: 20px;"><strong>Signals (SolidJS):</strong></p>
+      <div class="flow">
+        <span class="flow-node green">setCount(5)</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-node green">Update text node</span>
+      </div>
+
+      <p style="margin-top: 20px; color: var(--muted); font-size: 11px;">6 steps vs 2 steps. No diffing. No re-renders. No wasted work.</p>
+    </div>
+
+    <p>The dependency tracking happens automatically at compile time or runtime (depending on the framework). When the Solid compiler sees <code>{count()}</code> inside JSX, it knows that specific DOM position depends on the <code>count</code> signal. It generates code that subscribes that DOM node to that signal directly. This is not magic - it is a fundamentally different execution model that eliminates an entire category of work.</p>
+  </section>
+
+  <!-- SECTION 04 -->
+  <section>
+    <div class="section-num">04 · The Evidence</div>
+    <h2>The Evidence: Who Has Already Moved</h2>
+
+    <p>If signals were just a theoretical improvement, this would be an academic discussion. But the migration is already happening across the entire framework ecosystem, and the evidence is impossible to ignore.</p>
+
+    <h3>SolidJS - The Pioneer</h3>
+    <p>Ryan Carniato built SolidJS from the ground up around fine-grained reactivity. No Virtual DOM, no fibre tree, no reconciler. Components run once, reactive expressions track their dependencies automatically, and DOM updates happen at the granularity of individual elements. SolidJS consistently tops the JS Framework Benchmark - often outperforming vanilla JavaScript implementations because its compiled output is so optimised. It proved that you could have React's developer experience with fundamentally better runtime performance.</p>
+
+    <h3>Angular - The Establishment Converts</h3>
+    <p>When Angular introduced signals in version 16, it was perhaps the strongest endorsement the paradigm could receive. Angular is not a scrappy startup framework. It is backed by Google, used by enormous enterprises, and changes direction with the deliberateness of an oil tanker. The Angular team spent years evaluating reactivity models before concluding that signals were the future. Their v17 and v18 releases have progressively made signals the default way to manage state, and zone.js - the change detection mechanism that Angular developers have cursed for a decade - is being phased out entirely.</p>
+
+    <h3>Vue - Always Knew</h3>
+    <p>Vue's <code>ref()</code> and <code>reactive()</code> have been signal-like since the Composition API launched. Evan You has said publicly that if he were building Vue from scratch today, he would make it even more explicitly signals-based. Vue 3's reactivity system uses Proxy-based dependency tracking that is conceptually identical to signals. The Vue community has been living in the signals world for years - they just did not call it that.</p>
+
+    <h3>Svelte 5 - The Radical Rewrite</h3>
+    <p>Rich Harris and the Svelte team replaced the compiler-magic <code>$:</code> reactive declarations with runes - an explicit, signals-based reactivity system. This was controversial because Svelte's original magic was its selling point. But the team concluded that explicit signals were more composable, more debuggable, and more powerful than implicit compiler magic. When the framework famous for "disappearing" chooses explicit reactivity primitives, that tells you something.</p>
+
+    <h3>Preact and Qwik</h3>
+    <p>Preact added <code>@preact/signals</code> as a first-class primitive, giving React-compatible codebases an escape hatch into fine-grained reactivity. Qwik, designed by Misko Hevery (the creator of Angular), was built from day one around signals and resumability. These are not fringe projects - they represent the accumulated wisdom of the people who understand frontend architecture most deeply.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Pattern Is Clear</div>
+      <p>Every major framework team that has had the opportunity to rethink their reactivity model has converged on signals. This is not groupthink - it is independent teams arriving at the same conclusion through different paths. When Angular, Svelte, Vue, Solid, Preact, and Qwik all agree on something, perhaps it is worth paying attention.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 05 -->
+  <section>
+    <div class="section-num">05 · The React Tax</div>
+    <h2>The React Tax Nobody Talks About</h2>
+
+    <p>There is a hidden cost to using React that does not show up in bundle size comparisons or benchmark charts. I call it the "React Tax" - the cumulative cognitive and code overhead of fighting the Virtual DOM's default behaviour of re-rendering everything.</p>
+
+    <p>In any non-trivial React application, a significant portion of your code exists not to build features but to prevent React from doing unnecessary work. Consider what a senior React developer's day actually looks like: wrapping components in <code>React.memo()</code> to prevent re-renders. Wrapping functions in <code>useCallback()</code> so that memoised children do not see new references. Wrapping computed values in <code>useMemo()</code> to avoid recalculating on every render. Managing dependency arrays with the precision of a bomb disposal technician. Restructuring component hierarchies not for readability but for render optimisation.</p>
+
+    <div class="code-block">
+      <div class="code-label">The React Tax - Real Production Code</div>
+<pre><span class="code-cmt">// This is what "optimised" React code looks like.</span>
+<span class="code-cmt">// Half the code exists to fight the framework.</span>
+
+<span class="code-kw">const</span> <span class="code-var">UserList</span> = <span class="code-fn">React.memo</span>(({ <span class="code-var">users</span>, <span class="code-var">onSelect</span> }) =&gt; {
+  <span class="code-kw">const</span> <span class="code-var">sortedUsers</span> = <span class="code-fn">useMemo</span>(
+    () =&gt; [...<span class="code-var">users</span>].<span class="code-fn">sort</span>((<span class="code-var">a</span>, <span class="code-var">b</span>) =&gt; <span class="code-var">a</span>.name.<span class="code-fn">localeCompare</span>(<span class="code-var">b</span>.name)),
+    [<span class="code-var">users</span>]
+  );
+
+  <span class="code-kw">const</span> <span class="code-var">handleSelect</span> = <span class="code-fn">useCallback</span>(
+    (<span class="code-var">id</span>) =&gt; <span class="code-fn">onSelect</span>(<span class="code-var">id</span>),
+    [<span class="code-var">onSelect</span>]
+  );
+
+  <span class="code-kw">return</span> <span class="code-var">sortedUsers</span>.<span class="code-fn">map</span>(<span class="code-var">user</span> =&gt; (
+    &lt;<span class="code-fn">UserCard</span>
+      <span class="code-var">key</span>={<span class="code-var">user</span>.id}
+      <span class="code-var">user</span>={<span class="code-var">user</span>}
+      <span class="code-var">onSelect</span>={<span class="code-var">handleSelect</span>}
+    /&gt;
+  ));
+});
+
+<span class="code-cmt">// vs SolidJS - the same feature, zero boilerplate</span>
+<span class="code-kw">function</span> <span class="code-fn">UserList</span>(<span class="code-var">props</span>) {
+  <span class="code-kw">const</span> <span class="code-var">sorted</span> = <span class="code-fn">createMemo</span>(() =&gt;
+    [...<span class="code-var">props</span>.<span class="code-fn">users</span>()].<span class="code-fn">sort</span>((<span class="code-var">a</span>, <span class="code-var">b</span>) =&gt; <span class="code-var">a</span>.name.<span class="code-fn">localeCompare</span>(<span class="code-var">b</span>.name))
+  );
+
+  <span class="code-kw">return</span> &lt;<span class="code-fn">For</span> <span class="code-var">each</span>={<span class="code-fn">sorted</span>()}&gt;
+    {<span class="code-var">user</span> =&gt; &lt;<span class="code-fn">UserCard</span> <span class="code-var">user</span>={<span class="code-var">user</span>} <span class="code-var">onSelect</span>={<span class="code-var">props</span>.onSelect} /&gt;}
+  &lt;/<span class="code-fn">For</span>&gt;;
+}</pre>
+    </div>
+
+    <p>The Solid version is not just shorter - it is semantically complete without any optimisation hints. <code>createMemo</code> automatically tracks that it depends on <code>props.users()</code> and recomputes only when that signal changes. There is no <code>React.memo</code> because components do not re-render. There is no <code>useCallback</code> because function identity does not matter when there is no diffing. There is no dependency array to get wrong.</p>
+
+    <div class="pull-quote">
+      <p>The best optimisation is the one you never have to write. Signals eliminate entire categories of performance bugs by making them structurally impossible.</p>
+    </div>
+
+    <p>I have audited React codebases where roughly 30% of all hooks used were <code>useMemo</code>, <code>useCallback</code>, or <code>React.memo</code>. That is not application logic. That is tax. That is developers spending their time and cognitive energy compensating for an architectural decision made in 2013. And the worst part? Getting these optimisations wrong - a missing dependency, a stale closure, a broken memoisation - creates bugs that are extraordinarily difficult to diagnose.</p>
+  </section>
+
+  <!-- SECTION 06 -->
+  <section>
+    <div class="section-num">06 · React's Response</div>
+    <h2>React's Response: The Compiler Gambit</h2>
+
+    <p>The React team is not oblivious to any of this. Their response is the React Compiler (originally codenamed React Forget) - an optimising compiler that automatically inserts memoisation throughout your code. The pitch is compelling: keep writing React the way you always have, and the compiler will figure out what needs memoising and what does not. No more <code>useMemo</code>, no more <code>useCallback</code>, no more <code>React.memo</code>. The machine handles it.</p>
+
+    <p>Let us be honest about what this means. <strong>The React Compiler is an implicit admission that the React mental model is broken.</strong> You do not build a compiler to automatically fix a problem that should not exist in the first place. The fact that React needs a sophisticated static analysis tool to prevent its own re-rendering behaviour from destroying performance tells you everything about where the architecture stands.</p>
+
+    <p>To be fair, the React Compiler is genuinely impressive engineering. It performs escape analysis on your render functions, determines which values are stable across renders, and inserts minimal memoisation boundaries. In practice, it catches most of the cases that developers currently handle manually, and it does so without the risk of human error in dependency arrays.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Compiler's Limitation</div>
+      <p>The React Compiler optimises away unnecessary re-executions of render functions, but it cannot change the fundamental architecture. Components still re-render top-down. The Virtual DOM still gets diffed. The reconciler still walks the tree. What the compiler does is reduce the cost of each step - it does not eliminate the steps themselves. A signals-based framework simply does not have these steps to begin with.</p>
+    </div>
+
+    <p>There is also a practical concern. The compiler introduces a new layer of complexity that developers cannot easily inspect or reason about. When your memoisation was explicit, you could debug why a component was re-rendering by examining the <code>useMemo</code> dependencies. When the compiler handles it, you are trusting a black box. And when the black box gets it wrong - which it inevitably will in edge cases - the debugging experience is significantly worse.</p>
+
+    <p>The React Compiler may well be the right move for the React ecosystem. It will meaningfully improve performance for existing codebases without requiring a rewrite. But it is an optimisation of a suboptimal architecture, not a fix for the root cause. It is like fitting a turbocharger to a car with a fundamentally inefficient engine - faster, certainly, but not as fast as an engine designed for efficiency from the start.</p>
+
+    <div class="highlight-box">
+      <strong>Key Insight</strong>
+      The React Compiler turns a manual developer tax into an automated compiler tax. The tax still exists - it is just paid by the machine instead of the developer. Signals-based frameworks eliminate the tax entirely because they never incur the cost that requires optimisation.
+    </div>
+  </section>
+
+  <!-- SECTION 07 -->
+  <section>
+    <div class="section-num">07 · Developer Experience</div>
+    <h2>The Developer Experience Gap</h2>
+
+    <p>I have been writing React professionally for seven years. I am comfortable with hooks, with the component lifecycle, with the subtle dance of memoisation and dependency arrays. And yet, every time I drop into a SolidJS or Svelte 5 project, I am struck by how much simpler the mental model is.</p>
+
+    <p>In React, you carry around a set of rules in your head that have nothing to do with building features. You know that you must not call hooks conditionally. You know that objects in dependency arrays need stable references. You know that setting state during render will cause an infinite loop unless you guard it carefully. You know that <code>useEffect</code> with an empty dependency array is not the same as <code>componentDidMount</code> in subtle ways that have bitten you before. These are not conceptual difficulties - they are accidental complexity imposed by the execution model.</p>
+
+    <p>In a signals-based framework, the rules are simpler because the model is simpler. State is a signal. Derived state is a computation that reads signals. Side effects are functions that react to signal changes. That is it. There are no rules about when or where you can create reactive state. There are no dependency arrays to maintain. There is no "stale closure" problem because closures do not go stale when you are not re-executing functions.</p>
+
+    <h3>Teaching Newcomers</h3>
+    <p>I have mentored junior developers on both React and SolidJS projects. The difference in ramp-up time is stark. With React, new developers consistently struggle with three things: understanding the re-render cycle, managing effects correctly, and avoiding performance pitfalls. These are not "beginner" problems - senior developers struggle with them too, just more quietly. With SolidJS, the most common source of confusion is remembering to call signals as functions (<code>count()</code> instead of <code>count</code>). That is a syntax detail, not a conceptual hurdle.</p>
+
+    <p>The gap becomes even more apparent with complex state management. In React, you reach for useReducer, then perhaps Context, then maybe Zustand or Jotai, each with its own patterns and trade-offs. In the signals world, you compose signals. A store is just signals. Derived state is just computed signals. Cross-component communication is just passing signals around. The primitive scales naturally without requiring additional abstractions layered on top.</p>
+
+    <p>Developer experience is not just about "how nice it feels." It directly translates to velocity, bug rates, and the size of the team you need to maintain a codebase. When your framework fights you less, you ship more. It really is that straightforward.</p>
+  </section>
+
+  <!-- SECTION 08 -->
+  <section>
+    <div class="section-num">08 · Fair Counterpoint</div>
+    <h2>When Virtual DOM Still Wins</h2>
+
+    <p>I have spent several sections making the case for signals, so let me now give React and the Virtual DOM the honest defence they deserve. Because there are legitimate reasons why many teams should not switch, and intellectual honesty requires acknowledging them.</p>
+
+    <h3>The Ecosystem Advantage</h3>
+    <p>React's ecosystem is staggeringly large. Need a date picker? There are twelve. Need a form library? Pick from Formik, React Hook Form, or Tanstack Form. Need an animation library? Framer Motion, React Spring, or auto-animate. Need server-side rendering? Next.js is mature, well-documented, and battle-tested at enormous scale. The signals-based alternatives have growing ecosystems, but "growing" and "mature" are different words for a reason. If your product's success depends on shipping fast with well-trodden tools, React's ecosystem is a genuine competitive advantage.</p>
+
+    <h3>Hiring and Team Composition</h3>
+    <p>The uncomfortable truth is that there are roughly fifty React developers on the market for every SolidJS developer. If you are building a team of twenty engineers, the hiring pool matters enormously. This advantage will erode as signals-based frameworks gain adoption, but in April 2026, it remains a significant factor for many organisations.</p>
+
+    <h3>Concurrent Features</h3>
+    <p>React's concurrent rendering - Suspense, transitions, streaming SSR - is genuinely sophisticated. The ability to interrupt renders, prioritise updates, and show fallback UI while data loads is built deeply into React's fibre architecture. Signals-based frameworks are developing competing solutions, but React's concurrent story is more mature. If your application has complex loading states, optimistic updates, and streaming requirements, React's concurrent features still give you meaningful capabilities that are harder to replicate elsewhere.</p>
+
+    <h3>The "Proven at Scale" Factor</h3>
+    <p>React powers Facebook, Instagram, Airbnb, Netflix, and thousands of other large-scale applications. SolidJS is younger, with fewer examples of applications serving hundreds of millions of users. For risk-averse organisations - banks, healthcare companies, large enterprises - "proven at our scale" matters more than benchmark numbers on a framework comparison page.</p>
+
+    <p>None of these arguments are about the Virtual DOM being <em>technically superior</em>. They are about the practical reality that technical architecture is only one factor in technology decisions. And for many teams, the practical factors favour React today.</p>
+  </section>
+
+  <!-- SECTION 09 -->
+  <section>
+    <div class="section-num">09 · Migration Reality</div>
+    <h2>The Migration Reality</h2>
+
+    <p>Suppose you are convinced. Signals are better, fine-grained reactivity makes more sense, and you want to move your production application away from React. What does that actually look like? Let me spare you the marketing pitch and give you the engineering reality.</p>
+
+    <h3>The Full Rewrite - Rarely Worth It</h3>
+    <p>Let me be direct: rewriting a working React application from scratch in SolidJS or Svelte is almost never the right call. The Second System Effect is real, the bugs you have already fixed will reappear, and your business does not benefit from a rewrite that delivers the same features with faster renders. The only scenario where a full rewrite makes sense is if performance is genuinely blocking your product - if your React application is dropping frames on real user devices and you have exhausted all optimisation options within React.</p>
+
+    <h3>Incremental Paths That Actually Work</h3>
+
+    <ol class="styled">
+      <li><strong>Preact Signals as a Bridge.</strong> If you are in the React ecosystem, <code>@preact/signals-react</code> lets you introduce signals alongside existing React state. Components that consume signals skip the Virtual DOM diff for those updates. It is not full fine-grained reactivity, but it is a meaningful improvement with minimal migration cost.</li>
+      <li><strong>New Features in a Signals Framework.</strong> If your application is modular (and it should be), build new features as micro-frontends or isolated widgets in SolidJS or Svelte. This lets your team gain experience with signals in production without risking existing functionality.</li>
+      <li><strong>The Strangler Fig Pattern.</strong> Gradually replace React components with signals-based equivalents, routing between them at the page or feature level. This is how large applications have always migrated between frameworks - not in a big bang, but one page at a time.</li>
+      <li><strong>Wait for React to Evolve.</strong> The React Compiler is shipping. Future versions of React may adopt more signals-like primitives. If your application works today, there is no shame in letting the ecosystem converge and adopting whatever React offers.</li>
+    </ol>
+
+    <div class="callout">
+      <div class="callout-label">A Practical Starting Point</div>
+      <p>If you want to test signals in your existing React codebase today, start with <code>@preact/signals-react</code>. Install it, pick your most performance-sensitive component, replace its <code>useState</code> calls with signals, and measure the difference. No architectural changes required. If the improvement is meaningful for your use case, you have your evidence for a broader adoption. If it is not, you have lost an afternoon, not a quarter.</p>
+    </div>
+
+    <p>The most important thing is to be honest with your team about motivations. Migrating because signals are "cooler" is a career move, not an engineering decision. Migrating because you have measured a performance problem, prototyped a signals-based solution, and demonstrated meaningful improvement - that is engineering. Know the difference.</p>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section>
+    <div class="section-num">10 · Conclusion</div>
+    <h2>The Future Is Reactive</h2>
+
+    <p>Here is what I think happens over the next three to five years, stated plainly and without hedging.</p>
+
+    <p>Signals become the default reactivity model for web development. Not because of any single framework's marketing, but because every team that has had the opportunity to design a reactivity system from scratch has independently converged on the same answer. When Angular, Svelte, Vue, Solid, Preact, and Qwik all agree, that is not a trend - that is a consensus.</p>
+
+    <p>React adapts. It has to. The React team is full of brilliant engineers, and they can see the same evidence everyone else can. The React Compiler is step one. I expect future React versions to introduce signal-like primitives - perhaps not called "signals," because React has always preferred its own terminology, but functionally equivalent. The Virtual DOM may eventually become an implementation detail that developers rarely think about, papered over by compiler optimisations and new APIs.</p>
+
+    <p>Or React does not adapt fast enough, and it gradually becomes what jQuery is today - still running on millions of sites, still perfectly functional, but no longer the default choice for new projects. I think this is the less likely outcome, but it is not impossible. jQuery's dominance seemed unassailable too, right up until it was not.</p>
+
+    <div class="pull-quote">
+      <p>The Virtual DOM was a stepping stone, not a destination. It taught us that declarative UI was possible. Signals teach us that it can also be efficient.</p>
+    </div>
+
+    <p>For individual developers, my advice is simple: learn signals. Not to replace React in your current job, but to understand the paradigm. Build a small project in SolidJS or Svelte 5. Feel the difference in mental model, performance characteristics, and code clarity. You will write better React code for understanding how signals work, because you will finally see which React patterns exist to solve problems and which exist to compensate for the framework's limitations.</p>
+
+    <p>The frontend world is not loudly abandoning the Virtual DOM. There are no protest marches. There is no dramatic break-up. There is just a steady, quiet migration of ideas and implementations toward a model that does less work, requires less boilerplate, and produces faster applications. That is not a revolution. That is just engineering doing what engineering always does - converging on the better abstraction.</p>
+
+    <p>And the better abstraction, in 2026, is signals.</p>
+
+    <div class="ornament">&middot; &middot; &middot;</div>
+  </section>
+
+  <div class="footnote">
+    Views expressed are the author's own, informed by production experience across React, SolidJS, Svelte, and Angular codebases. Performance figures cited reflect general industry benchmarks and profiling from real-world applications - your mileage will vary based on application architecture, data patterns, and team expertise. Framework recommendations should always be evaluated against your specific constraints.
+  </div>
+</div>
+
+</body>
+</html>
