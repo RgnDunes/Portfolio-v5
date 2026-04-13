@@ -160,7 +160,7 @@ export const blogPosts: BlogPost[] = [
     slug: "zero-bundle-size-dx-cost",
     title: "What \"Zero Bundle Size\" Frameworks Actually Cost in Developer Experience",
     description: "The pitch is very attractive: ship no JavaScript, score 100 on Lighthouse. But the developer experience of working with Qwik, Astro Islands, and their cousins is a different story altogether.",
-    contentPath: "/blog/zero-bundle-size-dx-cost.html",
+    contentPath: "/blog/zero-bundle-size-dx-cost_article.html",
     publishedAt: "2026-05-01",
     tags: ["Frameworks", "DX", "Performance"],
     readingTime: "12 min read",

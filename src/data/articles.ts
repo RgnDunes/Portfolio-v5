@@ -16,7 +16,7 @@ export const articles: Article[] = [
     type: "Performance",
     description:
       "The pitch is very attractive: ship no JavaScript, score 100 on Lighthouse. But the developer experience of working with Qwik, Astro Islands, and their cousins is a different story altogether.",
-    link: "/blog/zero-bundle-size-dx-cost.html",
+    link: "/blog/zero-bundle-size-dx-cost_article.html",
     icon: FaBookmark,
     date: "May 2025",
     stats: "Blog",
