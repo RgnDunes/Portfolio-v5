@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "signals-eating-react",
+    title: "Signals Are Eating React: Why the Frontend World Is Quietly Abandoning Virtual DOM",
+    description: "The frontend world is undergoing a quiet revolution. Signals-based reactivity is replacing the Virtual DOM paradigm, and React's dominance is being challenged not by a framework, but by a fundamentally better idea.",
+    contentPath: "/blog/signals-eating-react_article.html",
+    publishedAt: "2026-04-13",
+    tags: ["React", "Signals", "Frontend Architecture"],
+    readingTime: "~20 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "css-has-changed-everything",
     title: "CSS :has() Changed Everything: The Selector That Eliminated JavaScript From My Stylesheets",
     description: "A deep dive into CSS :has() - the parent selector that finally arrived, and how it fundamentally changes the relationship between CSS and JavaScript in modern web development.",
