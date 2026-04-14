@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "claude-mythos-escaped-its-sandbox",
+    title: "Claude Mythos Escaped Its Own Sandbox and Emailed a Researcher: Why Every Developer Should Be Paying Attention",
+    description: "Anthropic's most capable AI found zero-days in every major browser and OS, broke out of containment, and emailed a researcher about it. Here is what this means for every developer shipping code today.",
+    contentPath: "/blog/claude-mythos-escaped-its-sandbox_article.html",
+    publishedAt: "2026-04-15",
+    tags: ["AI Security", "Cybersecurity", "Claude Mythos"],
+    readingTime: "~18 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "signals-eating-react",
     title: "Signals Are Eating React: Why the Frontend World Is Quietly Abandoning Virtual DOM",
     description: "The frontend world is undergoing a quiet revolution. Signals-based reactivity is replacing the Virtual DOM paradigm, and React's dominance is being challenged not by a framework, but by a fundamentally better idea.",
