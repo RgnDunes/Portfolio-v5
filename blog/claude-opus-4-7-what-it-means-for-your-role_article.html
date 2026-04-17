@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude Opus 4.7 Just Shipped. What It Means For You Depends Entirely on Your Job Title.</title>
+<meta property="og:title" content="Claude Opus 4.7 Just Shipped. What It Means For You Depends Entirely on Your Job Title." />
+<meta property="og:description" content="Anthropic's newest flagship model is here. Whether it changes your Monday depends on whether you write code, manage people who write code, or just approved a budget for people who write code." />
+<meta property="og:type" content="article" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* -- MASTHEAD -- */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* -- COVER IMAGE -- */
+  .cover-image {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* -- HERO -- */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* -- LAYOUT -- */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* -- SECTIONS -- */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* -- PULL QUOTE -- */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* -- CALLOUT BOX -- */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* -- HIGHLIGHT BOX -- */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* -- CODE BLOCK -- */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* -- STAT STRIP -- */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* -- TAG -- */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* -- DIVIDER -- */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* -- FOOTNOTE -- */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* -- NUMBERED LIST -- */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* -- RESPONSIVE -- */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Diaries &nbsp;&middot;&nbsp; AI &amp; Industry &nbsp;&middot;&nbsp; April 2026</div>
+
+<!-- COVER IMAGE -->
+<img class="cover-image" src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1400&q=80" alt="Abstract AI neural network visualisation" />
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Industry Analysis &middot; AI Models &middot; Career Impact</div>
+  <h1>Claude Opus 4.7 Just Shipped. What It Means For You <em>Depends Entirely on Your Job Title.</em></h1>
+  <p class="hero-sub">Anthropic's newest flagship model landed yesterday. Whether it changes your Monday depends on whether you write code, manage people who write code, or recently approved a budget for people who write code.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~18 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">AI</span>
+    <span class="tag green">Career</span>
+    <span class="tag">Industry</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- 01 -->
+  <section>
+    <div class="section-num">01 &middot; The Drop</div>
+    <h2>What Actually Shipped (And What Didn't)</h2>
+    <p>On April 16, 2026, Anthropic released Claude Opus 4.7. If you follow AI Twitter, you already saw the benchmarks, the hot takes, and the inevitable "is this AGI?" discourse. If you don't follow AI Twitter, congratulations on your mental health - here's what you missed.</p>
+    <p>Opus 4.7 is a meaningful upgrade to Anthropic's flagship model. Not a revolution, not a minor patch. A proper, measurable step forward in the areas that matter most for people who actually use these models to get work done. The headline numbers: a 13% improvement on Anthropic's internal 93-task coding benchmark over Opus 4.6. CursorBench - which measures real-world coding assistance quality - jumped from 58% to 70%. That's not a rounding error. That's the difference between an AI pair programmer that occasionally helps and one that consistently does.</p>
+    <p>Three genuinely new capabilities landed alongside the model bump. First, a new <strong>"xhigh" effort level</strong> that sits between high and max, giving developers finer control over how much thinking the model does before responding. Second, <strong>task budgets for agentic loops</strong> - the model now sees a running token countdown and uses it to prioritise work, skip low-value steps, and finish gracefully rather than running until it hits a wall. Third, <strong>high-resolution image support</strong> jumped from about 1.15 megapixels to 3.75 megapixels. Roughly 3x the visual capacity of previous Claude models.</p>
+    <p>What didn't ship is equally interesting. Anthropic publicly conceded that Opus 4.7 does not match the performance of Mythos - their most advanced system that remains locked behind closed doors due to safety concerns. They said it out loud, in the announcement post. That kind of transparency is unusual for a company in a three-way race with OpenAI and Google. Make of it what you will.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">13%</div>
+        <div class="stat-label">Coding Benchmark<br/>Improvement</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">70%</div>
+        <div class="stat-label">CursorBench<br/>(Was 58%)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3.75</div>
+        <div class="stat-label">Megapixel Vision<br/>(Was 1.15)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">$0</div>
+        <div class="stat-label">Price Increase<br/>Over 4.6</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="section-num">02 &middot; The Developer</div>
+    <h2>If You Write Code For a Living</h2>
+    <p>Let's start with the group that has the most immediate, tangible reason to care.</p>
+    <p>The CursorBench jump from 58% to 70% is the number you should be staring at. Not the theoretical reasoning benchmarks, not the MMLU scores that nobody outside of a research lab cares about. CursorBench measures how well the model performs as an actual coding assistant - completions, refactors, understanding your codebase, generating code that fits the style of what's already there. Going from 58% to 70% means fewer rejected suggestions, fewer "close but not quite" completions, and meaningfully less time spent correcting what the model gives you.</p>
+    <p>The xhigh effort level is also directly relevant. If you've been using Claude for coding through an IDE integration or CLI tool, you've probably noticed the tradeoff - high effort gives you faster responses but sometimes misses nuances, max effort is more thorough but slow enough that you lose your train of thought waiting. xhigh splits the difference. For the sort of coding tasks that actually fill your day - multi-file refactors, debugging a gnarly race condition, understanding a codebase you inherited last month - it's genuinely the sweet spot.</p>
+
+    <div class="highlight-box">
+      <strong>The Practical Shift</strong>
+      Task budgets change how you build with Claude's API. Instead of managing token limits yourself and watching for the model to spiral into irrelevant tangents, you give it a budget and it manages its own workload. Think of it like telling a contractor "you have 8 hours and this list of priorities" instead of standing behind them micro-managing every decision. For agentic workflows - where the model calls tools, reads files, writes code, runs tests - this is the difference between building brittle state machines and letting the model do what it's actually good at.
+    </div>
+
+    <p>But here's the honest bit: if you're a developer who has already integrated AI tooling into your workflow, Opus 4.7 makes a good thing better. It does not fundamentally change what's possible. You won't wake up tomorrow and suddenly be able to ship a full-stack app by describing it in a sentence. If you haven't integrated AI tooling yet, this release isn't the catalyst either. The catalyst was six months ago. Opus 4.7 just widens the gap between developers who have adapted and those who haven't.</p>
+
+    <div class="pull-quote">
+      <p>"The gap between developers using AI tooling and those who aren't stopped being about productivity months ago. It's about leverage now. Opus 4.7 makes the leveraged group even more leveraged."</p>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <div class="section-num">03 &middot; The Product Manager</div>
+    <h2>If You Own a Roadmap</h2>
+    <p>If you're a PM, the immediate question is: does this change what's feasible? And the honest answer is - a little, in specific ways that you should understand before your next sprint planning session.</p>
+    <p>The improved agentic capabilities and task budgets mean that AI-powered features in your product that previously felt like R&D experiments are now closer to production-ready. If your team has been building AI features that involve multi-step reasoning - think document analysis pipelines, customer support bots that actually resolve tickets instead of escalating them, or automated code review that understands business context - Opus 4.7 makes those features more reliable. Not "let's put it in the roadmap" reliable. "Let's move it up the roadmap" reliable.</p>
+    <p>The vision upgrade matters more than you'd think for PMs specifically. If any part of your product involves processing images, screenshots, documents, or UI mockups through an AI layer, going from 1.15 megapixels to 3.75 means the model can now read the fine print. Literally. Document processing, receipt scanning, UI testing against design specs - the resolution was a bottleneck before. It's less of one now.</p>
+    <p>Here's the part that requires some honest self-assessment, though. If you're a PM who has been using "we need to wait for the models to get better" as a reason to delay AI features, that excuse just got thinner. Not gone - there are legitimate reasons to wait for maturity - but thinner. The models are good enough for most enterprise use cases right now. The bottleneck has shifted from model capability to integration engineering and data infrastructure. If your AI features are stalled, the model probably isn't why.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Budget Conversation</div>
+      <p>One genuinely useful detail for PMs: Opus 4.7 is the same price as Opus 4.6. No price hike. Better performance at the same cost per token. This matters because it means you don't need a new budget approval to upgrade. You just... upgrade. If your team is already paying for Claude API access, you're getting a free performance bump. That's the kind of thing worth mentioning in your next stakeholder update.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="section-num">04 &middot; The Engineering Manager</div>
+    <h2>If You Manage Engineers</h2>
+    <p>This is where it gets uncomfortable, and I say that as someone who has been in the room for these conversations.</p>
+    <p>Every meaningful AI model release forces the same question in engineering leadership meetings: does this change team sizing? The answer for Opus 4.7, specifically, is no - not yet, not directly. But the trajectory is unmistakable, and if you're not having conversations about what "engineering team shape" looks like in 18 months, you're planning with your eyes closed.</p>
+    <p>What Opus 4.7 changes for EMs right now is velocity expectations. If your team uses AI coding tools - and if they don't, ask yourself why - the 13% coding improvement and the CursorBench jump translate into measurable output increases. Not hypothetical, not "in theory." Measurable. The question you'll face in your next planning cycle is whether to maintain the same headcount and ship faster, or ship the same amount and reallocate headcount. Neither answer is wrong. But pretending the question doesn't exist is.</p>
+
+    <h3>The hiring angle</h3>
+    <p>More interestingly for hiring managers: the skill profile of who you should be hiring is shifting. "Can write clean code" is becoming table stakes in a way it wasn't two years ago - not because everyone can write clean code, but because AI tooling dramatically narrows the gap between a developer who writes clean code natively and one who needs a few extra minutes of AI-assisted iteration to get there. What's becoming more valuable is the meta-skill: the ability to decompose ambiguous problems, architect solutions that account for constraints the model can't see, and review AI-generated code with the same rigour you'd apply to a junior engineer's PR. The developers who treat AI output as a first draft rather than a final answer are the ones you want.</p>
+    <p>The developers you should be worried about - and I'm saying this bluntly because sugarcoating it helps nobody - are the ones who are neither writing good code themselves nor using AI effectively to get there. That middle ground is eroding.</p>
+
+    <div class="pull-quote">
+      <p>"The question isn't whether AI replaces engineers. It's whether an engineer with AI can do the work of two engineers without AI. And the answer is increasingly: yes, for certain categories of work."</p>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="section-num">05 &middot; The Student</div>
+    <h2>If You're Still in College or Just Starting Out</h2>
+    <p>Right. This section is the one I've been thinking about the most, because the advice that students are getting from university career centres and most of LinkedIn is so disconnected from reality that it borders on irresponsible.</p>
+    <p>Here is the truth: Opus 4.7 can now write better code than most fresh graduates. Not all fresh graduates. Not the brilliant ones who spent four years doing competitive programming and building compilers for fun. But the median CS graduate who can write a decent API handler and knows enough React to be employable? The model is at that level or above for a significant portion of routine coding tasks.</p>
+    <p>That sounds terrifying. It shouldn't be - but only if you adjust your strategy accordingly.</p>
+    <p>The mistake most students make is optimising for breadth. "I can write Python, JavaScript, Java, Go, and some Rust." Great. So can Claude, and it never forgets the syntax. The students who will thrive are the ones optimising for <strong>depth and judgement</strong>. Understanding <em>why</em> a system is designed a certain way. Being able to evaluate trade-offs that don't have clear right answers. Debugging not just code but architectures. Reading a codebase and identifying what's going to break in six months under load.</p>
+    <p>Those skills are not commoditised by better AI models. They're made more valuable by them, because the amount of code being produced is increasing while the ability to evaluate that code is not.</p>
+
+    <div class="highlight-box">
+      <strong>Practical Advice</strong>
+      If you're a student reading this: learn to use Claude, Copilot, or whatever AI coding tool you prefer - not as a crutch, but as a lever. Build projects that are too ambitious for you alone. Use AI to bridge the gap between what you know and what the project demands, and use that bridge as a learning accelerator. The students who graduate in 2027 having used AI tools for two years will have effectively compressed five years of learning into their degree. The ones who avoided AI because it felt like cheating will arrive at their first job and discover their colleagues are operating at a different speed entirely.
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="section-num">06 &middot; The Founder</div>
+    <h2>If You're Building a Startup</h2>
+    <p>This is the group where every model release triggers the same bipolar reaction: excitement about what you can build, followed immediately by dread about what your competitor can now also build.</p>
+    <p>Opus 4.7's task budgets and improved agentic capabilities are directly relevant to startups. A lot of the early-stage AI companies I've been watching are building products that are essentially "Claude with a good wrapper" - they take the raw model and add domain-specific context, a clean UI, and integrations that make it useful for a specific workflow. The task budgets feature makes those wrappers better by default, because the underlying model is now better at managing its own attention and resources within a workflow.</p>
+    <p>The problem - and this is the part founders don't want to hear - is that the moat just got thinner. Again. Every time the base model improves, the value of your wrapper decreases, because more of what your product does is now baked into the model itself. If your entire product is "Claude but for lawyers" and the only differentiation is the system prompt and a nice interface, Opus 4.7 just ate a chunk of your value proposition.</p>
+    <p>The startups that survive model upgrades are the ones whose value comes from proprietary data, proprietary workflows, or deep integration with systems that are hard to replicate. If your product's value comes purely from making the model accessible in a specific domain, you're in a race against the model provider's own product team. And they have the model.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Speed vs Defensibility Tradeoff</div>
+      <p>Every model release makes it faster to build an MVP and harder to defend once it's built. Opus 4.7 lets a solo founder build in a weekend what a small team would have taken a month to build 18 months ago. But every other solo founder has the same capability. The competitive advantage is no longer speed-to-build. It's speed-to-learn-from-users and depth-of-domain-knowledge. Build fast, yes. But build around something the model can't just provide out of the box.</p>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="section-num">07 &middot; The Designer</div>
+    <h2>If You Design Interfaces and Experiences</h2>
+    <p>Designers have been in an odd position with AI model releases. Most of the improvements target text and code, and the design community has been able to shrug and say "cool, but it can't design." That's still largely true, but the 3.75 megapixel vision upgrade in Opus 4.7 is the first release that should make designers sit up.</p>
+    <p>At 3.75 megapixels, the model can now look at a high-fidelity Figma mockup and understand it at the pixel level. Not approximately. Actually. It can read the 10px helper text. It can distinguish between 4px and 8px border radius. It can compare a design spec against a screenshot of the implemented UI and tell you, with specificity, where the implementation diverges.</p>
+    <p>That's not a threat to design work. It's the most useful QA assistant a designer has ever had. If you've ever filed a ticket that says "the padding on the CTA button is 16px in the mockup but looks like 12px in production, please fix" and then waited three days for it to get prioritised - the model can now do that comparison automatically, continuously, on every deploy.</p>
+    <p>Where it gets more interesting is in the design-to-code workflow. Better vision plus better coding means the model can now take a high-res mockup and produce implementation code that's closer to pixel-perfect than any previous model. It's not replacing the designer. It's compressing the handoff-to-implementation cycle in a way that reduces the "it looked different in Figma" conversations by maybe 40-50%.</p>
+
+    <div class="pull-quote">
+      <p>"The design-to-code gap has been shrinking for years. Opus 4.7 is the first model where the vision is sharp enough and the code is good enough that the gap starts to feel jumpable rather than bridgeable."</p>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="section-num">08 &middot; The Elephant</div>
+    <h2>The Mythos Question Nobody Wants to Ask</h2>
+    <p>Anthropic did something unusual with this release. They publicly said, in their own announcement, that Opus 4.7 does not match the performance of Mythos - their most advanced model that remains unreleased due to safety concerns. Let's sit with that for a second.</p>
+    <p>A company in a competitive market, shipping a product they want people to pay for, voluntarily told everyone "this isn't our best work - our best work is too powerful to release." From a pure business strategy perspective, that's bizarre. From a safety perspective, it's either admirable or alarming depending on your priors.</p>
+    <p>What it means for you, regardless of your role, is that the capability ceiling is higher than what you're seeing. The model you're using - which is already good enough to meaningfully change workflows across multiple roles - is the watered-down version. The full-strength version exists, and the only thing between it and general availability is a safety assessment that hasn't been resolved yet.</p>
+    <p>I don't know whether that should make you more excited or more cautious. Probably both. But it's worth factoring into any long-term planning you're doing. If you're making three-year bets on how AI capability will evolve, your baseline should not be "Opus 4.7 is the state of the art." It should be "Opus 4.7 is what they're comfortable releasing."</p>
+
+    <div class="callout">
+      <div class="callout-label">Reading Between The Lines</div>
+      <p>The Mythos acknowledgement also tells you something about Anthropic's competitive position. They're signalling that they have a lead they're choosing not to deploy. Whether that signal is accurate or strategic is an open question, but it's unprecedented in the LLM market for a company to publicly bench their strongest model. OpenAI has GPT-5.4 in the market. Google has Gemini 3.1 Pro. Anthropic claims to have something better than all of them and is sitting on it.</p>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <div class="section-num">09 &middot; The Benchmarks</div>
+    <h2>What the Numbers Actually Tell You (And What They Don't)</h2>
+    <p>Anthropic showed charts where Opus 4.7 beats GPT-5.4 and Gemini 3.1 Pro on several key benchmarks. Here's why you should care about some of those numbers and ignore others entirely.</p>
+
+    <h3>Numbers that matter</h3>
+    <p><strong>CursorBench (58% to 70%)</strong> - This matters because it measures something you actually do. If you use an AI coding assistant, this directly predicts how useful it will be. A 12-point jump is substantial.</p>
+    <p><strong>Agentic task completion</strong> - The improvement in multi-step tool use matters because it's the foundation for every AI workflow that goes beyond single-turn question-answering. Agents are where the real productivity multiplier lives, and Opus 4.7 is measurably better at staying on track across complex tool-calling sequences.</p>
+    <p><strong>The 93-task internal coding benchmark (+13%)</strong> - Anthropic's internal benchmark is more granular than public benchmarks and covers a wider range of real-world coding patterns. A 13% improvement across 93 tasks suggests broad improvement, not a specific benchmark being gamed.</p>
+
+    <h3>Numbers that don't matter (to you)</h3>
+    <p><strong>MMLU and general knowledge scores</strong> - These measure whether the model knows that the capital of Burkina Faso is Ouagadougou. You're not paying for Claude to answer pub quiz questions. If general knowledge benchmarks are your deciding factor, you've optimised for the wrong thing.</p>
+    <p><strong>Head-to-head "which model is better" arena rankings</strong> - These are vibes, not engineering. They measure which model sounds more helpful to a random person asking a random question. Your actual use case is not a random question. Test the model on <em>your</em> workload before drawing conclusions from aggregated preference data.</p>
+
+    <div class="highlight-box">
+      <strong>The Only Benchmark That Matters</strong>
+      Run your actual workload against Opus 4.7 and compare it to whatever you're currently using. Time the difference. Measure the quality difference. That's your benchmark. Everything else is marketing material - sometimes useful marketing material, but marketing material nonetheless.
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="section-num">10 &middot; The Real Question</div>
+    <h2>The One Thing That Changed For Everyone</h2>
+    <p>Strip away the role-specific analysis and there's one shift that Opus 4.7 represents for everyone, regardless of job title: <strong>the speed of iteration just increased, again, and the cost didn't.</strong></p>
+    <p>Same price. Better performance. No new infrastructure required. No migration needed beyond pointing your API calls at the new model ID. The friction to adopt is essentially zero, which means adoption will be fast, which means anyone who doesn't adopt is falling behind relative to people who do.</p>
+    <p>This is the pattern every model release follows, and it's worth naming it explicitly because too many people treat each release as an isolated event. It's not. It's a ratchet. Each release makes AI assistance slightly better, slightly cheaper per unit of quality, and slightly more embedded in how work gets done. No single release is the revolution. The revolution is the compound effect of twelve releases in eighteen months, each one nudging the baseline forward.</p>
+    <p>If you're a developer, the code you can ship per week just went up. If you're a PM, the features you can justify are slightly more ambitious. If you're an EM, the velocity conversation just got more pointed. If you're a student, the bar for what "entry-level" means just rose. If you're a founder, the thing you're building just got easier to build and harder to defend. If you're a designer, the feedback loop between mockup and implementation just tightened.</p>
+    <p>None of these shifts are dramatic on their own. All of them are relentless.</p>
+    <p>The right response, for every role, is the same one it's been since GPT-4 first shipped: learn the tool, integrate it into your workflow, and invest your newly freed cognitive capacity into the work that the model <em>can't</em> do. The work that requires taste, judgement, context that lives in your head, relationships that live in your organisation, and decisions that don't have clean right answers.</p>
+    <p>That work is getting more valuable with every release. Opus 4.7 just confirmed it, one more time.</p>
+
+    <div class="ornament">&middot; &middot; &middot;</div>
+
+    <div class="callout">
+      <div class="callout-label">Key Takeaways by Role</div>
+      <p><span class="tag red">Developer</span> CursorBench 58% to 70%. Task budgets for agentic workflows. xhigh effort for coding. Adopt now.</p>
+      <p><span class="tag red">PM</span> AI features are more production-ready. Vision upgrade enables new document/image use cases. Same price as before.</p>
+      <p><span class="tag red">EM</span> Velocity expectations are shifting. Hiring profile is evolving toward judgement over syntax. Have the team-shape conversation.</p>
+      <p><span class="tag green">Student</span> Optimise for depth and judgement, not language breadth. Use AI as a learning accelerator, not a crutch.</p>
+      <p><span class="tag green">Founder</span> Faster to build, harder to defend. Moat comes from data and domain, not model access.</p>
+      <p><span class="tag">Designer</span> 3.75MP vision enables pixel-level design QA. Design-to-code gap is shrinking meaningfully.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    Claude Opus 4.7 was released by Anthropic on April 16, 2026. Benchmark figures cited in this article are from Anthropic's official announcement and third-party sources including GitHub Changelog and industry publications. The author uses Claude products professionally and has no financial relationship with Anthropic beyond being an API customer. All opinions are the author's own.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
