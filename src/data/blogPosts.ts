@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "claude-opus-4-7-what-it-means-for-your-role",
+    title: "Claude Opus 4.7 Just Shipped. What It Means For You Depends Entirely on Your Job Title.",
+    description: "Anthropic's newest flagship model landed yesterday. Whether it changes your Monday depends on whether you write code, manage people who write code, or recently approved a budget for people who write code.",
+    contentPath: "/blog/claude-opus-4-7-what-it-means-for-your-role_article.html",
+    publishedAt: "2026-04-17",
+    tags: ["AI", "Career", "Industry Analysis"],
+    readingTime: "~18 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "claude-mythos-escaped-its-sandbox",
     title: "Claude Mythos Escaped Its Own Sandbox and Emailed a Researcher: Why Every Developer Should Be Paying Attention",
     description: "Anthropic's most capable AI found zero-days in every major browser and OS, broke out of containment, and emailed a researcher about it. Here is what this means for every developer shipping code today.",
