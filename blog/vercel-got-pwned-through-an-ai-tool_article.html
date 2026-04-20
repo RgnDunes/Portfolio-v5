@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vercel Got Pwned Through an AI Tool Nobody Audited</title>
+<meta property="og:title" content="Vercel Got Pwned Through an AI Tool Nobody Audited" />
+<meta property="og:description" content="A third-party AI tool called Context.ai gave attackers a backdoor into Vercel's internal systems. Environment variables, API keys, deployment configs - all exposed. Here is exactly what happened and what every frontend team deploying on Vercel needs to do right now." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=80" />
+<meta name="author" content="Divyansh Singh" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* -- MASTHEAD -- */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* -- COVER IMAGE -- */
+  .cover-image {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* -- HERO -- */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* -- LAYOUT -- */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* -- SECTIONS -- */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  a { color: var(--accent); text-decoration: underline; }
+  a:hover { text-decoration: none; }
+
+  /* -- PULL QUOTE -- */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* -- CALLOUT BOX -- */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* -- HIGHLIGHT BOX -- */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* -- CODE BLOCK -- */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* -- STAT STRIP -- */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* -- TAG -- */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* -- ORDERED LIST -- */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* -- DIVIDER -- */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* -- FOOTNOTE -- */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* -- RESPONSIVE -- */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Security Incident &nbsp;&middot;&nbsp; Cloud Infrastructure &nbsp;&middot;&nbsp; Supply Chain</div>
+
+<!-- COVER IMAGE -->
+<img class="cover-image" src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=80" alt="Server room with network cables and blinking lights - representing cloud infrastructure security" />
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Security Analysis &middot; April 2026</div>
+  <h1>Vercel Got Pwned Through an AI Tool <em>Nobody Audited</em></h1>
+  <p class="hero-sub">A third-party AI tool called Context.ai gave attackers a backdoor into Vercel's internal systems. Environment variables, API keys, deployment configs - all exposed. Here is exactly what happened, why it matters, and what every frontend team deploying on Vercel needs to do right now.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>April 2026</span>
+    <span class="byline-dot"></span>
+    <span>~14 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Security</span>
+    <span class="tag">Vercel</span>
+    <span class="tag green">Infrastructure</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- 01 -->
+  <section>
+    <div class="section-num">01 &middot; What Happened</div>
+    <h2>Vercel Confirmed a Breach. The Entry Point Was Not What You Would Expect.</h2>
+    <p>On April 19, 2026, Vercel published a security bulletin that made a lot of frontend engineers very uncomfortable very quickly. The company confirmed unauthorised access to certain internal systems. Not a theoretical vulnerability disclosure. Not a "we found and patched it before anything happened" post. An actual breach, with actual data exposure, affecting actual customers.</p>
+    <p>The immediate reaction across Twitter, LinkedIn, and various engineering Slacks was what you would expect - a mix of panic, scepticism, and "I told you so" from the self-hosted crowd. But the real story was not the breach itself. Breaches happen. Cloud providers get compromised. That is the world we operate in.</p>
+    <p>The real story was <strong>how</strong> the attackers got in.</p>
+    <p>They did not find a zero-day in Vercel's deployment infrastructure. They did not brute-force an admin panel. They did not exploit some ancient unpatched dependency buried in the platform's stack. Instead, they compromised a third-party AI tool called <strong>Context.ai</strong> that a single Vercel employee was using. From there, they pivoted into the employee's Google Workspace account. And from there, they walked into Vercel's internal environments like they had a badge.</p>
+    <p>One AI tool. One employee. The entire platform's security posture, bypassed.</p>
+
+    <div class="pull-quote">
+      <p>"The attackers did not break down Vercel's front door. They walked in through a side entrance that nobody was watching - a third-party AI tool with access to an employee's Google account."</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="section-num">02 &middot; The Attack Chain</div>
+    <h2>From Context.ai to Full Internal Access in Three Steps</h2>
+    <p>Let me walk through the attack chain, because understanding it is the difference between thinking "this could never happen to us" and realising it probably already could.</p>
+
+    <h3>Step 1: Compromise Context.ai</h3>
+    <p>Context.ai is one of those AI productivity tools that have exploded in popularity over the past year. It integrates with your workspace - email, documents, calendars - to provide AI-powered insights and assistance. To do that, it needs OAuth access to your Google Workspace. Broad OAuth access. The kind that lets it read your emails, access your drive, and interact with your workspace on your behalf.</p>
+    <p>The attackers compromised Context.ai first. The specifics of how they got into Context.ai have not been fully disclosed, but the outcome was clear: they gained the ability to leverage Context.ai's OAuth connections to access the Google Workspace accounts of Context.ai users.</p>
+
+    <h3>Step 2: Pivot to a Vercel Employee's Google Workspace</h3>
+    <p>At least one Vercel employee was using Context.ai. Through the compromised OAuth connection, the attackers took over that employee's Google Workspace account. This is the critical link in the chain - a personal tool choice by one employee became the entry vector for the entire organisation.</p>
+
+    <h3>Step 3: Access Vercel Internal Environments</h3>
+    <p>With control of a Vercel employee's Google Workspace, the attackers gained access to internal Vercel environments. Vercel described them as "highly sophisticated based on their operational velocity and detailed understanding of Vercel's systems." They knew exactly where to look and moved fast.</p>
+
+    <div class="code-block">
+      <div class="code-label">The Attack Chain - Simplified</div>
+      <pre><span class="code-cmt">// The path from AI tool to platform compromise</span>
+
+<span class="code-str">Context.ai compromised</span>
+    <span class="code-cmt">↓  (OAuth token abuse)</span>
+<span class="code-str">Employee Google Workspace taken over</span>
+    <span class="code-cmt">↓  (internal SSO / workspace access)</span>
+<span class="code-str">Vercel internal environments accessed</span>
+    <span class="code-cmt">↓  (environment variable exfiltration)</span>
+<span class="code-str">Customer API keys, tokens, credentials exposed</span>
+
+<span class="code-cmt">// Compromised OAuth App ID:</span>
+<span class="code-var">110671459871-30f1spbu0hptbs60cb4vsmv79i7bbvqj</span>
+    <span class="code-str">.apps.googleusercontent.com</span></pre>
+    </div>
+
+    <p>Vercel published the compromised OAuth application identifier so organisations could check their own Google Workspace admin consoles. If that OAuth app ID appears in your tenant's authorised applications, you have a problem that extends well beyond Vercel.</p>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <div class="section-num">03 &middot; What Was Exposed</div>
+    <h2>Environment Variables Were the Prize</h2>
+    <p>Here is where it gets directly relevant to every team running production workloads on Vercel.</p>
+    <p>The attackers accessed <strong>environment variables that were not marked as "sensitive"</strong> in Vercel's system. If you have ever deployed anything on Vercel, you know the environment variables panel. You put your API keys there, your database connection strings, your third-party service tokens, your webhook secrets. It is convenient. It is also, apparently, the thing that got exposed.</p>
+    <p>Vercel makes a distinction between regular environment variables and ones marked as "sensitive." Sensitive variables are stored encrypted and cannot be read back through the dashboard or API once set. Regular environment variables - the ones most teams use for most things - are stored in a way that made them accessible to the attackers.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Sensitive Variable Gap</div>
+      <p>Vercel's own security bulletin states: "Environment variables marked as 'sensitive' are stored in a manner that prevents them from being read, and we currently do not have evidence that those values were accessed."</p>
+      <p>Translation: if you were using the sensitive flag, you are probably fine. If you were not - and most teams were not, because the default is non-sensitive - your secrets may have been exposed.</p>
+      <p>How many of your environment variables are marked sensitive right now? Go check. I will wait.</p>
+    </div>
+
+    <p>The practical impact varies by team. For a static marketing site, the exposure might be limited to a CMS API key with read-only access. Annoying, but not catastrophic. For a fintech startup with database credentials, payment processor API keys, and JWT signing secrets in their Vercel environment variables? That is a different conversation entirely.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">$2M</div>
+        <div class="stat-label">Asking Price<br/>on BreachForums</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1</div>
+        <div class="stat-label">Employee Account<br/>Compromised</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1</div>
+        <div class="stat-label">Third-Party AI Tool<br/>Used as Entry Point</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">?</div>
+        <div class="stat-label">Customer Env Vars<br/>Potentially Exposed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="section-num">04 &middot; The BreachForums Angle</div>
+    <h2>ShinyHunters, $2 Million, and a Lot of Unverified Claims</h2>
+    <p>Almost simultaneously with Vercel's disclosure, a listing appeared on BreachForums - the cybercrime marketplace that has become the default storefront for stolen data. The post, attributed to the "ShinyHunters" moniker, claimed to be selling Vercel data for $2 million. The alleged haul included access keys, source code, database information, and API keys linked to internal deployments.</p>
+    <p>Here is the interesting bit: when security researchers reached out to the actual ShinyHunters group, they <strong>denied involvement</strong>. This suggests either a copycat actor using an established name for credibility, or loosely affiliated individuals trading on the ShinyHunters brand. Either way, the data listing exists, and the claims have not been debunked.</p>
+    <p>Whether the asking price is realistic is another question. $2 million for platform-level access keys and source code from a company valued in the billions is not outlandish. But the cybercrime marketplace is full of exaggerated claims, repackaged data from older breaches, and outright fabrication. The prudent move - and the one Vercel is recommending - is to assume the worst and act accordingly.</p>
+    <p>Vercel has engaged Mandiant (Google's incident response arm) along with additional cybersecurity firms and law enforcement. They have stated they are "continuing to investigate what data was exfiltrated." That phrasing is worth noting - they are not saying "we have confirmed the full scope." They are still figuring out how bad it is.</p>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="section-num">05 &middot; The Crypto Fallout</div>
+    <h2>Web3 Teams Are Scrambling - and They Should Be</h2>
+    <p>If there is one category of Vercel user that should be losing sleep over this, it is crypto and Web3 teams. And they are.</p>
+    <p>A huge number of DeFi frontends, NFT platforms, and crypto trading interfaces run on Vercel. It makes sense - Vercel's edge network is fast, the developer experience is excellent, and Next.js (built by Vercel) is the framework of choice for most Web3 frontends. The problem is that these frontends often store credentials in Vercel environment variables that connect directly to blockchain infrastructure, wallet services, and backend APIs controlling real money.</p>
+    <p>Orca, the Solana-based decentralised exchange, publicly confirmed they rotated all deployment credentials as a precaution. Their on-chain protocol and user funds were not affected - but the fact that a major DEX had to issue a public statement about a frontend hosting provider's breach tells you everything about how the blast radius of this incident extends.</p>
+
+    <div class="highlight-box">
+      <strong>The Web3 Risk Surface</strong>
+      API keys in a typical crypto project's Vercel environment might include: RPC provider credentials (Alchemy, Infura, QuickNode), wallet connection service tokens (WalletConnect), analytics keys, and sometimes - alarmingly - private keys or signing secrets used for backend operations triggered from the frontend. If any of those were stored as non-sensitive environment variables, they should be considered compromised.
+    </div>
+
+    <p>This breach hit during what CoinDesk called "an exceptionally difficult month for crypto security" - alongside the $292 million Kelp DAO exploit and roughly a dozen other protocol attacks. The timing is coincidental, but it compounds the anxiety. When your hosting provider, your smart contracts, and your bridge protocols are all getting hit in the same month, the "move fast and break things" ethos starts to feel less like a philosophy and more like a prophecy.</p>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="section-num">06 &middot; The Real Problem</div>
+    <h2>AI Tools Are the New Shadow IT - and Nobody Is Auditing Them</h2>
+    <p>Step back from the Vercel-specific details for a moment and look at the structural problem this breach exposes. A single employee used a third-party AI tool. That tool had OAuth access to their Google Workspace. When the tool got compromised, the attacker inherited all of those OAuth permissions.</p>
+    <p>This is not a Vercel problem. This is an everyone problem.</p>
+    <p>Think about your own organisation. How many AI tools have your engineers authorised via Google OAuth or GitHub OAuth in the past twelve months? Cursor, Copilot, various AI code review tools, AI meeting note-takers, AI email assistants, AI document summarisers. Each one of those is a potential Context.ai - a third-party service with broad access to your internal systems that was never reviewed by your security team.</p>
+
+    <div class="pull-quote">
+      <p>"Every AI tool your team authorised via OAuth is a trust boundary you extended without auditing. Context.ai is the one that got caught. How many others are quietly sitting there with the same access?"</p>
+    </div>
+
+    <p>The old shadow IT problem was employees installing Dropbox or using personal Gmail for work. The new shadow IT problem is employees granting AI tools OAuth access to corporate systems. The difference is that the new tools often request - and receive - far broader permissions than a file sync service ever did. An AI assistant that can read your email, access your calendar, browse your documents, and act on your behalf is not a productivity tool. It is a fully-privileged proxy that happens to be controlled by a startup you have never audited.</p>
+    <p>Security teams that are not actively inventorying and reviewing AI tool OAuth grants are operating blind. And based on the conversations I have had since this breach dropped, most security teams are not doing this. Not because they do not care, but because the volume of AI tools being adopted across engineering, product, and leadership teams has outpaced any governance framework.</p>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="section-num">07 &middot; Environment Variables</div>
+    <h2>Your Env Vars Are Not Secrets (Unless You Treat Them Like Secrets)</h2>
+    <p>This breach also highlights a fundamental misunderstanding that pervades frontend engineering: the assumption that environment variables are inherently secure. They are not. They never were. An environment variable is just a key-value pair injected at build time or runtime. Its security depends entirely on how the platform stores, transmits, and access-controls it.</p>
+    <p>Vercel's "sensitive" flag exists precisely because regular environment variables are not stored with the same protections. But how many tutorials, blog posts, and Stack Overflow answers have you read that say "just put your API key in an environment variable" without any qualification about sensitivity levels, access controls, or rotation policies?</p>
+
+    <div class="code-block">
+      <div class="code-label">The Typical .env Advice vs. Reality</div>
+      <pre><span class="code-cmt">// What every tutorial tells you:</span>
+<span class="code-var">NEXT_PUBLIC_API_KEY</span>=<span class="code-str">pk_live_abc123</span>     <span class="code-cmt">// "just add it to env vars"</span>
+<span class="code-var">DATABASE_URL</span>=<span class="code-str">your-database-connection-string-here</span>  <span class="code-cmt">// "Vercel handles it"</span>
+<span class="code-var">STRIPE_SECRET_KEY</span>=<span class="code-str">sk_live_xyz789</span>     <span class="code-cmt">// "it's server-side only"</span>
+<span class="code-var">JWT_SIGNING_SECRET</span>=<span class="code-str">supersecret</span>       <span class="code-cmt">// "nobody can see this"</span>
+
+<span class="code-cmt">// What you should actually be doing:</span>
+<span class="code-cmt">// 1. Mark ALL secret values as "sensitive" in Vercel</span>
+<span class="code-cmt">// 2. Use a dedicated secrets manager (Vault, AWS SM, etc.)</span>
+<span class="code-cmt">// 3. Rotate credentials on a regular cadence</span>
+<span class="code-cmt">// 4. Audit which env vars are truly needed at build time</span>
+<span class="code-cmt">// 5. Never store long-lived credentials if short-lived tokens work</span></pre>
+    </div>
+
+    <p>The "sensitive" flag in Vercel is a write-once mechanism - once set, the value cannot be read back through the UI or API. It can only be used by the deployment runtime. This is meaningfully more secure than the default, but it comes with friction: you cannot copy-paste the value later, you cannot easily rotate it without going through a specific flow, and it is not the default. So most teams never use it.</p>
+    <p>Convenience won. Security lost. As it almost always does, until something like this happens.</p>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="section-num">08 &middot; What To Do Right Now</div>
+    <h2>The Immediate Action Checklist</h2>
+    <p>If you are running production workloads on Vercel, here is what you should be doing right now. Not next sprint. Not "when we get to it." Now.</p>
+
+    <ol class="styled">
+      <li><span><strong>Audit your environment variables.</strong> Log into every Vercel project your team owns. Identify every environment variable that contains a secret - API keys, database credentials, tokens, signing keys. If it is not marked as "sensitive," assume it has been exposed.</span></li>
+      <li><span><strong>Rotate everything that matters.</strong> Every API key, every database password, every JWT secret, every webhook signing key that was stored as a non-sensitive environment variable needs to be rotated. Yes, all of them. Yes, it is a pain. Do it anyway.</span></li>
+      <li><span><strong>Enable the sensitive flag going forward.</strong> For every secret you rotate, set the new value with the "sensitive" flag enabled. Accept the minor inconvenience of not being able to read it back.</span></li>
+      <li><span><strong>Check the OAuth app ID.</strong> Search your Google Workspace admin console for the compromised OAuth application: <code>110671459871-30f1spbu0hptbs60cb4vsmv79i7bbvqj.apps.googleusercontent.com</code>. If it appears, revoke it immediately and investigate what it accessed.</span></li>
+      <li><span><strong>Review deployment logs.</strong> Look for any deployments in the past two weeks that you did not initiate. Check for modified build commands, injected scripts, or changes to your deployment configuration.</span></li>
+      <li><span><strong>Set Deployment Protection to Standard.</strong> Vercel's Deployment Protection feature restricts who can view and access your deployments. Set it to "Standard" at minimum and rotate any existing Deployment Protection tokens.</span></li>
+      <li><span><strong>Audit third-party AI tool access.</strong> Check your Google Workspace and GitHub OAuth authorisations. Revoke access for any AI tool that does not have explicit organisational approval. This is not just about Context.ai - it is about every tool in the same category.</span></li>
+    </ol>
+
+    <div class="callout">
+      <div class="callout-label">For Web3 Teams Specifically</div>
+      <p>If you are running a DeFi frontend, NFT marketplace, or any application that handles financial transactions: rotate your RPC provider keys (Alchemy, Infura, QuickNode), revoke and reissue any WalletConnect project IDs, and audit your on-chain transaction history for any transactions initiated through your compromised frontend credentials. If you stored any private keys or signing secrets in Vercel environment variables - and you know who you are - treat those wallets as compromised and move funds immediately.</p>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <div class="section-num">09 &middot; Lessons</div>
+    <h2>The Three Lessons That Matter Beyond This Incident</h2>
+
+    <h3>1. Your Security Perimeter Now Includes Every AI Tool Your Team Uses</h3>
+    <p>The traditional security model thinks about your code, your infrastructure, your network. The modern reality is that your attack surface includes every SaaS tool, every browser extension, and every AI assistant that any employee has granted OAuth access to. Security teams need to start treating AI tool governance with the same rigour they apply to infrastructure access. That means an approved tools list, regular OAuth audits, and a clear policy on what permissions AI tools can be granted.</p>
+
+    <h3>2. Defaults Matter More Than Documentation</h3>
+    <p>Vercel had a "sensitive" flag for environment variables. It was documented. It was available. And almost nobody used it, because the default was non-sensitive and the non-sensitive path was easier. This is not a user education problem - it is a product design problem. When the secure option requires extra steps and the insecure option is the default, you have built a system that optimises for breaches.</p>
+    <p>If you are building a platform that stores customer secrets, the secure storage option should be the default. Full stop. Making users opt-in to security is making them opt-out of being compromised, and most of them will not bother.</p>
+
+    <h3>3. Supply Chain Attacks Have a New Favourite Target</h3>
+    <p>We spent the last few years worrying about npm supply chain attacks - compromised packages, typosquatting, malicious postinstall scripts. Those are still real threats. But this breach shows that the supply chain attack surface has expanded to include the tools engineers use to write and deploy code, not just the code itself. An AI tool compromise gives an attacker access to the human, not just the codebase. And the human has access to everything.</p>
+
+    <div class="pull-quote">
+      <p>"We hardened our CI pipelines, locked down our package registries, and implemented SBOM requirements. Then an attacker walked past all of it through an AI tool that had OAuth access to an employee's email."</p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="section-num">10 &middot; The Bigger Picture</div>
+    <h2>This Will Happen Again. The Question Is Whether You Are Ready.</h2>
+    <p>I want to be clear about something: this is not a "Vercel is bad" article. Vercel's response has been reasonably transparent - they disclosed quickly, published IOCs, engaged Mandiant, and provided actionable remediation steps. That is more than many companies do after a breach.</p>
+    <p>But this incident is a preview of a pattern we are going to see repeatedly over the next few years. As AI tools proliferate across every team in every organisation, the number of third-party OAuth grants is going to keep growing. Each one is a trust extension. Each one is a potential entry point. And the AI tool ecosystem is young, fast-moving, and not yet subject to the kind of security scrutiny that more mature SaaS categories face.</p>
+    <p>The companies building AI tools are optimising for adoption speed and feature velocity, not security hardening. That is understandable from a startup perspective. It is also a ticking time bomb from a security perspective. Context.ai is the first high-profile casualty. It will not be the last.</p>
+    <p>For frontend engineers specifically, this breach should trigger a broader conversation about where we draw trust boundaries. We moved our deployments to the cloud and trusted the platform. We moved our secrets to environment variables and trusted the storage. We moved our productivity to AI tools and trusted the OAuth grants. At each step, we traded direct control for convenience. And at each step, we expanded the surface area that an attacker could target without ever touching our code.</p>
+    <p>The answer is not to retreat to self-hosted everything - that creates its own security problems. The answer is to be deliberate about every trust extension. Audit your OAuth grants. Use sensitive storage for sensitive values. Rotate credentials regularly. And the next time someone on your team asks "can I try this cool new AI tool?", make sure the answer includes a security review - not just a "sure, go ahead."</p>
+
+    <div class="ornament">&middot; &middot; &middot;</div>
+
+    <div class="callout">
+      <div class="callout-label">Timeline of Events</div>
+      <p><span class="tag">April 19</span> Vercel publishes security bulletin confirming unauthorised access to internal systems</p>
+      <p><span class="tag">April 19</span> BreachForums listing appears under "ShinyHunters" moniker, asking $2M for alleged Vercel data</p>
+      <p><span class="tag">April 20</span> Actual ShinyHunters group denies involvement</p>
+      <p><span class="tag">April 20</span> Crypto teams begin rotating credentials; Orca confirms precautionary rotation</p>
+      <p><span class="tag">Ongoing</span> Vercel working with Mandiant, law enforcement, and additional cybersecurity firms to determine full scope</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    All information in this article is sourced from Vercel's official security bulletin, reporting by CoinDesk, The Hacker News, CyberInsider, and iTnews. The author has no insider knowledge of the breach and is analysing publicly available information. If you are a Vercel customer and have not received direct communication from Vercel, the company states there is currently no evidence your credentials were compromised - but rotating secrets proactively remains the recommended course of action.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
