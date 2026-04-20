@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "vercel-got-pwned-through-an-ai-tool",
+    title: "Vercel Got Pwned Through an AI Tool Nobody Audited",
+    description: "A third-party AI tool called Context.ai gave attackers a backdoor into Vercel's internal systems. Environment variables, API keys, deployment configs - all exposed. Here is what happened and what every frontend team needs to do right now.",
+    contentPath: "/blog/vercel-got-pwned-through-an-ai-tool_article.html",
+    publishedAt: "2026-04-20",
+    tags: ["Security", "Vercel", "Infrastructure"],
+    readingTime: "~14 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "claude-opus-4-7-what-it-means-for-your-role",
     title: "Claude Opus 4.7 Just Shipped. What It Means For You Depends Entirely on Your Job Title.",
     description: "Anthropic's newest flagship model landed yesterday. Whether it changes your Monday depends on whether you write code, manage people who write code, or recently approved a budget for people who write code.",
