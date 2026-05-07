@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "cdn-cache-cors-poisoning",
+    title: "Your CDN Cache Didn't Poison Itself: How Deployment Polling Services Silently Break CORS",
+    description: "You added crossorigin='anonymous' to your script tags. You bumped the cache version. You tested in staging. And production still broke. Here is what nobody tells you about prefetch links, browser HTTP cache, and CORS mode transitions.",
+    contentPath: "/blog/cdn-cache-cors-poisoning_article.html",
+    publishedAt: "2026-05-08",
+    tags: ["Frontend Infrastructure", "Browser Internals", "CORS"],
+    readingTime: "~15 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "vercel-got-pwned-through-an-ai-tool",
     title: "Vercel Got Pwned Through an AI Tool Nobody Audited",
     description: "A third-party AI tool called Context.ai gave attackers a backdoor into Vercel's internal systems. Environment variables, API keys, deployment configs - all exposed. Here is what happened and what every frontend team needs to do right now.",
