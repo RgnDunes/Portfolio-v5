@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your CDN Cache Didn't Poison Itself: How Deployment Polling Services Silently Break CORS</title>
+
+  <!-- OG Meta Tags -->
+  <meta property="og:title" content="Your CDN Cache Didn't Poison Itself: How Deployment Polling Services Silently Break CORS">
+  <meta property="og:description" content="You added crossorigin='anonymous' to your script tags. You bumped the cache version. You tested in staging. And production still broke. Here is what nobody tells you about prefetch links, browser HTTP cache, and CORS mode transitions.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=630&fit=crop">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Your CDN Cache Didn't Poison Itself: How Deployment Polling Services Silently Break CORS">
+  <meta name="twitter:description" content="How deployment polling services silently poison browser caches during CORS migrations.">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=630&fit=crop">
+  <meta name="author" content="Divyansh Singh">
+  <meta name="keywords" content="CORS, browser cache, prefetch, deployment polling, frontend infrastructure, cache poisoning, CDN">
+
+  <style>
+    :root {
+      --accent: #e85d04;
+      --accent-light: #fef0e6;
+      --bg: #fafaf9;
+      --text: #1a1a1a;
+      --text-muted: #6b7280;
+      --border: #e5e5e5;
+      --code-bg: #1e1e2e;
+      --code-text: #cdd6f4;
+      --callout-bg: #1a1a1a;
+      --callout-text: #f5f5f5;
+      --highlight-bg: #fef9c3;
+      --highlight-border: #facc15;
+      --green: #16a34a;
+      --red: #dc2626;
+      --blue: #2563eb;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      --font-serif: 'Georgia', 'Times New Roman', serif;
+      --max-width: 720px;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .masthead {
+      background: var(--text);
+      color: white;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .masthead span:last-child {
+      font-weight: 400;
+      opacity: 0.7;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 80px 24px 60px;
+      text-align: center;
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+      padding: 6px 16px;
+      border: 1.5px solid var(--accent);
+      border-radius: 100px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+
+    .byline {
+      font-size: 14px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .byline strong { color: var(--text); }
+
+    .cover-image {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 60px;
+      display: block;
+      border-radius: 12px;
+      object-fit: cover;
+      height: 400px;
+    }
+
+    .content-wrap {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 100px;
+    }
+
+    section {
+      margin-bottom: 56px;
+    }
+
+    .section-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    section h2 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    section h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 28px 0 12px;
+    }
+
+    section p {
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    section ul, section ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    section li {
+      margin-bottom: 8px;
+    }
+
+    ol.styled {
+      list-style: none;
+      counter-reset: steps;
+      padding-left: 0;
+    }
+
+    ol.styled li {
+      counter-increment: steps;
+      padding-left: 40px;
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    ol.styled li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .pull-quote {
+      border-left: 4px solid var(--accent);
+      padding: 20px 24px;
+      margin: 32px 0;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--accent-light);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .callout {
+      background: var(--callout-bg);
+      color: var(--callout-text);
+      padding: 24px 28px;
+      border-radius: 10px;
+      margin: 28px 0;
+    }
+
+    .callout-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .callout p {
+      color: var(--callout-text);
+      margin-bottom: 8px;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .highlight-box {
+      background: var(--highlight-bg);
+      border-left: 4px solid var(--highlight-border);
+      padding: 20px 24px;
+      border-radius: 0 8px 8px 0;
+      margin: 28px 0;
+    }
+
+    .highlight-box p {
+      margin-bottom: 8px;
+    }
+
+    .highlight-box p:last-child { margin-bottom: 0; }
+
+    .code-block {
+      background: var(--code-bg);
+      border-radius: 10px;
+      margin: 24px 0;
+      overflow-x: auto;
+    }
+
+    .code-label {
+      display: block;
+      padding: 12px 20px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #a6adc8;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .code-block pre {
+      padding: 16px 20px 20px;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--code-text);
+      overflow-x: auto;
+    }
+
+    .code-kw { color: #cba6f7; }
+    .code-fn { color: #89b4fa; }
+    .code-str { color: #a6e3a1; }
+    .code-cmt { color: #6c7086; font-style: italic; }
+    .code-num { color: #fab387; }
+    .code-var { color: #f9e2af; }
+
+    .arch-diagram {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 32px 24px;
+      margin: 32px 0;
+      text-align: center;
+    }
+
+    .arch-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .flow-node {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #f3f4f6;
+      border: 1.5px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .flow-node.green {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #166534;
+    }
+
+    .flow-node.red {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    .flow-node.muted {
+      background: #f9fafb;
+      border-color: #e5e7eb;
+      color: #9ca3af;
+    }
+
+    .flow-arrow {
+      font-size: 18px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin: 32px 0;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 20px 12px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .stat-num {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: #f3f4f6;
+      color: var(--text-muted);
+    }
+
+    .tag.green {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tag.red {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .ornament {
+      text-align: center;
+      margin: 48px 0;
+      font-size: 24px;
+      color: var(--border);
+      letter-spacing: 12px;
+    }
+
+    .footnote {
+      font-size: 14px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      margin-top: 48px;
+    }
+
+    strong { font-weight: 700; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    a:hover { border-bottom-color: var(--accent); }
+
+    @media (max-width: 640px) {
+      .hero { padding: 48px 16px 40px; }
+      .hero h1 { font-size: 28px; }
+      .hero-sub { font-size: 16px; }
+      .content-wrap { padding: 0 16px 60px; }
+      section h2 { font-size: 22px; }
+      .stat-strip { grid-template-columns: 1fr 1fr; }
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+      .cover-image { height: 240px; border-radius: 0; }
+      .byline { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Masthead -->
+  <div class="masthead">
+    <span>Engineering Blog</span>
+    <span>~15 min read</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-label">Deep Dive &mdash; Frontend Infrastructure &mdash; Browser Internals</div>
+    <h1>Your CDN Cache Didn't <em>Poison Itself</em>: How Deployment Polling Services Silently Break CORS</h1>
+    <p class="hero-sub">
+      You added <code>crossorigin="anonymous"</code> to your script tags. You bumped the cache version.
+      You tested in staging. And production still broke - but only for users who had the app open when
+      you deployed. Here is what nobody tells you about the interaction between prefetch links, browser
+      HTTP cache, and CORS mode transitions.
+    </p>
+    <div class="byline">
+      <span>By <strong>Divyansh Singh</strong></span>
+      <span>May 2026</span>
+      <span><span class="tag">Frontend Infrastructure</span> <span class="tag">Browser Internals</span> <span class="tag">CORS</span></span>
+    </div>
+  </div>
+
+  <!-- Cover Image -->
+  <img
+    class="cover-image"
+    src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=630&fit=crop"
+    alt="Network server infrastructure with blue lighting and cable connections"
+  >
+
+  <!-- Content -->
+  <div class="content-wrap">
+
+    <!-- Section 01 -->
+    <section>
+      <div class="section-num">Section 01</div>
+      <h2>The Setup</h2>
+
+      <p>
+        Picture a large single-page application. Hundreds of thousands of lines of TypeScript, compiled down
+        to a handful of JavaScript bundles and served from a CDN - say, Cloudflare. The HTML document is
+        thin: a shell that loads these bundles via <code>&lt;script&gt;</code> tags, boots the framework,
+        and hands control over to the client.
+      </p>
+      <p>
+        This architecture has a companion piece that most teams build eventually: a <strong>deployment polling
+        service</strong>. It runs inside the browser as part of the application code, polling an endpoint every
+        few minutes to check whether a newer version of the app has been deployed. When it detects a new
+        deploy, it prefetches the new JavaScript bundles in the background by injecting
+        <code>&lt;link rel="prefetch" as="script"&gt;</code> elements into the document head. The goal is
+        simple - when the user eventually refreshes (or is prompted to), the new bundles are already warm
+        in the browser's HTTP cache, making the transition near-instant.
+      </p>
+      <p>
+        Separately, the frontend platform team wants to add <code>crossorigin="anonymous"</code> to the
+        application's <code>&lt;script&gt;</code> tags. The motivation is observability: without the
+        <code>crossorigin</code> attribute, JavaScript bundles loaded from a CDN origin that differs from
+        the page origin are treated as <strong>opaque</strong> by the browser. Observability tools - real
+        user monitoring (RUM) SDKs, session replay tools, error trackers - cannot inspect the response
+        body, read meaningful stack traces, or report granular performance timing for opaque resources.
+        Adding <code>crossorigin="anonymous"</code> tells the browser to make a CORS request, and as long
+        as the CDN responds with <code>Access-Control-Allow-Origin: *</code>, the response becomes
+        transparent and fully inspectable.
+      </p>
+      <p>
+        Both changes seem benign. Both are well-understood. And together, in the presence of a deployment
+        polling service, they create a cache poisoning scenario that is invisible to every standard testing
+        methodology.
+      </p>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 02 -->
+    <section>
+      <div class="section-num">Section 02</div>
+      <h2>The CORS + Cache Contract</h2>
+
+      <p>
+        To understand why this breaks, you need to understand a subtle but critical contract between
+        the browser's HTTP cache and CORS request modes.
+      </p>
+      <p>
+        When a browser fetches a resource, it does so in one of several <strong>request modes</strong>.
+        The two relevant ones here are <code>no-cors</code> and <code>cors</code>. A plain
+        <code>&lt;script src="..."&gt;</code> tag without a <code>crossorigin</code> attribute fetches
+        the resource in <code>no-cors</code> mode. The browser does not send an <code>Origin</code>
+        header, and the response is treated as opaque - the script executes, but nothing can inspect
+        the response body or read detailed error information from it. Add
+        <code>crossorigin="anonymous"</code>, and the browser switches to <code>cors</code> mode: it
+        sends an <code>Origin</code> header, expects an <code>Access-Control-Allow-Origin</code> header
+        in the response, and the response is fully transparent.
+      </p>
+      <p>
+        Here is the critical detail: <strong>the browser's HTTP cache partitions entries by request
+        mode</strong>. A resource cached from a <code>no-cors</code> fetch is not considered a valid
+        cache hit for a subsequent <code>cors</code> fetch of the same URL. When the browser encounters
+        a <code>&lt;script crossorigin="anonymous" src="https://cdn.example.com/bundle.abc123.js"&gt;</code>
+        tag, it checks the HTTP cache for that URL. If it finds an entry but that entry was cached from
+        a <code>no-cors</code> fetch, the browser <strong>rejects it</strong>. The result: a response
+        with status 0, zero bytes, and an opaque filtered response. The script tag fails to load.
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">The Mode Mismatch</span>
+<pre><span class="code-cmt">&lt;!-- Prefetch: fetches in no-cors mode (no crossOrigin attribute) --&gt;</span>
+<span class="code-kw">&lt;link</span> <span class="code-var">rel</span>=<span class="code-str">"prefetch"</span> <span class="code-var">as</span>=<span class="code-str">"script"</span>
+      <span class="code-var">href</span>=<span class="code-str">"https://cdn.example.com/bundle.v2.def456.js"</span><span class="code-kw">&gt;</span>
+
+<span class="code-cmt">&lt;!-- Script tag: fetches in cors mode --&gt;</span>
+<span class="code-kw">&lt;script</span> <span class="code-var">crossorigin</span>=<span class="code-str">"anonymous"</span>
+        <span class="code-var">src</span>=<span class="code-str">"https://cdn.example.com/bundle.v2.def456.js"</span><span class="code-kw">&gt;&lt;/script&gt;</span>
+
+<span class="code-cmt">&lt;!-- Same URL. Different CORS modes. Cache rejects the match. --&gt;</span>
+<span class="code-cmt">&lt;!-- Result: status 0, zero bytes, script fails to load. --&gt;</span></pre>
+      </div>
+
+      <p>
+        An important asymmetry exists here. A resource cached from a <code>cors</code> fetch <em>can</em>
+        be served to a subsequent <code>no-cors</code> request. The reverse is what fails. CORS-cached
+        responses are strictly more permissive than no-cors-cached ones. This asymmetry becomes essential
+        to the fix.
+      </p>
+
+      <div class="highlight-box">
+        <p><strong>Why CSS doesn't break:</strong> CSS <code>&lt;link rel="stylesheet"&gt;</code> tags
+        do not use the <code>crossorigin</code> attribute by default. They fetch in <code>no-cors</code>
+        mode regardless, so a prefetched CSS file in no-cors mode matches perfectly. This is why, during
+        such an incident, stylesheets load fine while every JavaScript bundle fails.</p>
+      </div>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 03 -->
+    <section>
+      <div class="section-num">Section 03</div>
+      <h2>The Deployment Polling Service</h2>
+
+      <p>
+        The deployment polling service is a piece of JavaScript that ships as part of the application
+        bundle. It typically works as follows: on a regular interval - say, every five minutes - it
+        fetches a manifest file from the server. This manifest (often named something like
+        <code>sw-assets.json</code> or <code>build-manifest.json</code>) contains the list of hashed
+        bundle filenames for the currently deployed version. The service compares the manifest's
+        contents to its own known version. If the filenames have changed, a new deploy has occurred.
+      </p>
+      <p>
+        Upon detecting a new deployment, the service creates <code>&lt;link rel="prefetch"&gt;</code>
+        elements for each new JavaScript bundle and appends them to the document head. The browser then
+        fetches these resources at low priority in the background, populating the HTTP cache. When the
+        user eventually refreshes or navigates, the new bundles load from cache instead of making fresh
+        network requests.
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">Typical Prefetch Implementation</span>
+<pre><span class="code-kw">function</span> <span class="code-fn">prefetchBundles</span>(<span class="code-var">bundleUrls</span>: <span class="code-var">string</span>[]) {
+  <span class="code-var">bundleUrls</span>.<span class="code-fn">forEach</span>((<span class="code-var">url</span>) <span class="code-kw">=&gt;</span> {
+    <span class="code-kw">const</span> <span class="code-var">link</span> = <span class="code-var">document</span>.<span class="code-fn">createElement</span>(<span class="code-str">'link'</span>);
+    <span class="code-var">link</span>.<span class="code-var">rel</span> = <span class="code-str">'prefetch'</span>;
+    <span class="code-var">link</span>.<span class="code-var">as</span> = <span class="code-str">'script'</span>;
+    <span class="code-var">link</span>.<span class="code-var">href</span> = <span class="code-var">url</span>;
+    <span class="code-cmt">// No crossOrigin attribute set here!</span>
+    <span class="code-var">document</span>.<span class="code-var">head</span>.<span class="code-fn">appendChild</span>(<span class="code-var">link</span>);
+  });
+}</pre>
+      </div>
+
+      <p>
+        There are two critical details about this service. First, the manifest typically only includes
+        JavaScript files, not CSS. CSS bundles are not prefetched. Second - and this is the crux of the
+        entire problem - <strong>this code runs on the OLD version of the application</strong>. The user
+        has the app open, running version 1. When version 2 is deployed, it is version 1's polling
+        service that detects the new deploy and prefetches version 2's bundles. Version 1's code controls
+        the prefetch request mode.
+      </p>
+
+      <div class="pull-quote">
+        The deployment polling service is an active caching agent operating in the past, creating
+        cache entries for the future. When the CORS mode of script loading changes between versions,
+        the old code poisons the cache for the new code.
+      </div>
+
+      <p>
+        If version 1 was deployed without <code>crossorigin="anonymous"</code> on its script tags,
+        its prefetch function also lacks a <code>crossOrigin</code> attribute on the prefetch links.
+        The prefetch happens in <code>no-cors</code> mode. This is consistent within version 1 - no
+        problem there. The problem emerges when version 2 expects <code>cors</code> mode.
+      </p>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 04 -->
+    <section>
+      <div class="section-num">Section 04</div>
+      <h2>The Cache Poisoning Chain</h2>
+
+      <p>
+        Let us walk through the complete sequence of events, step by step.
+      </p>
+
+      <ol class="styled">
+        <li>
+          <strong>User has the app open, running v1 code.</strong> Everything is normal. Script tags
+          have no <code>crossorigin</code> attribute. The polling service runs every five minutes.
+        </li>
+        <li>
+          <strong>The team deploys v2.</strong> This version adds <code>crossorigin="anonymous"</code>
+          to all script tags and bumps the cache version identifier (e.g., <code>v1</code> to
+          <code>v2</code> in the URL path), producing entirely new URLs for every bundle.
+        </li>
+        <li>
+          <strong>v1's polling service detects v2.</strong> It fetches the manifest, sees new bundle
+          URLs, and begins prefetching them.
+        </li>
+        <li>
+          <strong>v1 prefetches v2 bundles WITHOUT <code>crossOrigin</code>.</strong> The prefetch
+          links are created by v1's code, which has no concept of the CORS change. Each
+          <code>&lt;link rel="prefetch"&gt;</code> fires a <code>no-cors</code> request.
+        </li>
+        <li>
+          <strong>Browser caches v2 bundles in <code>no-cors</code> mode.</strong> The HTTP cache
+          now contains every v2 JavaScript bundle, keyed with a <code>no-cors</code> request mode.
+        </li>
+        <li>
+          <strong>User refreshes.</strong> The server returns v2's HTML, which contains
+          <code>&lt;script crossorigin="anonymous" src="v2-bundle.js"&gt;</code> tags.
+        </li>
+        <li>
+          <strong>Browser checks cache for v2 bundle URLs.</strong> It finds entries - but they
+          were cached in <code>no-cors</code> mode. The script tag requires <code>cors</code> mode.
+          Cache hit rejected. Response: status 0, zero bytes.
+        </li>
+        <li>
+          <strong>All JavaScript bundles fail to load.</strong> The application cannot boot. The user
+          sees an error screen.
+        </li>
+        <li>
+          <strong>CSS loads fine.</strong> Stylesheets were never prefetched (not in the manifest)
+          and load fresh from the CDN with <code>Access-Control-Allow-Origin: *</code>. They render
+          normally, making the error screen look styled but devoid of functionality.
+        </li>
+      </ol>
+
+      <div class="arch-diagram">
+        <div class="arch-title">Cache Poisoning Flow</div>
+        <div class="flow">
+          <div class="flow-node green">v1 App Running</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node">v2 Deployed</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node">v1 Polling Detects v2</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node red">Prefetch v2 (no-cors)</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node red">Cache: v2 in no-cors</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node">User Refreshes</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node red">Script tag needs cors</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node red">Cache Miss / Status 0</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node red">App Fails to Boot</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">Key Insight</div>
+        <p>
+          This only affects users who had the application open during the deployment window. A user
+          who visits the app for the first time after the deploy gets a clean browser cache - no
+          poisoned entries - and everything works perfectly. This makes the bug feel intermittent
+          and extremely difficult to reproduce.
+        </p>
+      </div>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 05 -->
+    <section>
+      <div class="section-num">Section 05</div>
+      <h2>Why Testing Didn't Catch It</h2>
+
+      <p>
+        Every test the team ran passed. Integration tests, end-to-end tests, staging deployments,
+        manual QA - all green. The CORS-specific end-to-end test verified that bundles load correctly
+        with <code>crossorigin="anonymous"</code> on a fresh browser instance. It passed every time.
+        And that is exactly the problem.
+      </p>
+      <p>
+        This is a <strong>cross-build transition bug</strong>. It does not exist within any single
+        version of the application. Version 1 works perfectly. Version 2 works perfectly on a clean
+        browser. The bug only manifests at the boundary between versions, when code from v1 interacts
+        with resources from v2 through the HTTP cache. No standard test infrastructure simulates this
+        scenario.
+      </p>
+
+      <div class="stat-strip">
+        <div class="stat-item">
+          <div class="stat-num">0</div>
+          <div class="stat-label">Tests Simulate Cross-Build Transitions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Clean-Browser Tests Passed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">0</div>
+          <div class="stat-label">Staging Environments with Pre-Warmed Cache</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">&infin;</div>
+          <div class="stat-label">Hard Refreshes That "Fix" It</div>
+        </div>
+      </div>
+
+      <p>
+        Consider why each layer of testing fails to catch this:
+      </p>
+      <ul>
+        <li>
+          <strong>Unit tests:</strong> Test individual functions in isolation. No browser cache, no
+          network, no cross-version interaction.
+        </li>
+        <li>
+          <strong>Integration tests:</strong> Spin up a fresh browser context per test. No
+          pre-existing cache entries from a previous version.
+        </li>
+        <li>
+          <strong>Staging deployments:</strong> Testers visit the staging environment in a clean
+          browser or after a hard refresh. The cache is empty.
+        </li>
+        <li>
+          <strong>Manual QA:</strong> When a tester sees an error, the first instinct is to hard
+          refresh (Ctrl+Shift+R / Cmd+Shift+R), which bypasses the HTTP cache entirely. The page
+          loads successfully, and the tester concludes the issue was transient.
+        </li>
+        <li>
+          <strong>CORS-specific E2E test:</strong> Validates that
+          <code>&lt;script crossorigin="anonymous"&gt;</code> loads bundles correctly. On a clean
+          browser, it always does. The test does not pre-warm the cache with no-cors prefetch entries.
+        </li>
+      </ul>
+
+      <div class="pull-quote">
+        The test infrastructure assumes a clean starting state. But in production, users carry state
+        from previous versions in their browser's HTTP cache - and your old code is the one writing
+        to it.
+      </div>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 06 -->
+    <section>
+      <div class="section-num">Section 06</div>
+      <h2>Why the Cache Version Bump Failed</h2>
+
+      <p>
+        The team anticipated potential cache issues and took a standard precaution: they bumped the
+        bundle distribution version. The URL structure changed from
+        <code>/assets/v1/bundle.abc123.js</code> to <code>/assets/v2/bundle.def456.js</code>.
+        Every filename hash changed. Every URL is entirely new.
+      </p>
+      <p>
+        This is supposed to work. Cache-busting via URL changes is the canonical strategy for avoiding
+        stale cache hits. And it does work - for <strong>passive cache reuse</strong>. When a user
+        refreshes and the browser looks for <code>v2/bundle.def456.js</code> in its cache, it will
+        not find an old entry for <code>v1/bundle.abc123.js</code> and mistakenly serve it. The URLs
+        are completely different. Cache-busting accomplished.
+      </p>
+      <p>
+        But the deployment polling service is not a passive consumer of cache. It is an <strong>active
+        caching agent</strong>. It does not rely on stale entries from previous requests - it creates
+        <em>fresh</em> cache entries for the new URLs. When it prefetches
+        <code>v2/bundle.def456.js</code>, it creates a brand-new cache entry for that exact URL.
+        The cache version bump is irrelevant because the entry being created is for the correct,
+        new URL - just with the wrong CORS mode.
+      </p>
+
+      <div class="callout">
+        <div class="callout-label">The Distinction</div>
+        <p>
+          <strong>Cache version bumps protect against passive cache reuse</strong> - preventing old
+          cached responses from being served for new URLs. They do <strong>not</strong> protect against
+          <strong>active cache creation</strong> - old running code creating new cache entries with
+          incorrect attributes.
+        </p>
+      </div>
+
+      <p>
+        This is a subtle but important distinction. Most cache-busting strategies assume that the only
+        threat is stale data. They do not account for an agent that actively writes to the cache for
+        future URLs, operating under assumptions from a past version of the codebase. The polling
+        service bridges two versions of reality, and the cache version bump only addresses one
+        dimension of the mismatch.
+      </p>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 07 -->
+    <section>
+      <div class="section-num">Section 07</div>
+      <h2>The Fix: Two-Phase Deploy</h2>
+
+      <p>
+        The solution is deceptively simple once you understand the problem. Instead of deploying
+        all changes at once, split the rollout into two phases.
+      </p>
+
+      <h3>Phase 1: Fix the Prefetch Function</h3>
+      <p>
+        Deploy a change that adds <code>crossOrigin = 'anonymous'</code> to the prefetch links
+        created by the deployment polling service. Do <strong>not</strong> change the script tags.
+        Do <strong>not</strong> bump the cache version. Keep everything else identical.
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">The One-Line Fix (Phase 1)</span>
+<pre><span class="code-kw">function</span> <span class="code-fn">prefetchBundles</span>(<span class="code-var">bundleUrls</span>: <span class="code-var">string</span>[]) {
+  <span class="code-var">bundleUrls</span>.<span class="code-fn">forEach</span>((<span class="code-var">url</span>) <span class="code-kw">=&gt;</span> {
+    <span class="code-kw">const</span> <span class="code-var">link</span> = <span class="code-var">document</span>.<span class="code-fn">createElement</span>(<span class="code-str">'link'</span>);
+    <span class="code-var">link</span>.<span class="code-var">rel</span> = <span class="code-str">'prefetch'</span>;
+    <span class="code-var">link</span>.<span class="code-var">as</span> = <span class="code-str">'script'</span>;
+    <span class="code-var">link</span>.<span class="code-var">href</span> = <span class="code-var">url</span>;
+    <span class="code-var">link</span>.<span class="code-var">crossOrigin</span> = <span class="code-str">'anonymous'</span>; <span class="code-cmt">// &lt;-- This is the fix</span>
+    <span class="code-var">document</span>.<span class="code-var">head</span>.<span class="code-fn">appendChild</span>(<span class="code-var">link</span>);
+  });
+}</pre>
+      </div>
+
+      <p>
+        This change is zero-risk. Adding <code>crossOrigin</code> to prefetch links causes them
+        to fetch in <code>cors</code> mode. A CORS-cached response can be served to both
+        <code>cors</code> and <code>no-cors</code> consumers. So even though the current script
+        tags still load in <code>no-cors</code> mode (no <code>crossorigin</code> attribute yet),
+        the CORS-cached prefetch entries are compatible. Everything continues to work.
+      </p>
+
+      <div class="highlight-box">
+        <p><strong>The asymmetry that saves us:</strong> A resource fetched in <code>cors</code>
+        mode and cached can satisfy both <code>cors</code> and <code>no-cors</code> consumers.
+        A resource fetched in <code>no-cors</code> mode can only satisfy <code>no-cors</code>
+        consumers. Always prefetch in the more permissive mode.</p>
+      </div>
+
+      <p>
+        Wait for Phase 1 to fully roll out. Every user must have the updated prefetch code before
+        proceeding.
+      </p>
+
+      <h3>Phase 2: Deploy the Full CORS Change</h3>
+      <p>
+        Now deploy the rest: add <code>crossorigin="anonymous"</code> to all script tags, bump
+        the cache version, and ship any other related changes. By this point, every user's browser
+        is running Phase 1 code. When their polling service detects Phase 2, it prefetches the new
+        bundles <em>with</em> <code>crossOrigin = 'anonymous'</code>. The cache entries are created
+        in <code>cors</code> mode. When the user refreshes and the new script tags request the
+        bundles in <code>cors</code> mode, the cache entries match. No poisoning. No breakage.
+      </p>
+
+      <div class="arch-diagram">
+        <div class="arch-title">Two-Phase Deploy Strategy</div>
+        <div class="flow">
+          <div class="flow-node green">Phase 1: Fix Prefetch</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node green">Full Rollout</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node green">Phase 2: Add crossorigin</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node green">Prefetch uses cors</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node green">Cache entries match</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-node green">App Loads Successfully</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 08 -->
+    <section>
+      <div class="section-num">Section 08</div>
+      <h2>Monitoring Blind Spots</h2>
+
+      <p>
+        When all JavaScript bundles fail to load, something surprising happens: your monitoring
+        goes blind. Most frontend observability tools are themselves JavaScript libraries that ship
+        inside the very bundles that failed to load. If the bundles do not execute, the monitoring
+        SDKs never initialise.
+      </p>
+      <p>
+        <strong>Error tracking (e.g., Sentry):</strong> The Sentry SDK is typically initialised
+        in the application's entry point, which lives inside a JavaScript bundle. If that bundle
+        fails to load, the SDK never runs. Sentry sees nothing. No errors are reported. The
+        dashboard stays green while production is on fire.
+      </p>
+      <p>
+        <strong>Real User Monitoring (e.g., Datadog RUM):</strong> Same problem. The RUM SDK
+        initialises inside the application code. If the application code cannot load, RUM never
+        starts. Affected users are invisible to your performance dashboards.
+      </p>
+      <p>
+        <strong>Session Replay:</strong> Session replay tools record DOM mutations and user
+        interactions via JavaScript. No JavaScript, no replay. There is no recording of what the
+        user saw during the failure.
+      </p>
+
+      <div class="pull-quote">
+        Your monitoring tools are passengers on the same ship they are supposed to be watching.
+        When the ship sinks before they board, they cannot report the sinking.
+      </div>
+
+      <p>
+        The solution is <strong>inline telemetry</strong> - JavaScript that lives directly in the
+        HTML document, not inside any external bundle. An inline script can detect that bundles
+        failed to load (by checking for expected DOM elements after a timeout, or by listening for
+        <code>error</code> events on script tags) and report the failure to a backend endpoint.
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">Inline Telemetry (Resilient Monitoring)</span>
+<pre><span class="code-kw">&lt;script&gt;</span>
+  <span class="code-cmt">// This runs even if all external bundles fail to load</span>
+  <span class="code-var">window</span>.<span class="code-fn">addEventListener</span>(<span class="code-str">'error'</span>, <span class="code-kw">function</span>(<span class="code-var">e</span>) {
+    <span class="code-kw">if</span> (<span class="code-var">e</span>.<span class="code-var">target</span>.<span class="code-var">tagName</span> === <span class="code-str">'SCRIPT'</span>) {
+      <span class="code-var">navigator</span>.<span class="code-fn">sendBeacon</span>(
+        <span class="code-str">'/api/telemetry/script-load-failure'</span>,
+        <span class="code-var">JSON</span>.<span class="code-fn">stringify</span>({
+          <span class="code-var">src</span>: <span class="code-var">e</span>.<span class="code-var">target</span>.<span class="code-var">src</span>,
+          <span class="code-var">timestamp</span>: <span class="code-var">Date</span>.<span class="code-fn">now</span>(),
+          <span class="code-var">userAgent</span>: <span class="code-var">navigator</span>.<span class="code-var">userAgent</span>
+        })
+      );
+    }
+  }, <span class="code-num">true</span>); <span class="code-cmt">// Capture phase to catch errors on script elements</span>
+<span class="code-kw">&lt;/script&gt;</span></pre>
+      </div>
+
+      <p>
+        A subtle additional gotcha: if you try to send this telemetry directly to a third-party
+        observability proxy using <code>Content-Type: application/json</code>, the browser will
+        issue a CORS preflight request (since <code>application/json</code> is not a
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests">CORS-safelisted</a>
+        content type). If the proxy does not handle preflight correctly, your telemetry silently
+        fails. Using <code>Content-Type: text/plain</code> avoids the preflight but some proxies
+        reject non-JSON payloads. The most reliable approach is to send telemetry to your own
+        backend endpoint, which then forwards to wherever it needs to go.
+      </p>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 09 -->
+    <section>
+      <div class="section-num">Section 09</div>
+      <h2>The Broader Lesson</h2>
+
+      <p>
+        This class of bug - cross-build transition failures - is not unique to CORS migrations. It
+        applies to any change where the <strong>request characteristics of a resource</strong> change
+        between versions, and an active agent from the old version pre-populates the cache for the
+        new version.
+      </p>
+      <p>
+        The fundamental insight is that deployment polling services create a <strong>temporal bridge
+        between code versions</strong>. Old code runs in the browser while new code is deployed on the
+        server. Most of the time, this bridge is benign - the old code fetches new resources, and the
+        new code uses them. But when the contract between "how a resource is fetched" and "how a
+        resource is consumed" changes between versions, the bridge becomes a vector for cache
+        poisoning.
+      </p>
+
+      <div class="callout">
+        <div class="callout-label">Rule of Thumb</div>
+        <p>
+          Any code that prefetches cross-origin resources <strong>must</strong> use the same CORS
+          mode as the eventual consumer. If the consumer's CORS mode will change in a future
+          version, the prefetch code must be updated <em>first</em>, in a prior deploy.
+        </p>
+      </div>
+
+      <p>
+        Cache-busting strategies based on URL changes (hash-based filenames, version path segments)
+        protect against stale passive cache entries. They do not protect against active cache
+        creation by old running code. The two-phase deploy pattern - update the cache-writing
+        mechanism first, then change the cache-reading expectations - should be standard practice
+        for any change that affects the CORS mode, credential mode, or other fetch metadata of
+        cached resources.
+      </p>
+      <p>
+        More broadly, this is a reminder that browser behaviour is a specification, not an
+        implementation detail. The HTTP cache's mode-partitioned storage is not a bug - it is
+        correct behaviour per the Fetch specification. The spec explicitly states that a cache
+        entry stored from a request with one mode is not a match for a request with a different
+        mode. Understanding these specifications is not optional for teams that operate large
+        frontend applications with complex deployment pipelines.
+      </p>
+      <p>
+        Finally, this incident pattern exposes a gap in how we think about frontend testing. We
+        test individual versions exhaustively. We test migrations between database schemas. But we
+        almost never test the <em>interaction between two simultaneously running versions of
+        frontend code</em> - one in the browser, one on the server. As deployment strategies grow
+        more sophisticated (progressive rollouts, A/B deployments, service workers, prefetching),
+        this class of cross-version interaction bug will only become more common.
+      </p>
+    </section>
+
+    <div class="ornament">* * *</div>
+
+    <!-- Section 10 -->
+    <section>
+      <div class="section-num">Section 10</div>
+      <h2>Checklist for CORS Migrations</h2>
+
+      <p>
+        If you are planning to add <code>crossorigin="anonymous"</code> to your script tags, or
+        change the CORS mode of any CDN-served resource, work through this checklist before
+        deploying:
+      </p>
+
+      <ol class="styled">
+        <li>
+          <strong>Audit every code path that creates resource hints.</strong> Search your codebase
+          for every place that creates <code>&lt;link rel="prefetch"&gt;</code>,
+          <code>&lt;link rel="preload"&gt;</code>, <code>&lt;link rel="modulepreload"&gt;</code>,
+          or calls <code>fetch()</code> / <code>new Request()</code> for CDN resources. Each one
+          is a potential source of no-cors cache entries.
+        </li>
+        <li>
+          <strong>Check for background services that pre-warm caches.</strong> Deployment polling
+          services, service workers with precaching strategies, and build manifest prefetchers are
+          all active caching agents. If any of these exist, they must be updated to use the correct
+          CORS mode <em>before</em> the script tags change.
+        </li>
+        <li>
+          <strong>Deploy in two phases.</strong> Phase 1: add <code>crossOrigin</code> to all
+          prefetch/preload mechanisms. Wait for full rollout. Phase 2: add
+          <code>crossorigin="anonymous"</code> to script tags and bump cache version. Never
+          combine these into a single deploy.
+        </li>
+        <li>
+          <strong>Add inline telemetry for total JS failure.</strong> Your error screen must have
+          its own monitoring - an inline script that fires a beacon to a backend endpoint when
+          script tags fail. Do not rely on SDKs that load from the same bundles.
+        </li>
+        <li>
+          <strong>Monitor <code>script error</code> events, not just Sentry.</strong> A
+          <code>page_load_status</code>-style metric that fires from inline JavaScript is your
+          only reliable signal when all bundles fail. Sentry and RUM go dark in this scenario.
+        </li>
+        <li>
+          <strong>Test the "app open during deploy" scenario.</strong> Create an integration test
+          that simulates a user with the old version's cache state, then loads the new version.
+          No clean-browser test covers this. Consider a test that: loads v1, triggers its prefetch
+          mechanism for v2 URLs, then navigates to v2's HTML and asserts all scripts load.
+        </li>
+      </ol>
+
+      <div class="highlight-box">
+        <p><strong>Quick Reference - CORS Cache Compatibility Matrix:</strong></p>
+        <p>
+          <span class="tag green">cors &rarr; cors</span> Compatible.
+          <span class="tag green">cors &rarr; no-cors</span> Compatible.
+          <span class="tag red">no-cors &rarr; cors</span> <strong>BREAKS.</strong>
+          <span class="tag green">no-cors &rarr; no-cors</span> Compatible.
+        </p>
+        <p>
+          When in doubt, always prefetch in <code>cors</code> mode. It is strictly more
+          permissive. A <code>cors</code>-cached response can serve any consumer. A
+          <code>no-cors</code>-cached response can only serve <code>no-cors</code> consumers.
+        </p>
+      </div>
+
+      <p>
+        The browser's HTTP cache is a shared, mutable, long-lived data store that your old code
+        writes to and your new code reads from. Treat CORS mode changes to cached resources with
+        the same rigour you would treat a database schema migration: backwards-compatible first,
+        then cut over, never both at once.
+      </p>
+    </section>
+
+    <!-- Footnote -->
+    <div class="footnote">
+      <p>
+        <strong>Further Reading:</strong>
+        <a href="https://fetch.spec.whatwg.org/#concept-request-mode">Fetch Specification - Request Mode</a> |
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/crossorigin">MDN - crossorigin attribute</a> |
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/prefetch">MDN - rel="prefetch"</a>
+      </p>
+      <p>
+        All technical claims in this article reference the WHATWG Fetch Living Standard and
+        Chromium's HTTP cache implementation behaviour as of May 2026. Browser behaviour described
+        has been verified in Chromium-based browsers (Chrome, Edge) and Firefox.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
