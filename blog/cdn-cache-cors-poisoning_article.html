@@ -302,30 +302,96 @@
   }
 
   /* FLOW NODES */
+  .flow-track {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 8px 0;
+  }
   .flow {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0;
+    flex-wrap: nowrap;
     align-items: center;
-    margin: 24px 0;
+    margin: 0;
+    padding: 0;
   }
   .flow-node {
     background: var(--ink);
     color: var(--paper);
-    padding: 10px 18px;
-    border-radius: 4px;
+    padding: 14px 22px;
+    border-radius: 8px;
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    letter-spacing: 0.01em;
   }
   .flow-node.green  { background: var(--accent2); }
   .flow-node.red    { background: var(--accent); }
   .flow-node.muted  { background: var(--muted); }
   .flow-arrow {
-    font-size: 18px;
-    color: var(--muted);
-    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 0 6px;
+    width: 32px;
+    height: 14px;
+    position: relative;
+    font-size: 0;
+    color: transparent;
+    overflow: visible;
+  }
+  .flow-arrow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    background: var(--rule);
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid var(--rule);
+  }
+  .flow-bend {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin-left: 40px;
+    height: 24px;
+    position: relative;
+  }
+  .flow-bend::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--rule);
+  }
+  .flow-bend::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    bottom: -1px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid var(--rule);
   }
 
   /* NUMBERED LIST */
@@ -423,7 +489,12 @@
   @media (max-width: 600px) {
     .hero, .content-wrap, .cover-image-wrap { padding-left: 20px; padding-right: 20px; }
     .flow { flex-direction: column; align-items: flex-start; }
-    .flow-arrow { transform: rotate(90deg); }
+    .flow-arrow {
+      transform: rotate(90deg);
+      margin: 6px 0 6px 12px;
+    }
+    .flow-bend { margin-left: 12px; display: none; }
+    .flow-track .flow { margin-top: 0; }
     .cover-image { height: 240px; }
   }
 </style>
@@ -558,25 +629,32 @@
 
     <div class="arch-diagram">
       <div class="arch-title">Cache Poisoning Flow</div>
-      <div class="flow">
-        <div class="flow-node green">v1 App Running</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node">v2 Deployed</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node">v1 Polling Detects v2</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node red">Prefetch v2 (no-cors)</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node red">Cache: v2 in no-cors</div>
-      </div>
-      <div class="flow">
-        <div class="flow-node">User Refreshes</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node red">Script tag needs cors</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node red">Cache Miss / Status 0</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node red">App Fails to Boot</div>
+      <div class="flow-track">
+        <div class="flow">
+          <div class="flow-node green">v1 App Running</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node">v2 Deployed</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node">v1 Polling Detects v2</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node red">Prefetch v2 (no-cors)</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node red">Cache: v2 in no-cors</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node">User Refreshes</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node red">Script tag needs cors</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node red">Cache Miss / Status 0</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node red">App Fails to Boot</div>
+        </div>
       </div>
     </div>
 
@@ -685,18 +763,22 @@
 
     <div class="arch-diagram">
       <div class="arch-title">Two-Phase Deploy Strategy</div>
-      <div class="flow">
-        <div class="flow-node green">Phase 1: Fix Prefetch</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node green">Full Rollout</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node green">Phase 2: Add crossorigin</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node green">Prefetch uses cors</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node green">Cache entries match</div>
-        <span class="flow-arrow">&rarr;</span>
-        <div class="flow-node green">App Loads Successfully</div>
+      <div class="flow-track">
+        <div class="flow">
+          <div class="flow-node green">Phase 1: Fix Prefetch</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node green">Full Rollout</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node green">Phase 2: Add crossorigin</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node green">Prefetch uses cors</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node green">Cache entries match</div>
+          <span class="flow-arrow"></span>
+          <div class="flow-node green">App Loads Successfully</div>
+        </div>
       </div>
     </div>
   </section>
