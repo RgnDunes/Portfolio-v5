@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "typescript-doesnt-protect-you-at-runtime",
+    title: "TypeScript's Biggest Lie: Your Types Vanish the Moment Your Code Ships to Production",
+    description: "We treat TypeScript like a runtime safety net. It is not one. Here is where the illusion breaks down - and what you actually need to protect your production code from the data it never expected.",
+    contentPath: "/blog/typescript-doesnt-protect-you-at-runtime_article.html",
+    publishedAt: "2026-05-13",
+    tags: ["TypeScript", "Runtime Safety", "Architecture"],
+    readingTime: "~16 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "cdn-cache-cors-poisoning",
     title: "Your CDN Cache Didn't Poison Itself: How Deployment Polling Services Silently Break CORS",
     description: "You added crossorigin='anonymous' to your script tags. You bumped the cache version. You tested in staging. And production still broke. Here is what nobody tells you about prefetch links, browser HTTP cache, and CORS mode transitions.",
