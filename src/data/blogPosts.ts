@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "developer-infrastructure-is-on-fire",
+    title: "The Developer Infrastructure Is on Fire: GitHub Outages, npm Breaches, and the Crisis Nobody Prepared For",
+    description: "257 GitHub incidents in one year. Axios backdoored by North Korea. TanStack hijacked in 6 minutes. A self-replicating worm loose in the npm registry. The tools you trust with your code are under siege.",
+    contentPath: "/blog/developer-infrastructure-is-on-fire_article.html",
+    publishedAt: "2026-05-13",
+    tags: ["Security", "Supply Chain", "npm", "Infrastructure"],
+    readingTime: "~14 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "typescript-doesnt-protect-you-at-runtime",
     title: "TypeScript's Biggest Lie: Your Types Vanish the Moment Your Code Ships to Production",
     description: "We treat TypeScript like a runtime safety net. It is not one. Here is where the illusion breaks down - and what you actually need to protect your production code from the data it never expected.",
