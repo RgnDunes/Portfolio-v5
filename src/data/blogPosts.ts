@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "replaced-npm-with-browser-apis",
+    title: "I Replaced 12 npm Packages With Browser APIs Nobody Uses. Here's What Happened.",
+    description: "How I audited our production app's dependency tree, replaced a dozen packages with native browser APIs, and cut our bundle by 58%. A practical guide to the platform features hiding in plain sight.",
+    contentPath: "/blog/replaced-npm-with-browser-apis_article.html",
+    publishedAt: "2026-05-21",
+    tags: ["Frontend", "Dependencies", "Browser APIs", "Performance"],
+    readingTime: "~16 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "developer-infrastructure-is-on-fire",
     title: "The Developer Infrastructure Is on Fire: GitHub Outages, npm Breaches, and the Crisis Nobody Prepared For",
     description: "257 GitHub incidents in one year. Axios backdoored by North Korea. TanStack hijacked in 6 minutes. A self-replicating worm loose in the npm registry. The tools you trust with your code are under siege.",

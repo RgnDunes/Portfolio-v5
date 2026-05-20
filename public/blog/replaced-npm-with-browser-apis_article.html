@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>I Replaced 12 npm Packages With Browser APIs Nobody Uses. Here's What Happened.</title>
+<meta property="og:title" content="I Replaced 12 npm Packages With Browser APIs Nobody Uses. Here's What Happened." />
+<meta property="og:description" content="How I audited our production app's dependency tree, replaced a dozen packages with native browser APIs, and cut our bundle by 58%. A practical guide to the platform features hiding in plain sight." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=630&fit=crop" />
+<meta name="author" content="Divyansh Singh" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* COVER IMAGE */
+  .cover-image {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .cover-image img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-top: 40px;
+  }
+
+  /* LAYOUT */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* FLOW NODES */
+  .flow-track {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 8px 0;
+  }
+  .flow {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    letter-spacing: 0.01em;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 0 6px;
+    width: 32px;
+    height: 14px;
+    position: relative;
+    font-size: 0;
+    color: transparent;
+    overflow: visible;
+  }
+  .flow-arrow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    background: var(--rule);
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid var(--rule);
+  }
+  .flow-bend {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin-left: 40px;
+    height: 24px;
+    position: relative;
+  }
+  .flow-bend::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--rule);
+  }
+  .flow-bend::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    bottom: -1px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid var(--rule);
+  }
+
+  /* NUMBERED LIST */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* DIVIDER */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero, .content-wrap, .cover-image { padding-left: 20px; padding-right: 20px; }
+    .cover-image img { height: 240px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow {
+      transform: rotate(90deg);
+      margin: 6px 0 6px 12px;
+    }
+    .flow-bend { margin-left: 12px; display: none; }
+    .flow-track .flow { margin-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Diaries &nbsp;&middot;&nbsp; Frontend Infrastructure &nbsp;&middot;&nbsp; Developer Experience</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Deep Dive &middot; Dependency Audit</div>
+  <h1>I Replaced 12 npm Packages With <em>Browser APIs Nobody Uses.</em> Here's What Happened.</h1>
+  <p class="hero-sub">How I audited our production app's dependency tree, replaced a dozen packages with native browser APIs, and cut our bundle by 58%. A practical guide to the platform features hiding in plain sight.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>May 2026</span>
+    <span class="byline-dot"></span>
+    <span>~16 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">Frontend</span>
+    <span class="tag">Dependencies</span>
+  </div>
+</div>
+
+<!-- COVER IMAGE -->
+<div class="cover-image">
+  <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=600&fit=crop" alt="Code displayed on a laptop screen in a dark workspace" />
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- 01 -->
+  <section>
+    <div class="section-num">01 &middot; The Trigger</div>
+    <h2>The Moment I Actually Looked Inside node_modules</h2>
+    <p>It started with a Slack message from our platform team. "Your frontend bundle is 1.4 MB gzipped. Can we talk?" I had been ignoring the bundle analyser warnings for months. We all do. The app worked, users weren't complaining loudly enough, and there were always higher-priority tickets.</p>
+    <p>But that Slack message came with a graph. Our bundle had grown 340% in eighteen months. Not because we had built 340% more features - we had maybe added 40% more UI surface area. The rest was dependencies. Libraries we had pulled in for convenience, each one dragging along its own dependency tree, each tree overlapping with others in ways nobody had audited.</p>
+    <p>So I did something I had never properly done before: I ran <code>npx depcheck</code> and actually read the output. Then I opened <code>node_modules</code> in my editor and started browsing. What I found was genuinely unsettling.</p>
+    <p>We had <strong>moment.js</strong> shipping 320KB of locale data for a date picker that only served Indian users. We had <strong>lodash</strong> - the full library, not individual imports - because one file used <code>cloneDeep</code>. We had a <strong>uuid</strong> package for generating IDs that the browser could do natively in a single function call. We had a modal library wrapping functionality that HTML has supported natively since 2022.</p>
+    <p>The pattern was always the same: a developer (often me, if I am being honest) needed some functionality, Googled it, found a Stack Overflow answer from 2019 recommending a package, ran <code>npm install</code>, and moved on. Nobody ever went back to check whether the platform had caught up.</p>
+
+    <div class="pull-quote">
+      <p>"We weren't shipping a web application. We were shipping an archaeology museum of every JavaScript problem the browser had already solved."</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="section-num">02 &middot; The Hit List</div>
+    <h2>The 12 Packages I Removed (And What Replaced Them)</h2>
+    <p>I spent a weekend cataloguing every dependency in our production app that had a native browser equivalent. The rule was simple: if a Web API could do the same job with reasonable browser support (95%+ on caniuse.com for our user base), the package was a candidate for removal.</p>
+    <p>Here is the final list. Twelve packages, ranging from tiny utilities to massive libraries, all replaced by code the browser already ships for free:</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">Package Replacement Map</div>
+      <div class="flow-track">
+        <div class="flow">
+          <div class="flow-node red">moment (320KB)</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node green">Intl.DateTimeFormat (0KB)</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node red">uuid (7KB)</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node green">crypto.randomUUID() (0KB)</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node red">lodash.cloneDeep (18KB)</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node green">structuredClone() (0KB)</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node red">query-string (5KB)</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node green">URLSearchParams (0KB)</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node red">react-modal (14KB)</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node green">&lt;dialog&gt; element (0KB)</div>
+        </div>
+        <div class="flow-bend"></div>
+        <div class="flow">
+          <div class="flow-node red">copy-to-clipboard (3KB)</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node green">navigator.clipboard (0KB)</div>
+        </div>
+      </div>
+    </div>
+
+    <p>The other six: <strong>classnames</strong> (replaced with template literals), <strong>lodash.debounce</strong> (replaced with a six-line utility), <strong>node-fetch</strong> (native fetch in Node 18+), <strong>scroll-into-view-if-needed</strong> (replaced with <code>Element.scrollIntoView()</code>), <strong>is-number</strong> (replaced with <code>Number.isFinite()</code>), and <strong>deep-equal</strong> (replaced with targeted comparison logic).</p>
+    <p>Total JavaScript removed from the production bundle: <strong>~412KB unminified, ~147KB gzipped</strong>. That is not a rounding error. That is real bandwidth your users are paying for on every single page load.</p>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <div class="section-num">03 &middot; Dates</div>
+    <h2>Killing moment.js Was the Easy Win Nobody Takes</h2>
+    <p>Let me be direct: if you are still shipping moment.js in 2026, you are making a choice to send your users 320KB of JavaScript for something the browser does natively. Moment's own maintainers have said the project is in maintenance mode. It is not controversial to replace it. And yet I still see it in production bundles constantly.</p>
+    <p>The <code>Intl.DateTimeFormat</code> API has been supported in every major browser since 2017. It handles locale-aware date formatting out of the box. Here is what the migration looked like for our most common use case - displaying relative timestamps like "3 hours ago":</p>
+
+    <div class="code-block">
+      <div class="code-label">Before: moment.js</div>
+      <pre><span class="code-kw">import</span> <span class="code-var">moment</span> <span class="code-kw">from</span> <span class="code-str">'moment'</span>;
+
+<span class="code-cmt">// 320KB imported for this one call</span>
+<span class="code-kw">const</span> <span class="code-var">label</span> = <span class="code-fn">moment</span>(<span class="code-var">timestamp</span>).<span class="code-fn">fromNow</span>();
+<span class="code-cmt">// "3 hours ago"</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">After: Intl.RelativeTimeFormat (0KB)</div>
+      <pre><span class="code-kw">const</span> <span class="code-var">rtf</span> = <span class="code-kw">new</span> <span class="code-fn">Intl.RelativeTimeFormat</span>(<span class="code-str">'en-IN'</span>, {
+  <span class="code-var">numeric</span>: <span class="code-str">'auto'</span>
+});
+
+<span class="code-kw">function</span> <span class="code-fn">timeAgo</span>(<span class="code-var">date</span>) {
+  <span class="code-kw">const</span> <span class="code-var">diff</span> = <span class="code-var">date</span> - Date.<span class="code-fn">now</span>();
+  <span class="code-kw">const</span> <span class="code-var">hours</span> = Math.<span class="code-fn">round</span>(<span class="code-var">diff</span> / <span class="code-num">3600000</span>);
+  <span class="code-kw">const</span> <span class="code-var">days</span> = Math.<span class="code-fn">round</span>(<span class="code-var">diff</span> / <span class="code-num">86400000</span>);
+
+  <span class="code-kw">if</span> (Math.<span class="code-fn">abs</span>(<span class="code-var">hours</span>) &lt; <span class="code-num">24</span>) <span class="code-kw">return</span> <span class="code-var">rtf</span>.<span class="code-fn">format</span>(<span class="code-var">hours</span>, <span class="code-str">'hour'</span>);
+  <span class="code-kw">if</span> (Math.<span class="code-fn">abs</span>(<span class="code-var">days</span>) &lt; <span class="code-num">30</span>) <span class="code-kw">return</span> <span class="code-var">rtf</span>.<span class="code-fn">format</span>(<span class="code-var">days</span>, <span class="code-str">'day'</span>);
+  <span class="code-kw">return</span> <span class="code-kw">new</span> <span class="code-fn">Intl.DateTimeFormat</span>(<span class="code-str">'en-IN'</span>).<span class="code-fn">format</span>(<span class="code-var">date</span>);
+}</pre>
+    </div>
+
+    <p>Is this more code than a single <code>moment().fromNow()</code> call? Yes. But it is fifteen lines that ship zero additional bytes to your users. And unlike moment, it respects the user's actual locale preferences without you bundling every locale file on the planet.</p>
+
+    <div class="highlight-box">
+      <strong>The Locale Trap</strong>
+      moment.js bundles 130+ locale files by default. Even with tree-shaking (which moment does not support well due to its CommonJS structure), you are typically shipping locale data you will never use. Intl.DateTimeFormat uses the browser's built-in locale data, which is already present on the user's device. You ship nothing.
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="section-num">04 &middot; The One-Liners</div>
+    <h2>Three Packages That Should Never Have Existed</h2>
+    <p>Some of the replacements were so trivially simple that it made me question how we ended up with npm packages for them in the first place. These three took less than five minutes each to migrate.</p>
+
+    <h3>uuid - crypto.randomUUID()</h3>
+    <p>The <code>uuid</code> package has over 130 million weekly downloads on npm. It generates RFC 4122 compliant UUIDs. Since 2021, every modern browser ships <code>crypto.randomUUID()</code> which does exactly the same thing, is cryptographically secure, and requires zero imports.</p>
+
+    <div class="code-block">
+      <div class="code-label">Before vs After</div>
+      <pre><span class="code-cmt">// Before: 7KB package + import overhead</span>
+<span class="code-kw">import</span> { <span class="code-var">v4</span> <span class="code-kw">as</span> <span class="code-var">uuidv4</span> } <span class="code-kw">from</span> <span class="code-str">'uuid'</span>;
+<span class="code-kw">const</span> <span class="code-var">id</span> = <span class="code-fn">uuidv4</span>();
+
+<span class="code-cmt">// After: 0KB, built into every browser</span>
+<span class="code-kw">const</span> <span class="code-var">id</span> = crypto.<span class="code-fn">randomUUID</span>();</pre>
+    </div>
+
+    <h3>lodash.cloneDeep - structuredClone()</h3>
+    <p>Deep cloning objects used to be genuinely hard in JavaScript. The <code>JSON.parse(JSON.stringify(obj))</code> hack lost functions, dates, and undefined values. Lodash solved this properly. But since 2022, <code>structuredClone()</code> is available in all major browsers and handles dates, Maps, Sets, ArrayBuffers, and circular references correctly.</p>
+
+    <div class="code-block">
+      <div class="code-label">Deep Clone Migration</div>
+      <pre><span class="code-cmt">// Before: 18KB of lodash internals</span>
+<span class="code-kw">import</span> <span class="code-var">cloneDeep</span> <span class="code-kw">from</span> <span class="code-str">'lodash.clonedeep'</span>;
+<span class="code-kw">const</span> <span class="code-var">copy</span> = <span class="code-fn">cloneDeep</span>(<span class="code-var">state</span>);
+
+<span class="code-cmt">// After: native, handles more types than lodash</span>
+<span class="code-kw">const</span> <span class="code-var">copy</span> = <span class="code-fn">structuredClone</span>(<span class="code-var">state</span>);</pre>
+    </div>
+
+    <h3>copy-to-clipboard - navigator.clipboard</h3>
+    <p>The clipboard package used to be necessary because the old <code>document.execCommand('copy')</code> API was unreliable and required a visible text selection. The modern Clipboard API is promise-based, works without DOM hacks, and has been universally supported since 2020.</p>
+
+    <div class="code-block">
+      <div class="code-label">Clipboard Migration</div>
+      <pre><span class="code-cmt">// Before</span>
+<span class="code-kw">import</span> <span class="code-var">copy</span> <span class="code-kw">from</span> <span class="code-str">'copy-to-clipboard'</span>;
+<span class="code-fn">copy</span>(<span class="code-str">'some text'</span>);
+
+<span class="code-cmt">// After</span>
+<span class="code-kw">await</span> navigator.clipboard.<span class="code-fn">writeText</span>(<span class="code-str">'some text'</span>);</pre>
+    </div>
+
+    <p>Each of these packages solves a real problem that genuinely needed solving at the time it was created. That is the important nuance. The package authors weren't wrong to build them. But the ecosystem has a collective memory problem - we keep installing solutions to problems the platform solved years ago.</p>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="section-num">05 &middot; The Big One</div>
+    <h2>Replacing react-modal With the &lt;dialog&gt; Element</h2>
+    <p>This was the migration I was most nervous about. Our app had 14 different modals, all built with <code>react-modal</code>. The library handled focus trapping, scroll locking, backdrop click-to-close, escape key handling, and portal rendering. Replacing it with a native element felt risky.</p>
+    <p>It turned out to be the most satisfying removal of the entire project.</p>
+    <p>The HTML <code>&lt;dialog&gt;</code> element, when opened with <code>.showModal()</code>, gives you all of this for free. Focus is trapped inside the dialog automatically. The backdrop is a CSS pseudo-element you can style. The Escape key closes it by default. It is rendered in the top layer, so z-index issues disappear entirely. Screen readers announce it correctly without ARIA attributes.</p>
+
+    <div class="code-block">
+      <div class="code-label">Native &lt;dialog&gt; Modal Component</div>
+      <pre><span class="code-kw">function</span> <span class="code-fn">Modal</span>({ <span class="code-var">isOpen</span>, <span class="code-var">onClose</span>, <span class="code-var">children</span> }) {
+  <span class="code-kw">const</span> <span class="code-var">ref</span> = <span class="code-fn">useRef</span>(<span class="code-num">null</span>);
+
+  <span class="code-fn">useEffect</span>(() =&gt; {
+    <span class="code-kw">const</span> <span class="code-var">dialog</span> = <span class="code-var">ref</span>.current;
+    <span class="code-kw">if</span> (<span class="code-var">isOpen</span> &amp;&amp; !<span class="code-var">dialog</span>.open) <span class="code-var">dialog</span>.<span class="code-fn">showModal</span>();
+    <span class="code-kw">if</span> (!<span class="code-var">isOpen</span> &amp;&amp; <span class="code-var">dialog</span>.open) <span class="code-var">dialog</span>.<span class="code-fn">close</span>();
+  }, [<span class="code-var">isOpen</span>]);
+
+  <span class="code-kw">return</span> (
+    &lt;<span class="code-kw">dialog</span> <span class="code-var">ref</span>={<span class="code-var">ref</span>} <span class="code-var">onClose</span>={<span class="code-var">onClose</span>}&gt;
+      {<span class="code-var">children</span>}
+    &lt;/<span class="code-kw">dialog</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <p>That is the entire component. No focus trap library. No portal. No scroll lock utility. The browser handles all of it. Our modal component went from 180 lines (with all the react-modal configuration and accessibility workarounds) to 15 lines.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Accessibility Win</div>
+      <p>This is the part that surprised me most. Our react-modal implementation had three accessibility bugs that our automated a11y tests never caught - incorrect aria-labelledby references, focus not returning to the trigger element on close, and the modal being announced as "dialog" but not "modal dialog" by some screen readers. The native &lt;dialog&gt; element handled all three correctly by default. We removed code and improved accessibility simultaneously.</p>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="section-num">06 &middot; Query Strings &amp; URLs</div>
+    <h2>URLSearchParams: The API That Replaced an Entire Category of Packages</h2>
+    <p>The <code>query-string</code> package is one of those dependencies that feels invisible. It parses URL query parameters into objects and serialises them back. Simple, useful, and something you stop thinking about once it is installed.</p>
+    <p>But <code>URLSearchParams</code> has been in browsers since 2016. It does everything <code>query-string</code> does, plus it handles URL encoding correctly by default - something that trips up manual implementations constantly.</p>
+
+    <div class="code-block">
+      <div class="code-label">Query String Parsing</div>
+      <pre><span class="code-cmt">// Before</span>
+<span class="code-kw">import</span> <span class="code-var">qs</span> <span class="code-kw">from</span> <span class="code-str">'query-string'</span>;
+<span class="code-kw">const</span> <span class="code-var">params</span> = <span class="code-var">qs</span>.<span class="code-fn">parse</span>(window.location.search);
+<span class="code-kw">const</span> <span class="code-var">url</span> = <span class="code-str">`/search?${<span class="code-var">qs</span>.<span class="code-fn">stringify</span>({ <span class="code-var">q</span>: <span class="code-str">'test'</span>, <span class="code-var">page</span>: <span class="code-num">2</span> })}`</span>;
+
+<span class="code-cmt">// After</span>
+<span class="code-kw">const</span> <span class="code-var">params</span> = <span class="code-kw">new</span> <span class="code-fn">URLSearchParams</span>(window.location.search);
+<span class="code-kw">const</span> <span class="code-var">q</span> = <span class="code-var">params</span>.<span class="code-fn">get</span>(<span class="code-str">'q'</span>);       <span class="code-cmt">// individual access</span>
+<span class="code-kw">const</span> <span class="code-var">all</span> = Object.<span class="code-fn">fromEntries</span>(<span class="code-var">params</span>); <span class="code-cmt">// full object</span>
+
+<span class="code-kw">const</span> <span class="code-var">newParams</span> = <span class="code-kw">new</span> <span class="code-fn">URLSearchParams</span>({ <span class="code-var">q</span>: <span class="code-str">'test'</span>, <span class="code-var">page</span>: <span class="code-str">'2'</span> });
+<span class="code-kw">const</span> <span class="code-var">url</span> = <span class="code-str">`/search?${<span class="code-var">newParams</span>}`</span>;</pre>
+    </div>
+
+    <p>The one caveat: <code>URLSearchParams</code> does not handle nested objects like <code>query-string</code> can with options like <code>{ arrayFormat: 'bracket' }</code>. If your URL params have deeply nested structures, you might still need a library. But frankly, if your query strings are that complex, you have a different problem to solve first.</p>
+
+    <p>The same pattern applies to the <code>URL</code> constructor itself. I found three places in our codebase where we were using string concatenation and manual encoding to build URLs. The <code>URL</code> and <code>URLSearchParams</code> APIs handle encoding, path joining, and parameter management correctly without any of those error-prone string operations.</p>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="section-num">07 &middot; The Utilities</div>
+    <h2>The Small Packages That Add Up Silently</h2>
+    <p>The remaining replacements were smaller individually but collectively significant. Each one followed the same pattern: a package that solved a real problem in 2018, now replaced by a platform feature that shipped quietly while nobody was paying attention.</p>
+
+    <h3>classnames - Template Literals</h3>
+    <p>The <code>classnames</code> package (or its lighter cousin <code>clsx</code>) conditionally joins CSS class names. It is used in nearly every React project I have ever seen. But modern JavaScript makes it unnecessary for most cases:</p>
+
+    <div class="code-block">
+      <div class="code-label">Conditional Classes</div>
+      <pre><span class="code-cmt">// Before</span>
+<span class="code-kw">import</span> <span class="code-var">cx</span> <span class="code-kw">from</span> <span class="code-str">'classnames'</span>;
+<span class="code-kw">const</span> <span class="code-var">cls</span> = <span class="code-fn">cx</span>(<span class="code-str">'btn'</span>, { <span class="code-str">'btn-active'</span>: <span class="code-var">isActive</span>, <span class="code-str">'btn-lg'</span>: <span class="code-var">size</span> === <span class="code-str">'large'</span> });
+
+<span class="code-cmt">// After: filter(Boolean).join() pattern</span>
+<span class="code-kw">const</span> <span class="code-var">cls</span> = [
+  <span class="code-str">'btn'</span>,
+  <span class="code-var">isActive</span> &amp;&amp; <span class="code-str">'btn-active'</span>,
+  <span class="code-var">size</span> === <span class="code-str">'large'</span> &amp;&amp; <span class="code-str">'btn-lg'</span>
+].<span class="code-fn">filter</span>(Boolean).<span class="code-fn">join</span>(<span class="code-str">' '</span>);</pre>
+    </div>
+
+    <h3>lodash.debounce - Six Lines</h3>
+    <p>Debounce is a genuinely useful utility, but the implementation is trivial enough that importing a package for it is hard to justify:</p>
+
+    <div class="code-block">
+      <div class="code-label">Debounce in Six Lines</div>
+      <pre><span class="code-kw">function</span> <span class="code-fn">debounce</span>(<span class="code-var">fn</span>, <span class="code-var">ms</span>) {
+  <span class="code-kw">let</span> <span class="code-var">timer</span>;
+  <span class="code-kw">return</span> (...<span class="code-var">args</span>) =&gt; {
+    <span class="code-fn">clearTimeout</span>(<span class="code-var">timer</span>);
+    <span class="code-var">timer</span> = <span class="code-fn">setTimeout</span>(() =&gt; <span class="code-var">fn</span>(...<span class="code-var">args</span>), <span class="code-var">ms</span>);
+  };
+}</pre>
+    </div>
+
+    <h3>scroll-into-view-if-needed - Element.scrollIntoView()</h3>
+    <p>The <code>scrollIntoView</code> method now accepts a <code>behavior: 'smooth'</code> option and a <code>block</code> parameter to control alignment. The package we had installed added "scroll only if the element is not already visible" logic - which is useful, but implementable with a single <code>IntersectionObserver</code> check before calling <code>scrollIntoView</code>.</p>
+
+    <div class="highlight-box">
+      <strong>The Compound Effect</strong>
+      Each of these packages individually adds only 2-8KB to your bundle. But we had six of them. Together with their transitive dependencies, they contributed 43KB gzipped. That is the insidious thing about small packages - they feel harmless in isolation, so nobody ever questions them. They accumulate like technical debt you can measure in kilobytes.
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="section-num">08 &middot; Results</div>
+    <h2>The Numbers After the Migration</h2>
+    <p>I measured everything before and after. Not just bundle size - build times, test execution, dependency audit surface, and <code>npm install</code> duration. Here are the results:</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">58%</div>
+        <div class="stat-label">Bundle Size<br/>Reduction (gzipped)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">147KB</div>
+        <div class="stat-label">JavaScript<br/>Removed (gzipped)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">34</div>
+        <div class="stat-label">Transitive Deps<br/>Eliminated</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1.8s</div>
+        <div class="stat-label">Faster Cold<br/>npm Install</div>
+      </div>
+    </div>
+
+    <p>The bundle size reduction was the headline number, but the dependency count drop mattered more to me from a maintenance perspective. Each transitive dependency is a potential supply chain vulnerability, a potential breaking change in a minor version, and a thing that <code>npm audit</code> might flag at 2am on a Friday. We went from 412 total packages in our dependency tree to 378. Thirty-four fewer things that could go wrong.</p>
+    <p>Build times improved by roughly 12%. Not dramatic, but consistent. The bundler had fewer modules to resolve, fewer files to parse, and less code to tree-shake (or fail to tree-shake, in moment's case).</p>
+    <p>The most meaningful change was invisible to metrics: cognitive load. When a new developer joins the team and opens <code>package.json</code>, every dependency they see is a question they have to answer. "What does this do? Do I need to learn its API? Is it still maintained?" Twelve fewer questions. Twelve fewer context switches. That compounds across every engineer who touches the codebase.</p>
+
+    <div class="pull-quote">
+      <p>"The best dependency is the one you don't have. Not because dependencies are bad - but because every dependency is a decision you're asking every future developer to re-evaluate."</p>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <div class="section-num">09 &middot; Caveats</div>
+    <h2>When You Absolutely Should NOT Do This</h2>
+    <p>I want to be careful here because this article could easily be read as "npm packages are bad, use the platform for everything." That is not the point. Some packages exist for excellent reasons that native APIs cannot address. Here is when you should keep the dependency:</p>
+
+    <ol class="styled">
+      <li><span><strong>When the native API has browser support gaps that matter to your users.</strong> If your analytics show 8% of users on older Samsung Internet or KaiOS browsers, <code>structuredClone()</code> might not be safe without a polyfill. Check your actual user data, not caniuse global averages.</span></li>
+      <li><span><strong>When the package handles edge cases the native API doesn't.</strong> <code>date-fns</code> has timezone-aware arithmetic that <code>Intl.DateTimeFormat</code> does not cover. If you need to add 3 business days to a date respecting IST holidays, you need a library. The native API formats dates - it does not do date math.</span></li>
+      <li><span><strong>When the abstraction genuinely reduces bugs.</strong> A form validation library like Zod is not replaceable by native APIs. It provides type inference, composable schemas, and error messages that would take thousands of lines to replicate. The value is in the abstraction, not the implementation.</span></li>
+      <li><span><strong>When the package is maintained by domain experts.</strong> Cryptography libraries, date-time libraries with calendar system support, internationalisation libraries handling pluralisation rules - these encode domain expertise that is genuinely hard to replicate correctly. Rolling your own is how you get security vulnerabilities.</span></li>
+    </ol>
+
+    <div class="callout">
+      <div class="callout-label">The Decision Framework</div>
+      <p>Before removing a dependency, ask three questions: (1) Does a native API exist that covers my specific use case? Not a similar API - the exact functionality I use. (2) Is the browser support acceptable for my actual user base? (3) Would a junior developer on my team be able to maintain the native replacement without the package's documentation and community?</p>
+      <p>If the answer to all three is yes, remove it. If any answer is no, keep it and move on. Dogma in either direction is the enemy of good engineering.</p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="section-num">10 &middot; The Culture Problem</div>
+    <h2>Why We Keep Installing What We Don't Need</h2>
+    <p>The technical migration was straightforward. The harder question is why this situation exists in the first place. Why do experienced engineers - people who know better - keep pulling in packages for things the browser already does?</p>
+    <p>I think there are three forces at work.</p>
+    <p><strong>First, Stack Overflow and AI assistants have long memories.</strong> When you search "how to deep clone an object in JavaScript," the top answers still recommend lodash. ChatGPT and other coding assistants were trained on years of code that imports these packages. The platform evolved; the training data did not. Every developer who follows that advice perpetuates the cycle.</p>
+    <p><strong>Second, the npm ecosystem optimises for installation, not removal.</strong> Adding a dependency takes 10 seconds. Removing one requires auditing every import, checking for transitive usage, running the full test suite, and convincing your team that the risk is worth it. The friction is asymmetric by design - it is always easier to add than to remove.</p>
+    <p><strong>Third, we stopped reading MDN.</strong> This is the uncomfortable one. The web platform ships new APIs constantly. <code>structuredClone</code> landed in 2022. The Popover API shipped in 2024. <code>CSS.highlights</code> is available now. Most frontend developers I talk to are unaware of at least half the APIs that shipped in the last three years. We read framework changelogs religiously but treat the platform itself as static.</p>
+
+    <div class="pull-quote">
+      <p>"The irony of modern frontend development: we obsessively track every React RFC but couldn't name three Web APIs that shipped this year."</p>
+    </div>
+
+    <p>This is not a moral failing. It is a predictable outcome of an ecosystem that moves fast and rewards framework expertise over platform knowledge. But it has a real cost - measured in bundle sizes, dependency counts, and the growing gap between what the browser can do and what we ask it to do.</p>
+  </section>
+
+  <!-- 11 -->
+  <section>
+    <div class="section-num">11 &middot; Takeaways</div>
+    <h2>What I Would Tell Every Frontend Team</h2>
+    <p>If this article inspires one action, make it this: schedule a quarterly dependency audit. Not just <code>npm audit</code> for security vulnerabilities - a proper review asking "does this package still justify its presence in our bundle?"</p>
+    <p>The platform is catching up faster than most of us realise. Every year, a handful of packages that were genuinely necessary become optional. The ones that shipped solutions to browser deficiencies are being made redundant by the browser itself. That is not a criticism of those packages - it is the ecosystem working exactly as it should.</p>
+    <p>Here is a simple process that worked for our team:</p>
+    <ol class="styled">
+      <li><span>Run <code>npx depcheck</code> to find completely unused dependencies. Remove them immediately.</span></li>
+      <li><span>Run your bundle analyser. Sort by size. For the top 10 largest dependencies, check if a native API covers your use case.</span></li>
+      <li><span>For each candidate removal, write a small proof-of-concept. Run it against your existing tests. If the tests pass, ship it.</span></li>
+      <li><span>Document the native API replacements in your team's engineering wiki. The next developer who reaches for <code>npm install</code> should find your team's recommendation first.</span></li>
+    </ol>
+
+    <p>The goal is not zero dependencies. That is impractical and counterproductive. The goal is <strong>intentional</strong> dependencies - where every package in your <code>package.json</code> is there because you chose it, not because you inherited it from a Stack Overflow answer written before the browser solved the problem.</p>
+
+    <div class="ornament">&middot; &middot; &middot;</div>
+
+    <div class="callout">
+      <div class="callout-label">Native APIs Used in This Article</div>
+      <p><span class="tag green">Intl.DateTimeFormat</span> <span class="tag green">Intl.RelativeTimeFormat</span> <span class="tag green">crypto.randomUUID()</span> <span class="tag green">structuredClone()</span> <span class="tag green">URLSearchParams</span> <span class="tag green">&lt;dialog&gt;</span> <span class="tag green">navigator.clipboard</span> <span class="tag green">Element.scrollIntoView()</span> <span class="tag green">IntersectionObserver</span></p>
+      <p style="margin-top:14px;">Every API listed above has 95%+ global browser support as of May 2026. Check <a href="https://caniuse.com" style="color: var(--accent);">caniuse.com</a> for your specific user base before migrating.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    Bundle size measurements were taken using webpack-bundle-analyzer on a production build with default optimisation settings. Gzipped sizes measured with gzip -6. The "58% reduction" figure represents the JavaScript bundle specifically, not total page weight including HTML, CSS, images, and fonts. Your results will vary based on which packages you use and how much of each package your code actually imports.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
