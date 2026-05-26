@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "hydration-is-the-most-expensive-lie-in-frontend",
+    title: "Hydration Is the Most Expensive Lie in Frontend",
+    description: "Hydration makes your browser rebuild the entire page a second time just to make it interactive. Here is what it actually costs, and how islands, resumability, and Server Components are quietly replacing it.",
+    contentPath: "/blog/hydration-is-the-most-expensive-lie-in-frontend_article.html",
+    publishedAt: "2026-05-26",
+    tags: ["Hydration", "React", "Performance", "Frontend Architecture", "Web Performance"],
+    readingTime: "~22 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "replaced-npm-with-browser-apis",
     title: "I Replaced 12 npm Packages With Browser APIs Nobody Uses. Here's What Happened.",
     description: "How I audited our production app's dependency tree, replaced a dozen packages with native browser APIs, and cut our bundle by 58%. A practical guide to the platform features hiding in plain sight.",
