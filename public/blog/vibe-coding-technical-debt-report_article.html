@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>12 Months of Vibe Coding in Production: The Technical Debt Report Nobody's Publishing</title>
+<meta name="description" content="We shipped more features in 12 months than in the previous three years combined. We also quietly built the most confusing codebase of my career. Here is the honest audit." />
+<meta property="og:title" content="12 Months of Vibe Coding in Production: The Technical Debt Report Nobody's Publishing" />
+<meta property="og:description" content="We shipped more features in 12 months than in the previous three years combined. We also quietly built the most confusing codebase of my career. Here is the honest audit." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=1200&h=630&fit=crop" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* -- MASTHEAD -- */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* -- HERO -- */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* -- COVER IMAGE -- */
+  .cover-image {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .cover-image img {
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-top: 40px;
+  }
+
+  /* -- LAYOUT -- */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* -- SECTIONS -- */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* -- PULL QUOTE -- */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* -- CALLOUT BOX -- */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* -- HIGHLIGHT BOX -- */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* -- CODE BLOCK -- */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+  .code-type { color: #4ec9b0; }
+
+  /* -- NUMBERED LIST -- */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* -- STAT STRIP -- */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* -- TAG -- */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* -- DIVIDER -- */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* -- FOOTNOTE -- */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* -- RESPONSIVE -- */
+  @media (max-width: 600px) {
+    .hero, .content-wrap, .cover-image { padding-left: 20px; padding-right: 20px; }
+    .cover-image img { height: 240px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Diaries &nbsp;·&nbsp; Production Engineering &nbsp;·&nbsp; AI-Assisted Development</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Field Report · AI-Assisted Engineering</div>
+  <h1>12 Months of Vibe Coding in Production: <em>The Technical Debt Report Nobody's Publishing</em></h1>
+  <p class="hero-sub">We shipped more features in 12 months than in the previous three years combined. We also quietly built the most confusing codebase of my career. Here is the honest audit that the LinkedIn influencers are not writing.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>June 2026</span>
+    <span class="byline-dot"></span>
+    <span>~18 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">AI</span>
+    <span class="tag">Technical Debt</span>
+    <span class="tag">Production Engineering</span>
+  </div>
+</div>
+
+<!-- COVER IMAGE -->
+<div class="cover-image">
+  <img src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=1200&h=600&fit=crop" alt="Code displayed on multiple monitors in a dark development environment" />
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- 01 -->
+  <section>
+    <div class="section-num">01 · Context</div>
+    <h2>The Year We Shipped Everything</h2>
+    <p>Sometime in mid-2025, our frontend team made a collective, somewhat unspoken decision: we were going to lean into AI-assisted development properly. Not dabbling with Copilot for autocomplete. Not using Claude to generate a boilerplate component here and there. We mean properly - Claude Code in the loop for architecture decisions, Cursor for everyday feature work, AI-generated tests as the first draft on every ticket, AI-assisted code review as a second pass before human eyes.</p>
+    <p>The results, measured by the metrics our engineering leadership cared about, were extraordinary. Feature velocity up roughly 3x. PR cycle time down from 4 days to under 18 hours. Ticket closure rate climbed every quarter. Two engineers who had been stuck maintaining a legacy payment integration finally shipped a complete rewrite in six weeks - something that had been estimated at six months just two years prior.</p>
+    <p>Nobody was complaining. The business was thrilled. The team was energised, genuinely so, because the boring scaffolding work - generating types from API schemas, writing repetitive test cases, translating Figma specs into styled components - had effectively been delegated. Engineers were spending more time on problems that actually required human judgement.</p>
+    <p>Then, around month eight, things started to feel strange. Not broken. Just strange. A pull request for what should have been a simple bug fix touched eleven files and introduced three new utility functions - two of which already existed elsewhere in the codebase under slightly different names. A senior engineer spent an afternoon trying to understand why the same API response was being normalised in four different places, all producing subtly different shapes. A new joiner told me, somewhat apologetically, that they had needed three days just to understand the data flow for a single feature.</p>
+    <p>The code was <em>syntactically</em> beautiful. Clean, typed, commented, tested. But reading it felt like reading a book where each chapter had been written by a different author who had only been given a one-paragraph summary of the previous chapter.</p>
+
+    <div class="pull-quote">
+      <p>"The code was syntactically beautiful. Reading it felt like a book where each chapter had been written by a different author who had only been given a one-paragraph summary of the previous chapter."</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="section-num">02 · The Structural Problem</div>
+    <h2>AI Writes Locally Coherent, Globally Incoherent Code</h2>
+    <p>This is the core issue, and it took me embarrassingly long to name it clearly: AI models optimise for the code that is immediately in front of them. They are extraordinarily good at making a function correct, readable, and well-typed in isolation. They are not good at knowing that a semantically identical function already exists three directories away, written by a different engineer three months ago using a slightly different naming convention.</p>
+    <p>The result is a specific kind of structural decay that I have started calling <strong>parallel invention</strong> - the codebase grows not through deliberate extension of existing abstractions, but through repeated independent creation of similar solutions. Nobody is writing <em>wrong</em> code. Every individual contribution is reasonable. The decay is emergent at the system level.</p>
+
+    <h3>What this actually looks like in a codebase</h3>
+    <p>In our codebase, we found three independent implementations of "format a date for display" logic. Not three files using a shared <code>formatDate</code> utility - three separate implementations, each slightly different in how they handled timezone offsets and null values. All three were AI-generated. All three were technically correct for the context in which they were created. None of them knew about each other.</p>
+
+    <div class="code-block">
+      <div class="code-label">Three "formatDate" implementations found in the same codebase - all AI-generated</div>
+      <pre><span class="code-cmt">// src/features/billing/utils/formatDate.ts</span>
+<span class="code-kw">export const</span> <span class="code-fn">formatDate</span> = (<span class="code-var">date</span>: <span class="code-type">Date</span> | <span class="code-type">string</span>) =>
+  <span class="code-kw">new</span> <span class="code-type">Intl</span>.<span class="code-fn">DateTimeFormat</span>(<span class="code-str">'en-IN'</span>, { dateStyle: <span class="code-str">'medium'</span> }).<span class="code-fn">format</span>(<span class="code-kw">new</span> <span class="code-type">Date</span>(<span class="code-var">date</span>));
+
+<span class="code-cmt">// src/features/dashboard/helpers/dates.ts</span>
+<span class="code-kw">export const</span> <span class="code-fn">toDisplayDate</span> = (<span class="code-var">isoString</span>: <span class="code-type">string</span> | <span class="code-type">null</span>): <span class="code-type">string</span> => {
+  <span class="code-kw">if</span> (!<span class="code-var">isoString</span>) <span class="code-kw">return</span> <span class="code-str">'--'</span>;
+  <span class="code-kw">return</span> <span class="code-kw">new</span> <span class="code-type">Date</span>(<span class="code-var">isoString</span>).<span class="code-fn">toLocaleDateString</span>(<span class="code-str">'en-IN'</span>, { day: <span class="code-str">'2-digit'</span>, month: <span class="code-str">'short'</span>, year: <span class="code-str">'numeric'</span> });
+};
+
+<span class="code-cmt">// src/components/shared/DateLabel/index.tsx (inline, not extracted)</span>
+<span class="code-kw">const</span> <span class="code-var">formattedDate</span> = <span class="code-type">useMemo</span>(
+  () => <span class="code-kw">new</span> <span class="code-type">Intl</span>.<span class="code-fn">DateTimeFormat</span>(<span class="code-str">'en-GB'</span>, { day: <span class="code-str">'numeric'</span>, month: <span class="code-str">'long'</span>, year: <span class="code-str">'numeric'</span> }).<span class="code-fn">format</span>(<span class="code-var">props</span>.<span class="code-var">date</span>),
+  [<span class="code-var">props</span>.<span class="code-var">date</span>]
+);</pre>
+    </div>
+
+    <p>Three implementations. Different locale strings. Different null handling. Different output formats. A product decision to standardise date display across the app now requires a search, an audit, a consolidation, and a regression test pass across three features. What would have been a two-line change in a well-maintained codebase becomes a half-day project.</p>
+    <p>This pattern repeated across data transformers, error formatters, loading state handlers, analytics event builders, and form validation logic. Not because the engineers were careless. Because every AI-assisted session starts with a fresh context window and no knowledge of what the project already contains.</p>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <div class="section-num">03 · The Test Problem</div>
+    <h2>Your AI-Generated Tests Are Testing the AI, Not Your Requirements</h2>
+    <p>This one is subtle and it took a production incident to make me see it clearly.</p>
+    <p>When you ask an AI to write tests for a function it just wrote, it will write tests that pass. This sounds obvious, even tautological. The issue is <em>what</em> those tests are actually verifying. In almost every case, AI-generated tests verify that the function behaves consistently with its own implementation - not that it behaves consistently with the business requirement that prompted the implementation.</p>
+    <p>Consider a function that calculates a discount. The requirement was: "apply a 15% discount for annual subscribers, capped at Rs. 2,000." The AI implements the function, then writes three tests: one that verifies 15% is applied, one that verifies the cap is respected, and one that verifies the function handles a null input. All three tests pass. All three tests are generated from the code, not from the requirement.</p>
+    <p>What the tests do not cover: what happens if the subscription type is missing entirely (not null - absent). What happens if the price is passed as a string instead of a number, because someone upstream changed the API response shape. What happens if the subscriber is annual but their subscription has lapsed - does the discount still apply? These are questions about the <em>domain</em>, and the AI does not know the domain. Only a human who attended the product meeting does.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Production Incident</div>
+      <p>We had 100% branch coverage on a pricing utility. The CI was green. Three weeks after shipping, a segment of annual subscribers started receiving incorrect invoice amounts - not consistently wrong, but intermittently wrong in ways that correlated with a recent currency formatting change in a completely different part of the codebase.</p>
+      <p>The pricing utility was calling a shared <code>formatCurrency</code> function and, in one branch, treating its output (a formatted string) as a number for arithmetic. This passed all tests because the test suite passed hardcoded numeric literals directly - the same format the original author had used when generating the tests. Nobody had tested the realistic input path where the value came from the formatter first.</p>
+      <p>Every test was technically correct. The test suite had a blind spot the size of a real user journey. AI-generated tests had 100% coverage of the implementation and 0% coverage of the integration.</p>
+    </div>
+
+    <p>The rule we eventually established: AI writes the test scaffolding. A human must write at least the happy-path test and at least one realistic failure-mode test from knowledge of the actual business logic. The AI's tests are treated as a starting point, not a deliverable.</p>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="section-num">04 · The Dependency Problem</div>
+    <h2>AI Reaches for a Package Before It Considers the Platform</h2>
+    <p>I have written about replacing npm packages with browser APIs before - specifically about how teams accumulate unnecessary dependencies because engineers default to package searches rather than MDN. AI assistants have, somewhat paradoxically, made this problem worse.</p>
+    <p>In our audit, we found that AI-generated code had introduced 23 new npm dependencies over 12 months. Seventeen of them were for functionality that the browser or Node.js runtime already provides natively - things like deep object equality checking, UUID generation, URL parameter parsing, and simple debounce utilities. The AI was reaching for packages not because the platform lacked the capability, but because packages appear more frequently in its training data than the equivalent native implementations.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">23</div>
+        <div class="stat-label">New Dependencies<br/>Added by AI</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">17</div>
+        <div class="stat-label">Replaceable With<br/>Native APIs</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">58kb</div>
+        <div class="stat-label">Bundle Saved<br/>After Audit</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Security Advisories<br/>From New Deps</div>
+      </div>
+    </div>
+
+    <p>The more concerning finding was not the bundle size. It was the security exposure. Four of the 23 new packages received security advisories within six months of being added. Two were for moderate-severity vulnerabilities. One was for a supply chain incident - a maintainer's npm account had been compromised and a malicious version was briefly published before being taken down. We happened to have version-pinned with a lockfile, so we were not affected, but the fact that three of those packages had a combined weekly download count of fewer than 80,000 - not enough for meaningful community scrutiny - should have been a red flag.</p>
+
+    <div class="highlight-box">
+      <strong>The Instruction That Helped Most</strong>
+      Adding a single line to our AI system prompt context file eliminated most of this: "Before reaching for an npm package, check whether the Fetch API, Web Crypto API, URL API, Intl API, or the native crypto module in Node.js already provides this functionality. Prefer native platform APIs for all utility operations."  The improvement was immediate and measurable.
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="section-num">05 · Context Amnesia</div>
+    <h2>The AI Doesn't Remember the Architectural Decisions You Made Last Sprint</h2>
+    <p>Every AI coding session starts with a blank slate. The model you opened at 9am does not remember the architecture decision your team made at last Monday's sync, the naming convention you agreed on in that long Slack thread three weeks ago, or the fact that you decided - with good reason - that all server state should go through React Query and no component should hold server data in local state.</p>
+    <p>This creates what I have been calling <strong>convention drift</strong>. Each individual session produces code that is internally consistent with whatever context was provided in that session. Across sessions, without deliberate effort to anchor the AI to the team's established patterns, the code drifts. Not randomly - it drifts toward whatever the model considers idiomatic based on its training data, which may be a year or more out of date relative to your current stack.</p>
+    <p>In our codebase, we ended up with React Query used correctly in 70% of the codebase and bypassed in 30% - not because engineers disagreed with the pattern, but because some AI sessions produced code that used direct <code>useEffect</code>-plus-<code>useState</code> for data fetching, and that code passed review because it worked, it was clean, and the reviewer did not always notice the convention violation in a large PR.</p>
+
+    <h3>The fix: a project context file the AI reads on every session</h3>
+    <p>The most effective single intervention we made was creating a <code>CLAUDE.md</code> file in the project root - a structured document listing the team's architectural conventions, the approved patterns for common tasks, the packages that are explicitly forbidden and their approved alternatives, and the current sprint's focus areas. Every AI session begins by reading this file. Convention drift dropped measurably within two sprints.</p>
+
+    <div class="code-block">
+      <div class="code-label">Example CLAUDE.md excerpt - architectural constraints for AI sessions</div>
+      <pre><span class="code-cmt"># Server State</span>
+<span class="code-kw">ALWAYS</span> use React Query (<span class="code-var">useQuery</span>, <span class="code-var">useMutation</span>) for any data that comes from the API.
+<span class="code-kw">NEVER</span> use <span class="code-var">useState</span> + <span class="code-var">useEffect</span> for data fetching. This pattern is banned.
+
+<span class="code-cmt"># Date Handling</span>
+<span class="code-kw">ALWAYS</span> import from <span class="code-str">'@/utils/date'</span> for date formatting. Do not inline Intl.DateTimeFormat calls.
+The locale is <span class="code-str">'en-IN'</span>. Do not use <span class="code-str">'en-GB'</span> or <span class="code-str">'en-US'</span>.
+
+<span class="code-cmt"># Forbidden Packages (use native alternative)</span>
+<span class="code-var">lodash</span>          -> Use native Array/Object methods
+<span class="code-var">uuid</span>            -> Use <span class="code-var">crypto.randomUUID</span>()
+<span class="code-var">qs</span>              -> Use <span class="code-var">URLSearchParams</span>
+<span class="code-var">axios</span>           -> Use our internal <span class="code-fn">apiFetch</span> wrapper in <span class="code-str">'@/lib/api'</span>
+
+<span class="code-cmt"># Error Handling</span>
+All API errors must be handled via the <span class="code-var">ErrorBoundary</span> in <span class="code-str">'@/components/ErrorBoundary'</span>.
+Do not try/catch API calls in components. Use React Query's <span class="code-var">onError</span> callbacks.</pre>
+    </div>
+
+    <p>It sounds almost embarrassingly simple. But the absence of this document was responsible for a significant fraction of the consistency problems we accumulated. The AI is as disciplined as the context you give it.</p>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="section-num">06 · The Review Blind Spot</div>
+    <h2>AI Review Plus AI Generation Equals a Sophisticated Echo Chamber</h2>
+    <p>Many teams - ours included for a period - use AI-assisted code review as a second pass after human review. The logic is sound: AI is good at catching security issues, missing edge cases, performance anti-patterns. It is a useful tool. The problem emerges when the code being reviewed was also AI-generated.</p>
+    <p>When an AI model reviews AI-generated code, it is, to a first approximation, reviewing code that was written in a similar style to code it has seen many times in its training data. It will confidently approve patterns it has learned are standard, even when those patterns are wrong for your specific context. It will not flag the new <code>formatDate</code> function as a duplicate of the existing one because it has no knowledge of what already exists in your codebase - unless you explicitly provide that context. It will not flag the direct <code>useEffect</code> data fetching because <code>useEffect</code>-plus-<code>fetch</code> is a pattern that appears thousands of times in its training data and is technically valid JavaScript.</p>
+
+    <div class="pull-quote">
+      <p>"AI code review is not better or worse than human review. It is complementary. The mistake is treating it as a substitute - using it to reduce the number of humans who read the code, rather than to augment what those humans catch."</p>
+    </div>
+
+    <p>We observed a specific failure mode we started calling the <strong>legitimacy laundering effect</strong>: a PR that had received an AI review stamp felt more rigorously checked than one that had only received a human review, even when the AI review had been perfunctory. Reviewers were psychologically inclined to spend less time on code that had already been "checked," even though the AI check was missing the very class of context-dependent errors that human reviewers are actually good at finding.</p>
+    <p>The fix was procedural rather than technical. We stopped treating AI review as a quality gate and started treating it as a pre-check that surfaces obvious issues before human review begins. Critically, we made a rule: the AI review output is never shown to the human reviewer before they have done their own pass. No anchoring. The AI's findings are revealed after, as a supplementary check. This is counterintuitive but it meaningfully preserved the independent critical thinking that human review actually provides.</p>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="section-num">07 · The Metrics</div>
+    <h2>What the Codebase Audit Actually Showed</h2>
+    <p>After month ten, I ran a structured audit of what had changed over the previous 12 months. Not a qualitative vibe check - a systematic crawl. Here is what we found:</p>
+
+    <ol class="styled">
+      <li><span><strong>Duplication rate had increased 4x.</strong> We measured this by running a code duplication analyser across the entire codebase, comparing snapshots from before and after the AI-first transition. The percentage of code that had at least one near-identical copy elsewhere in the codebase had gone from roughly 6% to 23%. Not copy-paste duplication - semantically identical logic written independently.</span></li>
+      <li><span><strong>Average file length had increased by 40%.</strong> AI-generated code tends to be more verbose than experienced human-written code, partly because it adds comments, type annotations, and safety checks even when not strictly necessary. This is not inherently bad, but it means more code to read and maintain.</span></li>
+      <li><span><strong>The dependency graph had become significantly more entangled.</strong> Measured by average module coupling score, the codebase was 35% more tightly coupled than 12 months prior. AI generates code that reaches for whatever is convenient, creating implicit dependencies between modules that share utilities without a clear ownership boundary.</span></li>
+      <li><span><strong>Test coverage was up, but test quality was down.</strong> Line coverage had increased from 64% to 81%. But when we ran a mutation testing pass - a technique that deliberately introduces small bugs and checks whether the tests catch them - the mutation score had actually dropped. More tests, catching fewer real errors. A coverage number that tells a flattering but misleading story.</span></li>
+      <li><span><strong>Time-to-understand for new joiners had increased.</strong> We tracked this informally by asking new engineers how long it took them to feel confident making changes to an unfamiliar module. The number had gone from "usually a day" to "usually two or three days." They consistently reported that the code was readable in isolation but hard to reason about as a system.</span></li>
+    </ol>
+
+    <div class="callout">
+      <div class="callout-label">The Nuance Worth Noting</div>
+      <p>None of these metrics mean that AI-assisted development made the codebase worse in absolute terms. The comparison is not "AI-assisted for 12 months" vs. "no AI-assistance for 12 months." It is "AI-assisted with insufficient guardrails" vs. "AI-assisted with deliberate structural discipline." The same tools in the same hands, with clearer conventions and review processes, would have produced a very different outcome.</p>
+      <p>The lesson is not "AI assistance creates technical debt." The lesson is "AI assistance creates the specific kind of technical debt that emerges when individual contributions are locally optimised but globally uncoordinated." That is a solvable problem, and it is one that senior engineers have been solving - imperfectly, but consistently - for as long as teams have been writing software together.</p>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="section-num">08 · The Intervention</div>
+    <h2>What We Did to Course-Correct</h2>
+    <p>The audit happened around month ten. We spent months eleven and twelve making changes. Here is what actually moved the needle, and what did not.</p>
+
+    <h3>What worked</h3>
+    <p><strong>The CLAUDE.md architectural context file</strong> was the single highest-leverage change. Once every AI session started with knowledge of the team's conventions, the convention drift rate dropped noticeably within two sprints. It requires ongoing maintenance - it is a living document, not a one-time setup - but the investment pays back quickly.</p>
+    <p><strong>Pre-commit duplication checks</strong> added a simple automated step to the PR pipeline: before opening a PR, a script runs a duplication analysis on the changed files and adds a comment listing any near-duplicate code found elsewhere in the codebase. Engineers are not blocked from merging, but they are made aware. This simple visibility step reduced the rate of new parallel inventions significantly because engineers would ask the AI to refactor toward the existing utility rather than merge a duplicate.</p>
+    <p><strong>Separating "what to build" from "how to build it"</strong> changed how we used AI in planning. We stopped letting AI make architectural suggestions in the same session that it was writing the implementation. Architectural questions - where does this belong, what abstraction should this use, which existing pattern should this follow - were addressed in a separate review step involving a human senior engineer before implementation began. This added maybe 30 minutes per feature but eliminated an entire category of structural problems.</p>
+
+    <h3>What did not work</h3>
+    <p>Asking AI to review its own code for convention compliance turned out to be largely ineffective. Without grounding in the actual state of the codebase, the model's suggestions were too generic. "Consider extracting this to a shared utility" is less useful than "this already exists at <code>@/utils/date.formatDate</code>."</p>
+    <p>Mandatory AI-generated test coverage thresholds actively backfired. When engineers knew they needed to hit a coverage number, they would prompt the AI to generate more tests until the number was satisfied. The tests were syntactically valid and coverage-maximising, but they were adding noise without adding signal. We removed the AI-generated test coverage threshold and replaced it with a mutation testing pass on critical business logic modules.</p>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <div class="section-num">09 · Practical Rules</div>
+    <h2>The Rules That Actually Worked, Without Slowing Us Down</h2>
+    <p>I want to be specific here, because the general principle - "be more disciplined with AI tools" - is easy to say and useless to act on. These are the specific, concrete rules we established, along with an honest assessment of the overhead each one adds.</p>
+
+    <ol class="styled">
+      <li><span><strong>Maintain a CLAUDE.md / agent context file in every major module directory.</strong> Not just the root - each major feature directory should have its own context file listing the conventions specific to that domain. Overhead: about 20 minutes per new module to set up, 5 minutes per sprint to maintain.</span></li>
+      <li><span><strong>Before implementing anything new, search the codebase first.</strong> Make "is there an existing utility for this?" the first message in every AI session, not an afterthought. Overhead: adds one exchange to each session. Saves refactoring time that runs into hours.</span></li>
+      <li><span><strong>Write the sad path tests yourself.</strong> Let AI generate the happy path and the obvious edge cases. But every feature must have at least one test written by a human that covers a failure mode the AI could not have inferred from the implementation - a realistic upstream data shape change, a race condition, a boundary case from the product spec. Overhead: 15-30 minutes per ticket. Catches the class of bug that causes production incidents.</span></li>
+      <li><span><strong>Ban AI from architectural decisions.</strong> Implementation: AI is excellent. Architecture: human judgement required. Where a module lives, what abstraction it uses, whether it should share state with another module - these are not questions to delegate. Overhead: zero, because these decisions should always have been made by a human.</span></li>
+      <li><span><strong>Run human code review before AI code review, not after.</strong> Preserve the independent critical thinking that human reviewers provide. AI review is a supplement, not a replacement. Overhead: no net change in review time; the AI review step is moved in the process, not added to it.</span></li>
+      <li><span><strong>Package additions require a brief justification in the PR description.</strong> One sentence: why this package, and why not the native alternative? This forces the engineer to have the conversation with themselves (or with the AI) before the package lands in the lockfile. Overhead: two minutes. Benefit: we eliminated all 17 unnecessary package additions that would have happened in the audit period.</span></li>
+    </ol>
+
+    <div class="highlight-box">
+      <strong>The Combined Overhead</strong>
+      Running all of these rules together, we estimated the per-feature overhead at roughly 45 minutes to one hour for a medium-sized ticket. In the same period, AI assistance was saving us an estimated four to six hours of implementation and boilerplate work per ticket. The discipline overhead is about 15% of the time saving. The productivity gain is real; it just requires deliberate investment to make it sustainable.
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="section-num">10 · The Verdict</div>
+    <h2>Who Should Vibe Code, and Under What Conditions</h2>
+    <p>After 12 months and one honest audit, here is where I actually stand on this.</p>
+    <p>AI-assisted development is genuinely transformative for teams that have strong architectural foundations and experienced engineers who can maintain structural discipline while delegating implementation to AI tools. For these teams, the productivity gains are real, durable, and - with the right guardrails - do not come at the cost of long-term codebase health. We are in that category, and we will not be going back.</p>
+    <p>It is significantly more problematic for teams where the senior engineers are the ones doing the most vibe coding, because those are the engineers who should be the architectural guardrails. If the person who would normally say "wait, we already have a utility for this" is instead prompting an AI to generate a new one, nobody is doing the cross-codebase coordination that every large frontend codebase depends on.</p>
+    <p>It is actively dangerous for early-stage codebases where the architecture has not been established yet. The most important months in a codebase's life are the first few, when the conventions, the abstractions, and the module boundaries are being set. Getting those wrong compounds in every subsequent commit. AI is extraordinarily fast at generating code in those months - which means it is extraordinarily fast at setting conventions in stone before anyone has had time to evaluate whether they were the right conventions.</p>
+
+    <div class="pull-quote">
+      <p>"AI is extraordinarily fast at generating code in a codebase's early months - which means it is extraordinarily fast at setting conventions in stone before anyone has had time to evaluate whether they were the right ones."</p>
+    </div>
+
+    <p>The engineers I most want to flag this to are the mid-level developers who are two or three years into their careers and who have, in the last 18 months, dramatically accelerated their output using AI tools. The acceleration is real. The risk is that they are building intuitions about software architecture from AI-generated code rather than from reading and reasoning about well-designed human-authored systems. AI writes locally coherent code. Systems thinking is not a local property.</p>
+    <p>None of this means stop using the tools. It means use them in a way that keeps the structural thinking where it belongs - in the engineer's head, not delegated to a context window. Ship faster. Build more. Automate the tedious parts aggressively. But read the codebase the way you expect a new joiner to read it, at least once a quarter. The technical debt that AI assistance quietly creates is not the kind that shows up on dashboards. It shows up in the faces of the engineers trying to make sense of it six months later.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">What We Use</div>
+      <p><span class="tag">Claude Code</span> <span class="tag">Cursor</span> <span class="tag">React Query</span> <span class="tag">TypeScript</span> <span class="tag">Vitest</span> <span class="tag">Stryker (Mutation Testing)</span></p>
+      <p style="margin-top:14px;">The CLAUDE.md convention file approach described in this article is something any team can adopt immediately. If your team is using AI-assisted development at scale and you have not yet formalised your architectural context for the AI, that is probably the highest-leverage thing you can do this week - not to restrict what the AI generates, but to make sure what it generates is consistent with what your team has already decided.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    All metrics, statistics, and code examples in this article are drawn from a real production frontend codebase. Specific technical details have been generalised to avoid identifying the product or organisation. The structural patterns described - parallel invention, test quality decay, convention drift, and the legitimacy laundering effect - have been observed independently in conversations with engineers at multiple organisations and are not specific to any single team or tool configuration.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>

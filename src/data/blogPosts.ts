@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "vibe-coding-technical-debt-report",
+    title: "12 Months of Vibe Coding in Production: The Technical Debt Report Nobody's Publishing",
+    description: "We shipped more features in 12 months than in the previous three years combined. We also quietly built the most confusing codebase of my career. Here is the honest audit.",
+    contentPath: "/blog/vibe-coding-technical-debt-report_article.html",
+    publishedAt: "2026-06-02",
+    tags: ["AI", "Technical Debt", "Production Engineering", "Frontend"],
+    readingTime: "~18 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "hydration-is-the-most-expensive-lie-in-frontend",
     title: "Hydration Is the Most Expensive Lie in Frontend",
     description: "Hydration makes your browser rebuild the entire page a second time just to make it interactive. Here is what it actually costs, and how islands, resumability, and Server Components are quietly replacing it.",
