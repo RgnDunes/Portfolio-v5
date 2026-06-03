@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "source-maps-security-vulnerability",
+    title: "Your Production Source Maps Are Leaking Your Entire Codebase to Anyone Who Knows Where to Look",
+    description: "Most frontend teams ship source maps to production without realising they're handing anyone a complete, readable copy of their application code. Here's what's actually inside them, how they get exploited, and what to do about it today.",
+    contentPath: "/blog/source-maps-security-vulnerability_article.html",
+    publishedAt: "2026-06-03",
+    tags: ["Security", "Build Systems", "Frontend Infrastructure", "webpack", "Vite"],
+    readingTime: "~14 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "vibe-coding-technical-debt-report",
     title: "12 Months of Vibe Coding in Production: The Technical Debt Report Nobody's Publishing",
     description: "We shipped more features in 12 months than in the previous three years combined. We also quietly built the most confusing codebase of my career. Here is the honest audit.",
