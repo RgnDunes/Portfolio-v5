@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "react-useeffect-memory-leaks",
+    title: "I Audited 40 React Codebases. Every Single One Had a useEffect Memory Leak.",
+    description: "After reviewing over 40 production React codebases, the pattern is impossible to ignore: useEffect-related memory leaks are everywhere. Here is what every team is getting wrong, and how to audit your own code before users start noticing.",
+    contentPath: "/blog/react-useeffect-memory-leaks_article.html",
+    publishedAt: "2026-06-08",
+    tags: ["React", "Memory Leaks", "Performance", "JavaScript", "Frontend Engineering"],
+    readingTime: "~16 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "source-maps-security-vulnerability",
     title: "Your Production Source Maps Are Leaking Your Entire Codebase to Anyone Who Knows Where to Look",
     description: "Most frontend teams ship source maps to production without realising they're handing anyone a complete, readable copy of their application code. Here's what's actually inside them, how they get exploited, and what to do about it today.",
