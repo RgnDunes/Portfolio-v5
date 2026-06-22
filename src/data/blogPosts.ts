@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "tree-shaking-is-a-lie",
+    title: "Tree Shaking Is a Lie: Why Your Bundle Still Ships Dead Code",
+    description: "The frontend community sold you on tree shaking as the silver bullet for bundle size. But your production bundles are still bloated with unused code. Here's why the promise was always incomplete - and what actually works.",
+    contentPath: "/blog/tree-shaking-is-a-lie_article.html",
+    publishedAt: "2026-06-23",
+    tags: ["Build Systems", "Performance", "Webpack", "Rollup", "Vite", "esbuild"],
+    readingTime: "~12 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "react-useeffect-memory-leaks",
     title: "I Audited 40 React Codebases. Every Single One Had a useEffect Memory Leak.",
     description: "After reviewing over 40 production React codebases, the pattern is impossible to ignore: useEffect-related memory leaks are everywhere. Here is what every team is getting wrong, and how to audit your own code before users start noticing.",

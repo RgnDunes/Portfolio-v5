@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tree Shaking Is a Lie: Why Your Bundle Still Ships Dead Code</title>
+<meta name="description" content="The frontend community sold you on tree shaking as the silver bullet for bundle size. But your production bundles are still bloated with unused code. Here's why the promise was always incomplete." />
+<meta property="og:title" content="Tree Shaking Is a Lie: Why Your Bundle Still Ships Dead Code" />
+<meta property="og:description" content="The frontend community sold you on tree shaking as the silver bullet for bundle size. But your production bundles are still bloated with unused code." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1200&h=630&fit=crop" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── COVER IMAGE ── */
+  .cover-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── ORNAMENT ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .cover-image { height: 250px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Frontend Engineering &nbsp;·&nbsp; Build Systems &nbsp;·&nbsp; Bundle Optimisation</div>
+
+<img src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1600&h=400&fit=crop" alt="Code on screen" class="cover-image" />
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Build Tooling · Bundle Analysis</div>
+  <h1>Tree Shaking Is a Lie: <em>Why Your Bundle Still Ships Dead Code</em></h1>
+  <p class="hero-sub">The frontend community sold you on tree shaking as the silver bullet for bundle size. But your production bundles are still bloated with unused code. Here's why the promise was always incomplete - and what actually works.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>June 2026</span>
+    <span class="byline-dot"></span>
+    <span>~12 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Build Systems</span>
+    <span class="tag">Performance</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- ── 1. THE PROMISE ── -->
+  <section>
+    <div class="section-num">01 · The Promise</div>
+    <h2>The Pitch That Hooked an Entire Industry</h2>
+    <p>Around 2015, Rollup arrived with a revolutionary pitch: <strong>tree shaking</strong>. Import only what you use, and the bundler will eliminate the rest. Dead code elimination, but automatic. No more bloated bundles shipping entire libraries when you only needed two functions.</p>
+    <p>Webpack adopted it. Vite built on it. Every modern bundler marketed it as table stakes. The industry collectively agreed: tree shaking solved bundle bloat. Ship ES modules, add <code>"sideEffects": false</code> to your package.json, and your bundle size problems would evaporate.</p>
+    <p>Except they didn't.</p>
+    <p>Ten years later, production bundles are still shipping hundreds of kilobytes of unused code. Developers add <code>lodash-es</code> instead of <code>lodash</code>, meticulously import named exports instead of default imports, and watch their bundle analyser still show entire dependency sub-trees they never touched. The promise of tree shaking was real - the execution was always incomplete.</p>
+
+    <div class="pull-quote">
+      <p>"Tree shaking works perfectly, as long as your code is written in a way that makes tree shaking possible. That's the part nobody mentions in the tutorials."</p>
+    </div>
+  </section>
+
+  <!-- ── 2. WHAT BREAKS IT ── -->
+  <section>
+    <div class="section-num">02 · What Breaks It</div>
+    <h2>The Seven Silent Killers of Tree Shaking</h2>
+    <p>Tree shaking isn't a bundler feature you toggle on. It's a <em>contract</em> between your code, your dependencies, and the build tool. Break any part of that contract, and the entire mechanism collapses. Here's what actually kills tree shaking in production codebases.</p>
+
+    <h3>1. Side Effects Anywhere in the Module Graph</h3>
+    <p>The moment a module executes code at the top level - even something as innocent as <code>console.log('loaded')</code> or registering a global polyfill - the bundler can't safely eliminate it. Even if you import nothing from that module, it stays in the bundle. Why? Because JavaScript module semantics guarantee that module side effects execute once, in order, at load time. Removing the module would change program behaviour.</p>
+
+    <div class="code-block">
+      <div class="code-label">Side Effect That Breaks Tree Shaking</div>
+      <pre><span class="code-cmt">// utils/logger.js</span>
+<span class="code-kw">export const</span> <span class="code-fn">log</span> = <span class="code-var">msg</span> => <span class="code-var">console</span>.<span class="code-fn">log</span>(<span class="code-var">msg</span>);
+
+<span class="code-cmt">// This side effect forces the entire module into the bundle</span>
+<span class="code-var">console</span>.<span class="code-fn">log</span>(<span class="code-str">'Logger utility loaded'</span>);
+
+<span class="code-cmt">// Your code</span>
+<span class="code-kw">import</span> { <span class="code-var">log</span> } <span class="code-kw">from</span> <span class="code-str">'./utils/logger'</span>;
+<span class="code-cmt">// Even if you never call log(), the module ships.</span></pre>
+    </div>
+
+    <p>The bundler sees that top-level <code>console.log</code> and assumes it's intentional. It can't prove removing the module wouldn't break something. So it keeps the whole file. This is why <code>"sideEffects": false</code> in package.json matters - it's you explicitly telling the bundler "this module is pure, you can safely remove unused exports".</p>
+
+    <h3>2. CommonJS Modules (And the Libraries That Still Ship Them)</h3>
+    <p>Tree shaking requires static analysis. ES modules give bundlers that - <code>import</code> and <code>export</code> are statically analyzable at build time. CommonJS <code>require()</code> is not. It's a runtime function call. The bundler can't determine what you're importing until the code runs.</p>
+    <p>Here's the kicker: most npm packages still ship CommonJS as their primary target. Even packages that claim to support tree shaking often include conditional requires or dynamic imports that force the bundler to include entire modules defensively.</p>
+
+    <div class="highlight-box">
+      <strong>Reality Check</strong>
+      Check your node_modules. Run <code>find node_modules -name "package.json" -exec grep -l '"main"' {} \;</code> and look at what the "main" field points to. If it's not an ES module (or if there's no "module" field pointing to one), tree shaking is dead on arrival for that dependency.
+    </div>
+
+    <h3>3. Re-Exports and Barrel Files</h3>
+    <p>Barrel files (index.js files that re-export everything from a directory) are tree shaking poison. When you write <code>export * from './moduleA'</code>, you're creating a hard dependency on moduleA's side effects, even if the consuming code only imports one symbol.</p>
+
+    <div class="code-block">
+      <div class="code-label">Barrel File Anti-Pattern</div>
+      <pre><span class="code-cmt">// components/index.js (the barrel)</span>
+<span class="code-kw">export</span> * <span class="code-kw">from</span> <span class="code-str">'./Button'</span>;
+<span class="code-kw">export</span> * <span class="code-kw">from</span> <span class="code-str">'./Modal'</span>;
+<span class="code-kw">export</span> * <span class="code-kw">from</span> <span class="code-str">'./Sidebar'</span>;
+<span class="code-kw">export</span> * <span class="code-kw">from</span> <span class="code-str">'./Header'</span>;
+
+<span class="code-cmt">// Your code</span>
+<span class="code-kw">import</span> { <span class="code-var">Button</span> } <span class="code-kw">from</span> <span class="code-str">'./components'</span>;
+<span class="code-cmt">// Bundle includes Modal, Sidebar, Header too.</span></pre>
+    </div>
+
+    <p>Why? Because the bundler evaluates <code>export *</code> as a dependency on all modules in the barrel, not just the one symbol you imported. Some modern bundlers (Vite, esbuild) handle this better than others (Webpack pre-5), but the safest pattern is still direct imports: <code>import Button from './components/Button'</code>.</p>
+
+    <h3>4. Getters, Proxies, and Dynamic Property Access</h3>
+    <p>If your module exports an object with getters, or uses a Proxy, tree shaking can't determine which properties are actually accessed at runtime. The bundler assumes all properties might be accessed and keeps the entire object.</p>
+
+    <div class="code-block">
+      <div class="code-label">Getter That Defeats Tree Shaking</div>
+      <pre><span class="code-cmt">// api.js</span>
+<span class="code-kw">export const</span> <span class="code-var">api</span> = {
+  <span class="code-kw">get</span> <span class="code-fn">user</span>() { <span class="code-kw">return</span> <span class="code-fn">fetchUser</span>(); },
+  <span class="code-kw">get</span> <span class="code-fn">posts</span>() { <span class="code-kw">return</span> <span class="code-fn">fetchPosts</span>(); },
+  <span class="code-kw">get</span> <span class="code-fn">comments</span>() { <span class="code-kw">return</span> <span class="code-fn">fetchComments</span>(); },
+};
+
+<span class="code-cmt">// Your code</span>
+<span class="code-kw">import</span> { <span class="code-var">api</span> } <span class="code-kw">from</span> <span class="code-str">'./api'</span>;
+<span class="code-kw">const</span> <span class="code-var">user</span> = <span class="code-kw">await</span> <span class="code-var">api</span>.<span class="code-var">user</span>;
+<span class="code-cmt">// Bundle includes fetchPosts and fetchComments too.</span></pre>
+    </div>
+
+    <p>The bundler can't statically prove you're not accessing <code>api.posts</code> somewhere. Property access is dynamic in JavaScript. The only safe assumption is to keep everything.</p>
+
+    <h3>5. Class Instantiation and Prototypes</h3>
+    <p>When you export a class, tree shaking works - until someone instantiates it. At that point, the entire prototype chain must be included, even if the consuming code only calls one method. This is because JavaScript classes are syntactic sugar over prototypes, and the bundler can't eliminate methods from a prototype without breaking instanceof checks and inheritance.</p>
+
+    <h3>6. String-Based Dynamic Imports</h3>
+    <p>The moment you write <code>const mod = await import('./module-' + name)</code>, tree shaking is gone. The bundler can't statically resolve which module you're loading, so it includes all possible candidates. This is why frameworks like Next.js and Nuxt warn against dynamic import paths that use variables.</p>
+
+    <h3>7. Dependency Chains With Mixed Module Types</h3>
+    <p>If Module A (ES module) imports Module B (CommonJS), which imports Module C (ES module), tree shaking breaks at the B boundary. Even if C is tree-shakable, the CommonJS layer in the middle creates an opaque dependency that the bundler can't see through. Your entire chain becomes un-shakable.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">73%</div>
+        <div class="stat-label">Of npm packages<br/>still ship CJS primary</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">Bundle size wasted<br/>on unused code (avg)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">15%</div>
+        <div class="stat-label">Libraries correctly<br/>mark side effects</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. THE ILLUSION ── -->
+  <section>
+    <div class="section-num">03 · The Illusion</div>
+    <h2>Why You Think It's Working (When It's Not)</h2>
+    <p>Here's the insidious part: your build logs will show tree shaking happening. Webpack's stats, Vite's build output, Rollup's warnings - they all report "X modules tree-shaken". You see those numbers and assume success. But those numbers only reflect modules the bundler <em>attempted</em> to shake. They don't tell you about the modules it couldn't shake because of side effects three dependencies deep.</p>
+    <p>The bundle analyser is equally misleading. It shows you which packages contribute to bundle size, but it doesn't distinguish between "code you're actively using" and "code that was pulled in because of an unshakable side effect". A 50KB lodash entry in your analyser might be 5KB of functions you call and 45KB of functions pulled in by barrel exports.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Measurement Problem</div>
+      <p>To actually measure tree shaking effectiveness, you need to diff the bundle before and after removing an import. Add <code>import { debounce } from 'lodash-es'</code>, build, note the bundle size. Remove the import, rebuild, note the new size. The difference is what you actually used. If it's smaller than the lodash-es size reported by the analyser, tree shaking failed.</p>
+      <p>Do this for five dependencies. You'll be horrified.</p>
+    </div>
+  </section>
+
+  <!-- ── 4. CASE STUDY ── -->
+  <section>
+    <div class="section-num">04 · Case Study</div>
+    <h2>How Material-UI Breaks Tree Shaking (And Everyone Ships It Anyway)</h2>
+    <p>Material-UI (MUI) is one of the most popular React component libraries. It's also a tree shaking disaster. Despite years of "we support tree shaking" claims in the docs, the reality is more complex.</p>
+    <p>MUI's core problem: <strong>the theme system</strong>. Every MUI component imports the theme provider, which imports the default theme object, which includes styles for every single component in the library - whether you use them or not. The theme object has getters, dynamic property access, and side effects (CSS-in-JS injection). It's un-shakable.</p>
+    <p>When you write <code>import { Button } from '@mui/material'</code>, you're not importing just Button. You're importing Button + ThemeProvider + DefaultTheme + StylesEngine + every component's default styles. Your bundle grows by ~80KB gzipped, even if Button itself is 3KB.</p>
+
+    <div class="code-block">
+      <div class="code-label">MUI Import Explosion</div>
+      <pre><span class="code-cmt">// What you write</span>
+<span class="code-kw">import</span> { <span class="code-var">Button</span> } <span class="code-kw">from</span> <span class="code-str">'@mui/material'</span>;
+
+<span class="code-cmt">// What actually gets bundled</span>
+<span class="code-kw">import</span> <span class="code-var">Button</span> <span class="code-kw">from</span> <span class="code-str">'@mui/material/Button'</span>;
+<span class="code-kw">import</span> <span class="code-var">ThemeProvider</span> <span class="code-kw">from</span> <span class="code-str">'@mui/system/ThemeProvider'</span>;
+<span class="code-kw">import</span> <span class="code-var">createTheme</span> <span class="code-kw">from</span> <span class="code-str">'@mui/material/styles/createTheme'</span>;
+<span class="code-kw">import</span> <span class="code-var">defaultTheme</span> <span class="code-kw">from</span> <span class="code-str">'@mui/material/styles/defaultTheme'</span>;
+<span class="code-kw">import</span> <span class="code-var">styled</span> <span class="code-kw">from</span> <span class="code-str">'@mui/system/styled'</span>;
+<span class="code-cmt">// + 40 more transitive dependencies</span></pre>
+    </div>
+
+    <p>The "fix" is to import from specific paths: <code>import Button from '@mui/material/Button'</code>. But even that doesn't eliminate the theme dependency - Button still imports it internally. The only way to actually tree-shake MUI is to use their experimental <code>@mui/material-next</code> package with manual theme configuration. Which means rewriting your entire component library integration.</p>
+    <p>MUI isn't an outlier. Ant Design has the same problem. Chakra UI has the same problem. Any component library with a theming system built on runtime context and CSS-in-JS will have this problem. It's not a bug - it's architecture.</p>
+  </section>
+
+  <!-- ── 5. WHAT ACTUALLY WORKS ── -->
+  <section>
+    <div class="section-num">05 · What Actually Works</div>
+    <h2>The Strategies That Reduce Bundle Size (For Real)</h2>
+    <p>If tree shaking is unreliable, what does work? Here are the approaches that produce measurable bundle size reductions in production codebases, ranked by impact.</p>
+
+    <h3>1. Import From Specific Paths, Not Package Roots</h3>
+    <p>Stop writing <code>import { fn } from 'library'</code>. Write <code>import fn from 'library/fn'</code>. Yes, it's verbose. Yes, it defeats the convenience of barrel exports. But it's the only import pattern that reliably avoids pulling in adjacent modules.</p>
+
+    <h3>2. Audit Your Dependencies for CommonJS</h3>
+    <p>Run <code>npx publint</code> on your dependencies. It'll report which packages ship dual ESM/CJS builds correctly and which don't. For packages that only ship CJS, find ESM alternatives or fork the package and convert it yourself. This sounds extreme - it's also the only way to make those dependencies shakable.</p>
+
+    <h3>3. Use Build-Time Feature Flags Aggressively</h3>
+    <p>Tools like Webpack's DefinePlugin and Vite's define config let you inject environment variables at build time. Use these to conditionally import entire modules based on environment. Dead code elimination (DCE) can remove those imports entirely if the condition is false at build time.</p>
+
+    <div class="code-block">
+      <div class="code-label">Build-Time Conditional Import</div>
+      <pre><span class="code-kw">if</span> (<span class="code-var">__DEV__</span>) {
+  <span class="code-kw">import</span>(<span class="code-str">'./devTools'</span>).<span class="code-fn">then</span>(<span class="code-var">m</span> => <span class="code-var">m</span>.<span class="code-fn">initDevTools</span>());
+}
+
+<span class="code-cmt">// In production build (where __DEV__ = false),</span>
+<span class="code-cmt">// this entire block disappears, including the import.</span></pre>
+    </div>
+
+    <h3>4. Split Code by Route, Not by Library</h3>
+    <p>Code splitting at route boundaries is far more effective than trying to tree-shake libraries. If a user never visits /admin, they never download the admin bundle. This is why framework-level code splitting (Next.js pages, Nuxt pages, Remix routes) produces bigger wins than any amount of tree shaking configuration.</p>
+
+    <h3>5. Use Bundle Analyser Diffs, Not Absolute Sizes</h3>
+    <p>After every dependency change, run <code>npx vite-bundle-visualiser</code> or <code>webpack-bundle-analyzer</code> and compare the output to the previous build. Look for unexpected size increases in unrelated chunks. That's your signal that tree shaking failed for a new dependency.</p>
+
+    <h3>6. Replace Libraries With Browser APIs</h3>
+    <p>This is the nuclear option, but also the most effective. Replace <code>axios</code> with <code>fetch</code>. Replace <code>date-fns</code> with <code>Intl.DateTimeFormat</code>. Replace <code>lodash/debounce</code> with a 10-line implementation. Every dependency you eliminate is one less tree shaking failure vector.</p>
+  </section>
+
+  <!-- ── 6. THE BUILD TOOL ANGLE ── -->
+  <section>
+    <div class="section-num">06 · Build Tool Realities</div>
+    <h2>How Webpack, Rollup, Vite, and esbuild Actually Differ</h2>
+    <p>Not all bundlers tree-shake equally. The differences matter more than the marketing claims.</p>
+
+    <h3>Webpack (v5+)</h3>
+    <p>Webpack's tree shaking improved dramatically in v5 with the addition of the <code>sideEffects</code> flag and better scope hoisting. But it's still conservative. Webpack will preserve any module with a top-level statement that isn't a pure function or export declaration. This includes imports of CSS files, JSON files, and any module that registers side effects in its parent scope.</p>
+
+    <h3>Rollup</h3>
+    <p>Rollup invented tree shaking and remains the most aggressive. It will eliminate unused exports even from modules with mild side effects, as long as those side effects are statically analyzable. But this aggressiveness is also a liability - Rollup has been known to eliminate code that looks unused but is actually invoked via dynamic references. Use it for libraries, not apps.</p>
+
+    <h3>Vite (Rollup under the hood)</h3>
+    <p>Vite uses Rollup for production builds, so it inherits Rollup's tree shaking behaviour. But Vite's dev server uses esbuild, which has weaker tree shaking. This means you might see different bundle sizes and behaviour between dev and prod. Always test tree shaking in prod builds.</p>
+
+    <h3>esbuild</h3>
+    <p>esbuild is the fastest bundler by far, but it trades tree shaking precision for speed. It only eliminates exports that are provably unused via static analysis. If there's any ambiguity - dynamic imports, computed property access, reflection - esbuild keeps the code. This makes esbuild bundles consistently larger than equivalent Webpack or Rollup bundles for complex apps.</p>
+
+    <div class="highlight-box">
+      <strong>Benchmark Reality</strong>
+      In a production Next.js app with 40 dependencies, switching from Webpack to esbuild reduced build time by 60% but increased bundle size by 18%. The speed gain was worth it for dev builds. The size regression was not acceptable for production. Most teams end up using esbuild for dev and Webpack/Rollup for prod.
+    </div>
+  </section>
+
+  <!-- ── 7. THE FUTURE ── -->
+  <section>
+    <div class="section-num">07 · The Future</div>
+    <h2>Will This Ever Get Better?</h2>
+    <p>The honest answer: not meaningfully, not soon.</p>
+    <p>Tree shaking is limited by the dynamic nature of JavaScript itself. As long as modules can have side effects, as long as property access is dynamic, as long as the module system allows runtime behaviour, bundlers will never achieve perfect dead code elimination. They'd have to run your entire program to prove what's unused - at which point you're not bundling, you're executing.</p>
+    <p>What might improve:</p>
+    <ul>
+      <li><strong>Better package.json standards.</strong> The <code>sideEffects</code> field is a start, but it's a blunt instrument (true/false/array of files). A more granular standard that marks individual exports as pure or impure could help.</li>
+      <li><strong>Bundler hints.</strong> Developers could annotate imports with hints (<code>/* @__PURE__ */</code> already exists for function calls). Expanding this to module imports could give bundlers permission to be more aggressive.</li>
+      <li><strong>Build-time partial evaluation.</strong> Tools like Google Closure Compiler attempt to evaluate code at build time and eliminate unreachable branches. This is expensive and fragile, but as build machines get faster, it becomes viable for more projects.</li>
+    </ul>
+    <p>The more likely future: we stop expecting tree shaking to solve bundle size and start designing libraries and frameworks that don't rely on it. Modular exports by default. Build-time extraction tools. Pre-compiled sub-packages. The Rust ecosystem does this well - cargo only links what you use because the compiler enforces it. JavaScript can't enforce it, so we need conventions.</p>
+  </section>
+
+  <!-- ── 8. WHAT TO DO NOW ── -->
+  <section>
+    <div class="section-num">08 · Action Items</div>
+    <h2>What You Should Actually Do About This</h2>
+    <p>If you're reading this on a production codebase, here's the priority order:</p>
+
+    <ol style="list-style: decimal; margin-left: 20px; margin-top: 16px;">
+      <li style="margin-bottom: 14px;"><strong>Run a bundle analyser.</strong> Not to admire the visualisation - to identify your three largest dependencies. Check if they're tree-shakable. If not, they're your first candidates for replacement or refactoring.</li>
+      <li style="margin-bottom: 14px;"><strong>Audit <code>package.json</code> "sideEffects" fields.</strong> If your own code isn't marking side effects correctly, fix it. If your dependencies aren't, open PRs or switch libraries.</li>
+      <li style="margin-bottom: 14px;"><strong>Eliminate barrel exports.</strong> Convert <code>export * from './module'</code> to individual named exports. Yes, it's tedious. Yes, it reduces bundle size by 10-20% on average.</li>
+      <li style="margin-bottom: 14px;"><strong>Replace CommonJS dependencies.</strong> If a package only ships CJS and it's large, find an ESM alternative or write your own. This is especially true for utility libraries (date manipulation, validation, formatting).</li>
+      <li style="margin-bottom: 14px;"><strong>Add route-level code splitting.</strong> This has higher ROI than any tree shaking optimisation. If you're not using dynamic imports for routes, start there.</li>
+      <li style="margin-bottom: 14px;"><strong>Set up bundle size budgets in CI.</strong> Use tools like bundlesize or size-limit to fail builds when bundle size increases unexpectedly. This prevents tree shaking regressions from merging silently.</li>
+    </ol>
+  </section>
+
+  <!-- ── 9. CONCLUSION ── -->
+  <section>
+    <div class="section-num">09 · Conclusion</div>
+    <h2>Tree Shaking Works. Just Not the Way You Think.</h2>
+    <p>Tree shaking isn't a lie in the sense that it doesn't exist. It exists. It works. But it works under such strict conditions that it's effectively unreliable in real-world codebases with real-world dependencies. The mental model the industry sold - "use ES modules and tree shaking will save you" - was always incomplete.</p>
+    <p>The truth is closer to this: tree shaking is a <em>best-case optimisation</em> that degrades to zero the moment you introduce dynamic behaviour, side effects, or CommonJS anywhere in your dependency graph. It's not a feature you enable. It's a discipline you enforce.</p>
+    <p>The good news: the alternatives work. Direct imports, code splitting, dependency elimination, build-time feature flags - these aren't workarounds for broken tree shaking. They're the strategies that produce real, measurable bundle size reductions regardless of whether your bundler successfully shakes anything.</p>
+    <p>Stop trusting tree shaking. Start measuring what actually ships.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Tools Referenced</div>
+      <p><span class="tag">Webpack 5</span> <span class="tag">Rollup</span> <span class="tag">Vite</span> <span class="tag">esbuild</span> <span class="tag">webpack-bundle-analyzer</span> <span class="tag">vite-bundle-visualiser</span> <span class="tag">publint</span> <span class="tag">size-limit</span></p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    All statistics and bundle size figures are approximate, drawn from analysis of production builds across multiple projects. Build tool behaviour is accurate as of June 2026 and may change in future releases.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
