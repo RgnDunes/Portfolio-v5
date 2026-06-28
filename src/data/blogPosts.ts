@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "prompting-vs-looping-in-ai",
+    title: "Prompting vs Looping: Why Most Engineers Are Burning Through AI Credits Wrong",
+    description: "The difference between prompting and looping in AI models like Claude isn't about cost - it's about control. Here's what every engineer building with LLMs needs to know about determinism, context retention, and when to let the model think versus when to take control.",
+    contentPath: "/blog/prompting-vs-looping-in-ai_article.html",
+    publishedAt: "2026-06-28",
+    tags: ["AI Engineering", "LLM", "Architecture", "Production Patterns"],
+    readingTime: "~10 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "tree-shaking-is-a-lie",
     title: "Tree Shaking Is a Lie: Why Your Bundle Still Ships Dead Code",
     description: "The frontend community sold you on tree shaking as the silver bullet for bundle size. But your production bundles are still bloated with unused code. Here's why the promise was always incomplete - and what actually works.",

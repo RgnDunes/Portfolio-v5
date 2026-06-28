@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prompting vs Looping: Why Most Engineers Are Burning Through AI Credits Wrong</title>
+<meta property="og:title" content="Prompting vs Looping: Why Most Engineers Are Burning Through AI Credits Wrong" />
+<meta property="og:description" content="The difference between prompting and looping in AI models like Claude isn't about cost - it's about control. Here's what every engineer building with LLMs needs to know about determinism, context retention, and when to let the model think versus when to take control." />
+<meta property="og:type" content="article" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-cover {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 40px;
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .hero-cover { height: 250px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">AI Engineering · LLM Architecture · Production Patterns</div>
+
+<!-- HERO -->
+<div class="hero">
+  <img src="https://images.unsplash.com/photo-1555255707-c07966088b7b?w=1200&h=400&fit=crop" alt="AI Circuit Board" class="hero-cover" />
+  <div class="hero-label">AI Engineering · LLM Patterns</div>
+  <h1>Prompting vs Looping: Why Most Engineers Are <em>Burning Through AI Credits Wrong</em></h1>
+  <p class="hero-sub">The difference between prompting and looping in AI models like Claude isn't about cost - it's about control. Here's what every engineer building with LLMs needs to know about determinism, context retention, and when to let the model think versus when to take control.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>June 2026</span>
+    <span class="byline-dot"></span>
+    <span>~10 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">AI Engineering</span>
+    <span class="tag">LLM</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- ── 1. THE PROBLEM ── -->
+  <section>
+    <div class="section-num">01 · The Problem</div>
+    <h2>The Pattern Nobody's Talking About</h2>
+    <p>I've reviewed over 40 production LLM integrations in the past six months - everything from customer support bots to code generation tools - and nearly every single one makes the same architectural mistake. They treat the language model like a black box oracle: send a prompt, get a response, hope for the best. When the output isn't quite right, they add more instructions to the prompt. When it's still not right, they add examples. When it's <em>still</em> not right, they switch to a more expensive model.</p>
+    <p>This is prompting. It's simple, it's intuitive, and for complex tasks, it's almost always the wrong approach.</p>
+    <p>The alternative is looping - decomposing the task into discrete steps, validating outputs, maintaining state across multiple model calls, and using your application code to enforce structure that the model alone cannot guarantee. It's more engineering effort upfront, but it's also the difference between a demo that works 70% of the time and a production system that works 99% of the time.</p>
+    <p>The industry conversation around LLMs is obsessed with prompt engineering - how to phrase instructions, how to structure few-shot examples, how to cajole better reasoning out of the model. But the real leverage isn't in better prompts. It's in better architecture.</p>
+
+    <div class="pull-quote">
+      <p>"A single prompt is a question. A loop is a conversation. The moment you need reliability over a complex task, you stop asking questions and start having conversations."</p>
+    </div>
+  </section>
+
+  <!-- ── 2. WHAT IS PROMPTING ── -->
+  <section>
+    <div class="section-num">02 · Prompting Explained</div>
+    <h2>Prompting: When One Call Does Everything</h2>
+    <p>Prompting is the default pattern. You construct a single request containing the full task description, any relevant context, examples if needed, and send it to the model. The model processes everything in one inference pass and returns a response. Done.</p>
+    <p>This works beautifully for tasks that are naturally atomic: summarising text, generating a short-form response, classifying sentiment, translating a sentence. The input is bounded, the output format is simple, and there's no state to maintain across calls.</p>
+
+    <div class="code-block">
+      <div class="code-label">Prompting Pattern · Single API Call</div>
+      <pre><span class="code-kw">const</span> <span class="code-var">response</span> = <span class="code-kw">await</span> <span class="code-var">anthropic</span>.<span class="code-fn">messages</span>.<span class="code-fn">create</span>({
+  <span class="code-var">model</span>: <span class="code-str">"claude-sonnet-4"</span>,
+  <span class="code-var">max_tokens</span>: <span class="code-num">1024</span>,
+  <span class="code-var">messages</span>: [{
+    <span class="code-var">role</span>: <span class="code-str">"user"</span>,
+    <span class="code-var">content</span>: <span class="code-str">"Summarise this article in 3 bullet points: ..."</span>
+  }]
+});
+
+<span class="code-kw">const</span> <span class="code-var">summary</span> = <span class="code-var">response</span>.<span class="code-var">content</span>[<span class="code-num">0</span>].<span class="code-var">text</span>;
+<span class="code-cmt">// Done. No validation, no retry, no state.</span></pre>
+    </div>
+
+    <p>The appeal is obvious: minimal code, low latency (one round trip), and straightforward debugging. If it doesn't work, you tweak the prompt and try again. The model does all the reasoning internally.</p>
+    <p>But this simplicity is deceptive. As soon as the task becomes multi-step, or the output needs to conform to a strict schema, or the result depends on external validation, prompting starts to break down. You end up with prompts that are thousands of tokens long, instructions that contradict each other, and outputs that are correct 80% of the time but fail silently the other 20%.</p>
+
+    <div class="callout">
+      <div class="callout-label">When Prompting Works</div>
+      <p>Prompting is the right choice when the task is deterministic enough that a single inference pass can produce a reliably correct answer, and when you don't need structured outputs that downstream code depends on. Think: content generation, one-off analysis, creative tasks where "good enough" is acceptable.</p>
+      <p>If you're building a product feature where correctness matters, prompting alone won't get you there.</p>
+    </div>
+  </section>
+
+  <!-- ── 3. WHAT IS LOOPING ── -->
+  <section>
+    <div class="section-num">03 · Looping Explained</div>
+    <h2>Looping: When You Take Control</h2>
+    <p>Looping inverts the control flow. Instead of sending one massive prompt and hoping the model gets everything right in one shot, you break the task into stages. At each stage, your application code calls the model, validates the output, maintains state, and decides what to do next. The model becomes a component in a larger system rather than the system itself.</p>
+    <p>This is not just calling the API multiple times in sequence - that's still prompting, just slower. Looping means your code is making decisions based on the model's outputs and adjusting behaviour dynamically.</p>
+
+    <div class="code-block">
+      <div class="code-label">Looping Pattern · Iterative Refinement</div>
+      <pre><span class="code-kw">let</span> <span class="code-var">result</span> = <span class="code-kw">null</span>;
+<span class="code-kw">let</span> <span class="code-var">attempts</span> = <span class="code-num">0</span>;
+
+<span class="code-kw">while</span> (!<span class="code-var">result</span> && <span class="code-var">attempts</span> < <span class="code-num">3</span>) {
+  <span class="code-kw">const</span> <span class="code-var">response</span> = <span class="code-kw">await</span> <span class="code-fn">callModel</span>(<span class="code-var">prompt</span>);
+  <span class="code-kw">const</span> <span class="code-var">parsed</span> = <span class="code-fn">tryParseJSON</span>(<span class="code-var">response</span>);
+
+  <span class="code-kw">if</span> (<span class="code-var">parsed</span> && <span class="code-fn">validateSchema</span>(<span class="code-var">parsed</span>)) {
+    <span class="code-var">result</span> = <span class="code-var">parsed</span>;
+  } <span class="code-kw">else</span> {
+    <span class="code-cmt">// Adjust prompt with specific error feedback</span>
+    <span class="code-var">prompt</span> += <span class="code-str">`\n\nPrevious attempt failed validation: ${getErrorMessage(parsed)}`</span>;
+    <span class="code-var">attempts</span>++;
+  }
+}
+
+<span class="code-kw">if</span> (!<span class="code-var">result</span>) <span class="code-kw">throw new</span> <span class="code-fn">Error</span>(<span class="code-str">'Failed after retries'</span>);</pre>
+    </div>
+
+    <p>Notice what's happening here. The application is not blindly accepting whatever the model returns. It's checking the structure, validating correctness, and providing targeted feedback when things go wrong. The model is no longer responsible for getting everything perfect on the first try - it's responsible for responding to feedback iteratively until the output is valid.</p>
+    <p>This fundamentally changes what you can build. Complex workflows like extracting structured data from unstructured text, generating valid code that compiles, or reasoning through multi-step problems all become tractable because you're not relying on the model's internal coherence alone. You're using code to enforce coherence externally.</p>
+  </section>
+
+  <!-- ── 4. THE RELIABILITY GAP ── -->
+  <section>
+    <div class="section-num">04 · The Reliability Gap</div>
+    <h2>Why Prompting Fails at Scale</h2>
+    <p>The core issue with prompting for complex tasks is that language models are probabilistic. Even with temperature set to zero, the same prompt can produce different outputs across runs due to internal sampling variations and context-dependent reasoning paths. For creative tasks, this variability is a feature. For production systems, it's a bug.</p>
+    <p>Consider a simple task: extract all email addresses from a customer support transcript and return them as a JSON array. With prompting, you'd write a detailed instruction explaining the format, provide examples, and hope the model returns valid JSON. Most of the time, it will. Sometimes, it will wrap the JSON in markdown code fences. Sometimes, it will include explanatory text before or after the JSON. Sometimes, it will return an object instead of an array. Sometimes, it will hallucinate email addresses that don't exist in the transcript.</p>
+    <p>Each of these failure modes is rare individually - maybe 2-5% occurrence each - but cumulatively, your reliability drops to 85-90%. In a demo, that feels fine. In production, where you're processing thousands of requests per day, it means hundreds of failures that require manual intervention.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">87%</div>
+        <div class="stat-label">Avg Reliability<br/>Single-Prompt Systems</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98%</div>
+        <div class="stat-label">Avg Reliability<br/>Looped Systems</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3.2x</div>
+        <div class="stat-label">Avg API Calls<br/>Per Task (Looped)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">Cost Increase<br/>vs Prompting</div>
+      </div>
+    </div>
+
+    <p>With looping, you add a validation layer. The model returns something. Your code checks if it's valid JSON. If not, you tell the model exactly what went wrong and ask again. If it's valid JSON but not an array, you tell it that. If it's an array but contains emails that don't appear in the transcript, you reject those entries. The model learns from feedback in-context and produces a corrected output.</p>
+    <p>This costs more in API calls - typically 2-4x depending on task complexity - but the reliability jump is worth it. You go from 87% success to 98% success, and the failure cases that remain are edge cases that genuinely require human review, not silent data corruption.</p>
+  </section>
+
+  <!-- ── 5. WHEN TO USE WHAT ── -->
+  <section>
+    <div class="section-num">05 · Decision Framework</div>
+    <h2>When to Prompt vs When to Loop</h2>
+    <p>The choice isn't binary. Many production systems use both patterns at different stages of a pipeline. The question is: which pattern fits which part of your problem?</p>
+
+    <h3>Use Prompting When:</h3>
+    <p><strong>The task is naturally atomic.</strong> If success or failure is determined entirely by the quality of a single output, and there's no way to programmatically validate correctness, prompting is fine. Example: generating marketing copy where "good" is subjective.</p>
+    <p><strong>Latency matters more than correctness.</strong> If you need a response in under 2 seconds and can tolerate occasional errors, a single well-crafted prompt will outperform a multi-turn loop. Example: chatbot responses where users expect speed.</p>
+    <p><strong>The output doesn't feed into downstream logic.</strong> If a human is going to review the result anyway, the cost of occasional malformed outputs is low. Example: draft email generation for user review.</p>
+
+    <h3>Use Looping When:</h3>
+    <p><strong>The output must conform to a strict schema.</strong> If downstream code depends on specific fields existing and containing valid data, you need validation and retry logic. Example: extracting invoice line items from receipts.</p>
+    <p><strong>The task has multiple dependent steps.</strong> If step 2 depends on the output of step 1, and you need to verify step 1 succeeded before proceeding, looping gives you checkpoints. Example: multi-step SQL query generation where each query must be syntactically valid.</p>
+    <p><strong>External validation is possible.</strong> If you can programmatically check whether the model's output is correct (running code, querying a database, checking mathematical consistency), looping lets you give the model targeted feedback instead of hoping it self-corrects. Example: code generation where you can run tests.</p>
+
+    <div class="highlight-box">
+      <strong>Rule of Thumb</strong>
+      If you're writing code that says "if the model output is X, do Y, else log an error" - you should be looping, not prompting. That error case means you know when the model failed but aren't giving it a chance to fix it.
+    </div>
+  </section>
+
+  <!-- ── 6. CONTEXT MANAGEMENT ── -->
+  <section>
+    <div class="section-num">06 · Context Management</div>
+    <h2>The Hidden Cost: Context Window Exhaustion</h2>
+    <p>One downside of looping that doesn't get enough attention is context window management. Every time you call the model in a loop, you're typically appending the previous conversation history to maintain coherence. After 5-6 iterations, you can easily hit 10,000+ tokens of conversation history for a task that would have been 2,000 tokens as a single prompt.</p>
+    <p>This matters for two reasons. First, cost - you're paying for input tokens on every call, and those tokens accumulate quickly. Second, performance - models perform worse as the context fills up, with attention degrading for information far back in the conversation history.</p>
+    <p>The solution is aggressive context pruning. Don't naively append the full conversation. Instead, maintain a sliding window of the most recent exchanges, and compress older context into a structured summary that the model can reference without re-reading the full text.</p>
+
+    <div class="code-block">
+      <div class="code-label">Context Pruning Strategy</div>
+      <pre><span class="code-kw">function</span> <span class="code-fn">buildContextWindow</span>(<span class="code-var">conversationHistory</span>, <span class="code-var">maxTokens</span>) {
+  <span class="code-kw">const</span> <span class="code-var">recent</span> = <span class="code-var">conversationHistory</span>.<span class="code-fn">slice</span>(-<span class="code-num">3</span>); <span class="code-cmt">// Last 3 turns</span>
+  <span class="code-kw">const</span> <span class="code-var">older</span> = <span class="code-var">conversationHistory</span>.<span class="code-fn">slice</span>(<span class="code-num">0</span>, -<span class="code-num">3</span>);
+
+  <span class="code-kw">const</span> <span class="code-var">summary</span> = <span class="code-fn">compressToKeyFacts</span>(<span class="code-var">older</span>);
+  <span class="code-cmt">// "Previous attempts: invalid JSON (2x), missing field 'email' (1x)"</span>
+
+  <span class="code-kw">return</span> [
+    { <span class="code-var">role</span>: <span class="code-str">'system'</span>, <span class="code-var">content</span>: <span class="code-var">summary</span> },
+    ...<span class="code-var">recent</span>
+  ];
+}</pre>
+    </div>
+
+    <p>This approach keeps context growth linear rather than quadratic. You're not re-sending the full transcript of every failed attempt - you're sending a compressed summary of what's been tried and what went wrong, plus the most recent exchanges where the model is actively iterating.</p>
+    <p>In practice, this typically keeps context under 5,000 tokens even for loops that run 10+ iterations, compared to 20,000+ tokens with naive appending. The model's performance stays consistent, and your costs scale reasonably.</p>
+  </section>
+
+  <!-- ── 7. DETERMINISM ── -->
+  <section>
+    <div class="section-num">07 · Determinism</div>
+    <h2>The Illusion of Determinism</h2>
+    <p>Many engineers assume that setting temperature to 0 makes the model deterministic. It doesn't. Temperature controls the randomness of the sampling process, but it doesn't eliminate all sources of variation. Models use top-k and nucleus sampling, and even at temperature 0, tie-breaking between equally probable tokens can introduce variance.</p>
+    <p>More importantly, the model's reasoning process itself is path-dependent. The same prompt can trigger different reasoning chains depending on subtle context differences - like whether you included a trailing newline, or what the previous conversation was, or even what time of day the request was made (due to load-based routing to different instances with slightly different weights).</p>
+    <p>Looping gives you a way to enforce determinism at the application level even when the model isn't deterministic at the inference level. By validating outputs against a schema and rejecting anything that doesn't match, you're collapsing the model's probabilistic output space into a deterministic set of acceptable results.</p>
+
+    <div class="callout">
+      <div class="callout-label">Practical Determinism</div>
+      <p>Real production systems don't need the model to be internally deterministic. They need the <em>output</em> to be deterministic - meaning the same input always produces functionally equivalent outputs even if the exact tokens differ. Looping with validation achieves this. Prompting does not.</p>
+    </div>
+
+    <p>This is why you see production LLM applications with elaborate validation pipelines, retry logic, and fallback strategies. They're not over-engineering - they're compensating for the fact that language models are fundamentally probabilistic systems being used in contexts that demand deterministic behaviour.</p>
+  </section>
+
+  <!-- ── 8. REAL WORLD EXAMPLE ── -->
+  <section>
+    <div class="section-num">08 · Case Study</div>
+    <h2>Real-World Example: Invoice Data Extraction</h2>
+    <p>Let's ground this in a concrete scenario. You're building a system that extracts structured data from uploaded invoice PDFs. The model needs to identify vendor name, invoice number, date, line items, subtotal, tax, and total.</p>
+
+    <h3>Prompting Approach</h3>
+    <p>You write a detailed prompt explaining the task, provide examples of valid JSON outputs, and send the invoice text to the model. The model returns JSON most of the time. Sometimes it misses a field. Sometimes it hallucinates data. Sometimes the date format is inconsistent. You fix edge cases by adding more examples to the prompt. Reliability plateaus around 85%.</p>
+
+    <h3>Looping Approach</h3>
+    <p>You break the task into stages. Stage 1: extract vendor name and invoice number. Validate these exist and are non-empty. Stage 2: extract date and parse it into ISO 8601 format. If parsing fails, ask the model to reformat. Stage 3: extract line items. Validate that quantities are positive integers and amounts are valid numbers. Stage 4: validate that subtotal + tax = total. If not, ask the model to recalculate.</p>
+    <p>Each stage has specific validation logic. The model gets targeted feedback when it fails a validation. The final output is guaranteed to be schema-compliant because it passed every validation gate. Reliability hits 98%, and the 2% failures are cases where the invoice itself is malformed or illegible - not extraction errors.</p>
+
+    <div class="code-block">
+      <div class="code-label">Invoice Extraction Loop · Simplified</div>
+      <pre><span class="code-kw">async function</span> <span class="code-fn">extractInvoiceData</span>(<span class="code-var">invoiceText</span>) {
+  <span class="code-kw">let</span> <span class="code-var">data</span> = {};
+
+  <span class="code-cmt">// Stage 1: Basic fields</span>
+  <span class="code-var">data</span>.<span class="code-var">vendor</span> = <span class="code-kw">await</span> <span class="code-fn">extractWithRetry</span>(<span class="code-str">'vendor name'</span>, <span class="code-var">invoiceText</span>,
+    <span class="code-var">val</span> => <span class="code-var">val</span>.<span class="code-fn">length</span> > <span class="code-num">0</span>);
+
+  <span class="code-var">data</span>.<span class="code-var">invoiceNumber</span> = <span class="code-kw">await</span> <span class="code-fn">extractWithRetry</span>(<span class="code-str">'invoice number'</span>, <span class="code-var">invoiceText</span>,
+    <span class="code-var">val</span> => <span class="code-fn">/^[A-Z0-9-]+$/</span>.<span class="code-fn">test</span>(<span class="code-var">val</span>));
+
+  <span class="code-cmt">// Stage 2: Date with format validation</span>
+  <span class="code-var">data</span>.<span class="code-var">date</span> = <span class="code-kw">await</span> <span class="code-fn">extractWithRetry</span>(<span class="code-str">'invoice date'</span>, <span class="code-var">invoiceText</span>,
+    <span class="code-var">val</span> => !<span class="code-fn">isNaN</span>(<span class="code-fn">Date</span>.<span class="code-fn">parse</span>(<span class="code-var">val</span>)));
+
+  <span class="code-cmt">// Stage 3: Line items with numeric validation</span>
+  <span class="code-var">data</span>.<span class="code-var">lineItems</span> = <span class="code-kw">await</span> <span class="code-fn">extractWithRetry</span>(<span class="code-str">'line items as JSON array'</span>, <span class="code-var">invoiceText</span>,
+    <span class="code-var">items</span> => <span class="code-var">items</span>.<span class="code-fn">every</span>(<span class="code-var">i</span> => <span class="code-var">i</span>.<span class="code-var">quantity</span> > <span class="code-num">0</span> && <span class="code-var">i</span>.<span class="code-var">amount</span> > <span class="code-num">0</span>));
+
+  <span class="code-cmt">// Stage 4: Totals with math validation</span>
+  <span class="code-kw">const</span> <span class="code-var">totals</span> = <span class="code-kw">await</span> <span class="code-fn">extractTotalsWithValidation</span>(<span class="code-var">data</span>.<span class="code-var">lineItems</span>, <span class="code-var">invoiceText</span>);
+
+  <span class="code-kw">return</span> { ...<span class="code-var">data</span>, ...<span class="code-var">totals</span> };
+}</pre>
+    </div>
+
+    <p>The key insight: each validation gate is trivial to implement in code but nearly impossible to guarantee in a single prompt. The model can reason about what makes a valid invoice number, but it can't guarantee it will always output one. Your code can.</p>
+  </section>
+
+  <!-- ── 9. COST VS RELIABILITY ── -->
+  <section>
+    <div class="section-num">09 · Economics</div>
+    <h2>The Cost-Reliability Tradeoff</h2>
+    <p>Let's be direct about costs. Looping is more expensive per task. A single-prompt system might average 1.2 API calls per task (1 call plus occasional retries when things break). A looped system might average 3.5 API calls per task. At Claude Sonnet pricing, that's the difference between $0.12 and $0.42 per 1,000 tasks for similar-length prompts.</p>
+    <p>But what's the cost of a failure? If 13% of your single-prompt tasks produce invalid outputs that require manual review, and manual review costs $2 per case, your effective cost per 1,000 tasks is actually $0.12 + (130 × $2) = $260.12. The looped system at $0.42 per 1,000 tasks with 2% failure rate costs $0.42 + (20 × $2) = $40.42.</p>
+    <p>This is the calculation most teams get wrong. They optimise API costs without accounting for the hidden cost of unreliability - customer support burden, data quality issues, engineering time spent debugging edge cases, and reputation damage from users encountering broken outputs.</p>
+
+    <div class="highlight-box">
+      <strong>Total Cost of Ownership</strong>
+      For production systems, the total cost is API costs + manual intervention costs + debugging costs + customer churn from poor experience. In almost every case, spending 3x on API calls to get reliability from 85% to 98% reduces total cost by 5-10x.
+    </div>
+
+    <p>There's also a less tangible benefit: predictability. A system with 85% reliability has unpredictable failure modes - you never know which 15% of cases will fail until they do. A system with 98% reliability has predictable failures - you know exactly which edge cases cause problems and can handle them explicitly.</p>
+  </section>
+
+  <!-- ── 10. CONCLUSION ── -->
+  <section>
+    <div class="section-num">10 · Takeaways</div>
+    <h2>Building Systems, Not Demos</h2>
+    <p>The transition from prompting to looping is the transition from demo to production. Prompting is fine for exploration, prototyping, and tasks where correctness is subjective. But if you're building a product feature that users depend on, you need control.</p>
+    <p>Looping gives you that control. It lets you enforce schemas, validate outputs, provide feedback, and guarantee that the final result is usable by downstream code. It costs more in API calls but dramatically less in total ownership cost when you account for failures.</p>
+    <p>The deeper point is about how you think about LLMs in your architecture. If you treat them as magic black boxes, you'll struggle with reliability. If you treat them as probabilistic components in a deterministic system - where your code provides the deterministic scaffolding and the model provides the reasoning - you can build things that actually work at scale.</p>
+    <p>Most teams are still in the prompting mindset because that's what the tutorials teach and the demos showcase. The teams building production LLM features that actually ship and stay shipped have figured out looping. That's the pattern that separates the 70% success rate experiments from the 98% success rate products.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Key Principles</div>
+      <p><strong>Prompting:</strong> One call, one output. Fast, simple, probabilistic. Use for creative tasks and subjective outputs.</p>
+      <p><strong>Looping:</strong> Multiple calls, validated steps, application control. Slower, complex, deterministic at the system level. Use for structured data, multi-step tasks, and production systems.</p>
+      <p><strong>Cost:</strong> Looping costs 2-4x more in API calls but 5-10x less in total ownership when failures are expensive.</p>
+      <p><strong>Reliability:</strong> Prompting plateaus around 85-90%. Looping with validation reaches 98%+.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    Cost and reliability figures are approximations based on real production systems observed across multiple LLM providers and use cases. Your mileage will vary depending on task complexity, prompt quality, and validation strictness.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
