@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "your-rust-build-tool-is-slower-than-webpack",
+    title: "Your 100x Faster Rust Build Tool Is Slower Than Webpack. Here's Why.",
+    description: "Turbopack, SWC, and esbuild promise instant builds. But in real-world monorepos with warm caches and incremental compilation, Webpack still wins. Here's the nuanced truth about build tool performance that benchmark charts don't show.",
+    contentPath: "/blog/your-rust-build-tool-is-slower-than-webpack_article.html",
+    publishedAt: "2026-07-07",
+    tags: ["Build Tools", "Webpack", "Rust", "Performance", "Developer Experience"],
+    readingTime: "~12 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "prompting-vs-looping-in-ai",
     title: "Prompting vs Looping: Why Most Engineers Are Burning Through AI Credits Wrong",
     description: "The difference between prompting and looping in AI models like Claude isn't about cost - it's about control. Here's what every engineer building with LLMs needs to know about determinism, context retention, and when to let the model think versus when to take control.",
