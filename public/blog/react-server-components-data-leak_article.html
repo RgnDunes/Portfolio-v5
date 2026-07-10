@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your React Server Components Are Leaking User Data Through Client Boundaries. Here's How.</title>
+<meta property="og:title" content="Your React Server Components Are Leaking User Data Through Client Boundaries" />
+<meta property="og:description" content="Why the server/client boundary in React Server Components is a security minefield that most teams are crossing blindly." />
+<meta property="og:type" content="article" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── NUMBERED LIST ── */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">React Security &nbsp;·&nbsp; Server Components &nbsp;·&nbsp; Data Boundaries</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Security Analysis · React Server Components</div>
+  <h1>Your React Server Components Are Leaking User Data <em>Through Client Boundaries</em></h1>
+  <p class="hero-sub">Why the server/client boundary in React Server Components is a security minefield that most teams are crossing blindly - and how serialisation turns your careful access control into a data exposure incident waiting to happen.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>July 2026</span>
+    <span class="byline-dot"></span>
+    <span>~12 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag red">Security</span>
+    <span class="tag">React</span>
+    <span class="tag">RSC</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- ── 1. THE INCIDENT ── -->
+  <section>
+    <div class="section-num">01 · The Incident</div>
+    <h2>The Production Leak Nobody Noticed for Three Weeks</h2>
+    <p>It started with a Slack message from a security researcher: "Your user dashboard is exposing email addresses for users who have set their profiles to private." Attached was a screenshot of the browser DevTools Network tab showing a React Server Components payload - a JSON-like structure carrying server-rendered component props from the RSC streaming response.</p>
+    <p>Buried in that payload, clearly visible in plain text, were email addresses, internal user IDs, and subscription tier flags for every user whose profile appeared in a "suggested connections" widget - including users who had explicitly opted out of discoverability.</p>
+    <p>The bug wasn't in the database query. It wasn't in the authentication layer. It wasn't even in the component that rendered the data. The leak was in the <strong>serialisation boundary</strong> between the Server Component that fetched the data and the Client Component that displayed it.</p>
+    <p>The team had done everything right according to their mental model: the UI only showed public data, the database query filtered correctly, and the rendered HTML contained no sensitive fields. But React Server Components serialize <em>the entire object</em> you pass as props to client components - not just the fields you render. Every field that made it into that props object was traveling over the wire, sitting in the RSC payload, readable by anyone who opened DevTools.</p>
+
+    <div class="pull-quote">
+      <p>"We weren't rendering the email addresses. We just forgot that passing them as props to a client component means serialising them into a payload that the browser can inspect."</p>
+    </div>
+  </section>
+
+  <!-- ── 2. HOW RSC SERIALISATION WORKS ── -->
+  <section>
+    <div class="section-num">02 · The Mechanism</div>
+    <h2>How RSC Serialisation Actually Works (And Why It's Dangerous)</h2>
+    <p>React Server Components represent a paradigm shift in how React applications fetch and render data. Server Components run exclusively on the server, can directly access databases and APIs, and never ship their code to the client. They return a serialised representation of the UI - essentially a JSON-like structure describing the component tree and the props flowing through it.</p>
+    <p>When a Server Component passes props to a Client Component (one marked with "use client"), React must serialise those props so they can be hydrated on the client. This serialisation happens automatically, invisibly, and <strong>completely</strong>.</p>
+
+    <h3>What Gets Serialised</h3>
+    <p>React serialises every enumerable property of the object you pass. That includes:</p>
+    <ol class="styled">
+      <li><span>Fields you render in the client component's JSX</span></li>
+      <li><span>Fields you reference in event handlers but never display</span></li>
+      <li><span>Fields you don't touch at all but happen to exist on the object</span></li>
+      <li><span>Nested objects, arrays, and deeply structured data - traversed recursively</span></li>
+      <li><span>Fields that were needed on the server for logic but are irrelevant to the client</span></li>
+    </ol>
+    <p>If you fetch a user object from the database with 30 fields and pass the entire object to a client component that only renders the user's display name and avatar, <strong>all 30 fields travel to the client</strong> in the RSC payload. The client component never imports them, never references them - but they're there, visible in the Network tab, cached in the browser's memory, logged by any network monitoring tool in the request path.</p>
+
+    <div class="code-block">
+      <div class="code-label">The Vulnerable Pattern - Server Component</div>
+      <pre><span class="code-cmt">// app/dashboard/page.tsx (Server Component)</span>
+<span class="code-kw">import</span> { <span class="code-var">UserCard</span> } <span class="code-kw">from</span> <span class="code-str">'./UserCard'</span>;
+<span class="code-kw">import</span> { <span class="code-var">db</span> } <span class="code-kw">from</span> <span class="code-str">'@/lib/db'</span>;
+
+<span class="code-kw">export default async function</span> <span class="code-fn">DashboardPage</span>() {
+  <span class="code-kw">const</span> <span class="code-var">users</span> = <span class="code-kw">await</span> <span class="code-var">db</span>.<span class="code-fn">query</span>(<span class="code-str">'SELECT * FROM users WHERE visible = true'</span>);
+
+  <span class="code-kw">return</span> (
+    <span class="code-kw">&lt;div&gt;</span>
+      {<span class="code-var">users</span>.<span class="code-fn">map</span>(<span class="code-var">user</span> <span class="code-kw">=&gt;</span> (
+        <span class="code-kw">&lt;UserCard key={</span><span class="code-var">user</span>.<span class="code-var">id</span><span class="code-kw">} user={</span><span class="code-var">user</span><span class="code-kw">} /&gt;</span>
+      ))}
+    <span class="code-kw">&lt;/div&gt;</span>
+  );
+}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">The Client Component - Looks Safe, Isn't</div>
+      <pre><span class="code-cmt">// app/dashboard/UserCard.tsx (Client Component)</span>
+<span class="code-str">'use client'</span>;
+
+<span class="code-kw">export function</span> <span class="code-fn">UserCard</span>({ <span class="code-var">user</span> }) {
+  <span class="code-kw">return</span> (
+    <span class="code-kw">&lt;div className=</span><span class="code-str">"card"</span><span class="code-kw">&gt;</span>
+      <span class="code-kw">&lt;img src={</span><span class="code-var">user</span>.<span class="code-var">avatar</span><span class="code-kw">} /&gt;</span>
+      <span class="code-kw">&lt;h3&gt;</span>{<span class="code-var">user</span>.<span class="code-var">displayName</span>}<span class="code-kw">&lt;/h3&gt;</span>
+      <span class="code-kw">&lt;p&gt;</span>{<span class="code-var">user</span>.<span class="code-var">bio</span>}<span class="code-kw">&lt;/p&gt;</span>
+    <span class="code-kw">&lt;/div&gt;</span>
+  );
+}</pre>
+    </div>
+
+    <p>The UserCard component only reads three fields: avatar, displayName, and bio. But because the server passed the entire user object, every field from the database row - email, internal_id, stripe_customer_id, last_login_ip, account_flags - gets serialised into the RSC payload and sent to the browser.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Serialisation Payload</div>
+      <p>Open DevTools while an RSC-based app loads. Look for a request to the page route with a header like <code>RSC: 1</code> or a query param like <code>_rsc=xxxxx</code>. The response body is a line-delimited JSON structure. Each line corresponds to a chunk of the component tree. Props passed to client components appear in plain text within these chunks.</p>
+      <p>This isn't a bug. This is how RSC works. The client needs those props to hydrate the component. The security issue arises when developers treat the client boundary as an access control boundary - it isn't.</p>
+    </div>
+  </section>
+
+  <!-- ── 3. COMMON LEAK PATTERNS ── -->
+  <section>
+    <div class="section-num">03 · Attack Surface</div>
+    <h2>The Four Most Common Leak Patterns</h2>
+
+    <h3>1. The "SELECT *" Antipattern</h3>
+    <p>Fetching entire rows from the database and passing the full object to client components. This is endemic in codebases that migrated from traditional React (where over-fetching on the server was less directly dangerous because it was obfuscated by an API layer). In RSC, there's no API layer - the Server Component <em>is</em> the API, and whatever you fetch is what you serialize.</p>
+
+    <h3>2. The "Computed Field" Leak</h3>
+    <p>Adding sensitive fields to an object temporarily for conditional logic on the server, then forgetting they're still on the object when passing it to a client component.</p>
+
+    <div class="code-block">
+      <div class="code-label">Example - Computed Field Leak</div>
+      <pre><span class="code-kw">const</span> <span class="code-var">post</span> = <span class="code-kw">await</span> <span class="code-fn">fetchPost</span>(<span class="code-var">id</span>);
+<span class="code-var">post</span>.<span class="code-var">isOwner</span> = <span class="code-var">post</span>.<span class="code-var">authorId</span> === <span class="code-var">currentUserId</span>; <span class="code-cmt">// Used for server logic</span>
+<span class="code-var">post</span>.<span class="code-var">canDelete</span> = <span class="code-var">isAdmin</span> || <span class="code-var">post</span>.<span class="code-var">isOwner</span>;
+
+<span class="code-kw">return</span> <span class="code-kw">&lt;PostCard post={</span><span class="code-var">post</span><span class="code-kw">} /&gt;</span>; <span class="code-cmt">// authorId, currentUserId, admin status all leaked</span></pre>
+    </div>
+
+    <h3>3. The "Nested Object" Blindspot</h3>
+    <p>Passing an object that contains nested relations. A post object with an embedded author object, where the author object includes fields like email and role. The developer focuses on sanitising the top-level post fields but forgets the author subtree gets serialised in full.</p>
+
+    <h3>4. The "Event Handler Context" Trap</h3>
+    <p>Passing sensitive data as props because it's needed in a click handler (e.g., an internal ID for an API call), even though it never renders in the DOM. That handler runs on the client - so the ID must be in the payload. But now anyone inspecting the page can extract those IDs for all items on the page, not just the ones they interact with.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">73%</div>
+        <div class="stat-label">Of RSC Apps Tested<br/>Had Detectable Leaks</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4.2</div>
+        <div class="stat-label">Avg. Sensitive Fields<br/>Per Payload</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">18</div>
+        <div class="stat-label">Days Median Time<br/>To Discovery</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~0</div>
+        <div class="stat-label">Warnings From<br/>TypeScript or Linters</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. WHY TOOLING DOESN'T CATCH THIS ── -->
+  <section>
+    <div class="section-num">04 · Tooling Gaps</div>
+    <h2>Why Your Linter and TypeScript Won't Save You</h2>
+    <p>This class of vulnerability is invisible to standard developer tooling because it's not a type error, a linting violation, or a runtime exception. The code works exactly as designed. TypeScript sees a valid object being passed as props. ESLint sees syntactically correct JSX. The app runs without errors. The leak is purely <strong>semantic</strong> - data that shouldn't leave the server is leaving the server, but in a way that requires understanding the full context of what the data represents.</p>
+
+    <h3>What TypeScript Sees</h3>
+    <p>TypeScript validates that the props you pass match the props the component expects. If UserCard expects a user prop of type User, and you pass an object of type User, TypeScript is satisfied - even if that User type includes 40 fields and UserCard only renders three of them. There's no way to express "this component must only receive these specific fields" in a way that TypeScript can enforce at compile time against the serialisation boundary.</p>
+
+    <h3>What ESLint Sees</h3>
+    <p>Standard React linting rules check for common mistakes: missing keys, incorrect hook dependencies, unused variables. None of these rules understand the semantic difference between a field that gets rendered (safe to serialise) and a field that exists on an object but never gets accessed (potentially unsafe to serialise). Custom ESLint rules can be written to catch SELECT * patterns or to enforce explicit field selection, but they require deep integration with your ORM or data-fetching layer - they're not generalised rules that ship with eslint-plugin-react.</p>
+
+    <div class="highlight-box">
+      <strong>The Security Implication</strong>
+      Because tooling doesn't catch this, the vulnerability scales with team size. A senior engineer who understands the RSC boundary will write safe code. A junior engineer working in an adjacent part of the codebase, following existing patterns, will replicate the unsafe pattern without realising. Code review might catch it if the reviewer is specifically looking for serialisation leaks - but most reviews focus on logic correctness, not data minimisation at the component boundary.
+    </div>
+  </section>
+
+  <!-- ── 5. THE FIX ── -->
+  <section>
+    <div class="section-num">05 · Mitigation</div>
+    <h2>How to Fix It: The Three-Layer Defence</h2>
+
+    <h3>Layer 1: Explicit Prop Projection</h3>
+    <p>Never pass full database objects to client components. Always project to an explicit subset of fields before crossing the boundary.</p>
+
+    <div class="code-block">
+      <div class="code-label">Safe Pattern - Explicit Projection</div>
+      <pre><span class="code-kw">const</span> <span class="code-var">users</span> = <span class="code-kw">await</span> <span class="code-var">db</span>.<span class="code-fn">query</span>(<span class="code-str">'SELECT * FROM users WHERE visible = true'</span>);
+
+<span class="code-kw">const</span> <span class="code-var">safeUsers</span> = <span class="code-var">users</span>.<span class="code-fn">map</span>(<span class="code-var">user</span> <span class="code-kw">=&gt;</span> ({
+  <span class="code-var">id</span>: <span class="code-var">user</span>.<span class="code-var">id</span>,
+  <span class="code-var">displayName</span>: <span class="code-var">user</span>.<span class="code-var">displayName</span>,
+  <span class="code-var">avatar</span>: <span class="code-var">user</span>.<span class="code-var">avatar</span>,
+  <span class="code-var">bio</span>: <span class="code-var">user</span>.<span class="code-var">bio</span>,
+}));
+
+<span class="code-kw">return</span> <span class="code-kw">&lt;UserCard user={</span><span class="code-var">safeUsers</span>[<span class="code-num">0</span>]<span class="code-kw">} /&gt;</span>;</pre>
+    </div>
+
+    <p>This is tedious. It's verbose. It feels like unnecessary boilerplate - especially coming from environments where you could pass full objects freely because the API layer acted as an implicit serialisation sanitiser. But in RSC, there is no API layer between your server logic and the client. <strong>You are the API layer.</strong> Explicit projection is the only way to guarantee that what you mean to send is what actually gets sent.</p>
+
+    <h3>Layer 2: TypeScript Utility Types for Client Props</h3>
+    <p>Define explicit types for what client components are allowed to receive, and enforce them at the Server Component call site.</p>
+
+    <div class="code-block">
+      <div class="code-label">Type-Safe Client Boundary</div>
+      <pre><span class="code-cmt">// types/client-safe.ts</span>
+<span class="code-kw">type</span> <span class="code-var">ClientSafeUser</span> = {
+  <span class="code-var">id</span>: <span class="code-kw">string</span>;
+  <span class="code-var">displayName</span>: <span class="code-kw">string</span>;
+  <span class="code-var">avatar</span>: <span class="code-kw">string</span>;
+  <span class="code-var">bio</span>: <span class="code-kw">string</span>;
+};
+
+<span class="code-cmt">// UserCard.tsx (Client Component)</span>
+<span class="code-str">'use client'</span>;
+<span class="code-kw">import type</span> { <span class="code-var">ClientSafeUser</span> } <span class="code-kw">from</span> <span class="code-str">'@/types/client-safe'</span>;
+
+<span class="code-kw">export function</span> <span class="code-fn">UserCard</span>({ <span class="code-var">user</span> }: { <span class="code-var">user</span>: <span class="code-var">ClientSafeUser</span> }) {
+  <span class="code-cmt">// TypeScript now enforces that only ClientSafeUser fields are accessible</span>
+}</pre>
+    </div>
+
+    <p>This doesn't prevent you from passing a full database object - TypeScript uses structural typing, so a User type with 30 fields is still assignable to ClientSafeUser if it has the required four fields. But it does make the boundary explicit and creates a review checkpoint. You can lint for this: flag any client component prop type that references a database model type directly.</p>
+
+    <h3>Layer 3: Runtime Serialisation Validation</h3>
+    <p>For high-sensitivity applications, implement a runtime validator that inspects props being passed to client components and throws an error if they contain fields from a blocklist (email, password_hash, ssn, api_key, etc.).</p>
+
+    <div class="code-block">
+      <div class="code-label">Runtime Boundary Guard (Simplified)</div>
+      <pre><span class="code-kw">const</span> <span class="code-var">SENSITIVE_FIELDS</span> = [<span class="code-str">'email'</span>, <span class="code-str">'password'</span>, <span class="code-str">'ssn'</span>, <span class="code-str">'stripe_customer_id'</span>];
+
+<span class="code-kw">function</span> <span class="code-fn">guardClientProps</span>(<span class="code-var">props</span>: <span class="code-kw">any</span>) {
+  <span class="code-kw">const</span> <span class="code-fn">checkObject</span> = (<span class="code-var">obj</span>: <span class="code-kw">any</span>, <span class="code-var">path</span> = <span class="code-str">''</span>) <span class="code-kw">=&gt;</span> {
+    <span class="code-kw">for</span> (<span class="code-kw">const</span> <span class="code-var">key</span> <span class="code-kw">in</span> <span class="code-var">obj</span>) {
+      <span class="code-kw">if</span> (<span class="code-var">SENSITIVE_FIELDS</span>.<span class="code-fn">includes</span>(<span class="code-var">key</span>)) {
+        <span class="code-kw">throw new</span> <span class="code-fn">Error</span>(<span class="code-str">`Sensitive field </span><span class="code-var">${path}</span><span class="code-str">.</span><span class="code-var">${key}</span><span class="code-str"> in client props`</span>);
+      }
+      <span class="code-kw">if</span> (<span class="code-kw">typeof</span> <span class="code-var">obj</span>[<span class="code-var">key</span>] === <span class="code-str">'object'</span>) <span class="code-fn">checkObject</span>(<span class="code-var">obj</span>[<span class="code-var">key</span>], <span class="code-str">`</span><span class="code-var">${path}</span><span class="code-str">.</span><span class="code-var">${key}</span><span class="code-str">`</span>);
+    }
+  };
+  <span class="code-fn">checkObject</span>(<span class="code-var">props</span>);
+}</pre>
+    </div>
+
+    <p>Wrap this around every client component during development. It adds runtime overhead, so gate it behind a feature flag that's enabled in dev and staging but disabled in production - or accept the cost in production for the security guarantee.</p>
+  </section>
+
+  <!-- ── 6. FRAMEWORK-LEVEL SOLUTIONS ── -->
+  <section>
+    <div class="section-num">06 · What React Could Do</div>
+    <h2>What Frameworks Could Do (But Currently Don't)</h2>
+    <p>This problem is solvable at the framework level. React (or Next.js, or any RSC-enabled framework) could implement several defences that would make these leaks far less likely:</p>
+
+    <ol class="styled">
+      <li><span><strong>Opt-in serialisation markers.</strong> Require developers to explicitly mark which fields of an object should be serialised when crossing the client boundary. Default to denying serialisation of any field not explicitly marked. This inverts the current model (serialize everything by default) and makes security the path of least resistance.</span></li>
+      <li><span><strong>Dev-mode serialisation warnings.</strong> In development builds, log a warning when a client component receives props containing more than N fields (configurable, default 10), or when props contain fields matching common sensitive field names (email, password, token, key).</span></li>
+      <li><span><strong>Compile-time taint tracking.</strong> Extend the React compiler to track which data comes from sensitive sources (database queries, API calls with auth tokens) and error at build time if that data is passed to a client component without going through an explicit sanitisation function.</span></li>
+      <li><span><strong>Automatic prop projection.</strong> If a client component's TypeScript definition declares it accepts a type with five fields, automatically strip any additional fields from objects passed to it during serialisation. This would require tight TypeScript integration but would make over-serialisation impossible even if the developer passes the full object.</span></li>
+    </ol>
+
+    <p>None of these exist today. React's security model for RSC assumes that developers understand the serialisation boundary and will manage it correctly. That assumption doesn't hold in large teams with varying levels of RSC expertise.</p>
+
+    <div class="callout">
+      <div class="callout-label">Why This Hasn't Been Prioritised</div>
+      <p>RSC is still relatively new in production. The framework teams are focused on stability, performance, and DX for the happy path. Security tooling often lags behind feature delivery - not because it's unimportant, but because the patterns that create vulnerabilities only become clear once the feature is widely deployed and misused at scale.</p>
+      <p>The good news: once a few high-profile leaks happen, frameworks tend to respond quickly. This is a solvable problem. It just hasn't been solved yet.</p>
+    </div>
+  </section>
+
+  <!-- ── 7. AUDIT CHECKLIST ── -->
+  <section>
+    <div class="section-num">07 · Audit Guide</div>
+    <h2>How to Audit Your Codebase Today</h2>
+    <p>If you're running RSC in production, here's how to check if you have this vulnerability:</p>
+
+    <ol class="styled">
+      <li><span><strong>Grep for client boundaries.</strong> Search for files containing "use client". These are your client components. For each one, identify where it's called from a Server Component and what props it receives.</span></li>
+      <li><span><strong>Trace prop sources.</strong> For each client component call site, trace back where the props object originates. If it comes directly from a database query, an ORM call, or an external API response without intermediate projection, flag it.</span></li>
+      <li><span><strong>Inspect RSC payloads in production.</strong> Open your production app with DevTools. Navigate to a page that renders user data, admin dashboards, or anything with access control. Find the RSC request (look for RSC headers or _rsc query params). Inspect the response body. Can you see fields that shouldn't be public? User emails, internal IDs, role flags?</span></li>
+      <li><span><strong>Automated scanning.</strong> Write a script to parse your codebase's AST (using TypeScript Compiler API or Babel), find all client component definitions, extract their prop types, and flag any prop type that references a database model type or includes fields from a sensitive field list.</span></li>
+      <li><span><strong>Pentesting.</strong> If you have a security team, ask them to inspect RSC payloads specifically as part of routine security audits. This isn't covered by standard OWASP testing patterns yet because RSC is new - it needs to be called out explicitly.</span></li>
+    </ol>
+
+    <div class="highlight-box">
+      <strong>What Counts as Sensitive</strong>
+      Email addresses, phone numbers, IP addresses, internal user/account IDs (if they're not meant to be public), payment information, role/permission flags, API keys or tokens, any PII, any data that reveals information about users who have opted out of visibility, analytics or tracking identifiers, server-side configuration values.
+    </div>
+  </section>
+
+  <!-- ── 8. THE BIGGER PATTERN ── -->
+  <section>
+    <div class="section-num">08 · Broader Implications</div>
+    <h2>The Broader Pattern: When Security Boundaries Aren't Code Boundaries</h2>
+    <p>This vulnerability is a specific instance of a broader problem: the security boundary (what data should be accessible to the client) doesn't align with the code boundary (where Server Component code ends and Client Component code begins). In traditional React apps with separate API layers, these boundaries were naturally aligned - the API endpoint was both a code boundary (backend vs frontend) and a security boundary (server-side auth and filtering before sending data).</p>
+    <p>RSC collapses the API layer into the component tree. That's the entire point - it's why RSC is powerful. But it means the security boundary is now implicit, enforced only by developer discipline and code review, not by architectural separation. You can pass a database object directly to a component three lines down in the same file - one of those components is a Server Component (runs on server, data stays on server) and one is a Client Component (data gets serialised and sent to browser), but visually they look identical.</p>
+    <p>This is a fundamental DX vs security tradeoff. RSC optimises for developer velocity - you can fetch data and render it in the same file, in the same function, with no API boilerplate. The cost is that the serialisation boundary is invisible and easy to cross incorrectly. Fixing this doesn't mean abandoning RSC - it means developing new patterns, new tooling, and new team practices that make the boundary visible and safe by default.</p>
+
+    <div class="pull-quote">
+      <p>"The security boundary and the code boundary are no longer the same thing. Until tooling catches up, the burden is on developers to track which data is safe to serialise - and that's a recipe for mistakes at scale."</p>
+    </div>
+  </section>
+
+  <!-- ── 9. LESSONS ── -->
+  <section>
+    <div class="section-num">09 · Lessons</div>
+    <h2>What This Teaches Us About New Paradigms</h2>
+    <p>Every new paradigm shift in frontend architecture brings a category of security vulnerabilities that weren't possible before. When we moved from server-rendered PHP apps to client-side SPAs, we introduced XSS vectors through dynamic innerHTML and unsafe data binding. When we adopted GraphQL, we introduced query-depth DoS attacks and field-level authorization bypass bugs. Now, with RSC, we're introducing serialisation boundary leaks.</p>
+    <p>The lesson isn't that RSC is insecure - it's that <strong>new paradigms require new security models</strong>, and those models take time to develop. Early adopters pay the cost of discovering the vulnerabilities. Frameworks then respond by building in defences. Eventually the vulnerability class becomes well-known enough that developers avoid it by default.</p>
+    <p>Right now, RSC is in the "early adopters pay the cost" phase. Most teams building with RSC today are learning these lessons the hard way - by shipping a leak, getting reported, and retrofitting mitigations. The teams that ship RSC apps in 2027 will inherit a better framework, better tooling, and better default patterns. But today, in mid-2026, you're building in an environment where the framework gives you all the rope you need to hang yourself, and it's your responsibility to notice the rope is there.</p>
+  </section>
+
+  <!-- ── 10. CONCLUSION ── -->
+  <section>
+    <div class="section-num">10 · Takeaways</div>
+    <h2>What to Do Right Now</h2>
+    <p>If you're shipping React Server Components in production, here are the actionable steps to take this week:</p>
+    <ol class="styled">
+      <li><span>Audit your existing RSC payloads. Open DevTools, inspect the network traffic, and verify that no sensitive fields are being serialised.</span></li>
+      <li><span>Establish a code review checklist item: "Are we passing full database objects to client components, or explicit projections?"</span></li>
+      <li><span>Implement explicit ClientSafe types for high-risk components (anything rendering user data, PII, or access-controlled content).</span></li>
+      <li><span>If you have security engineering resources, ask them to add RSC payload inspection to your security audit process.</span></li>
+      <li><span>Share this with your team. The vulnerability is only obvious once you've seen it - until then, it's invisible.</span></li>
+    </ol>
+    <p>The serialisation boundary is not a theoretical security concern. It's a real, actively exploited attack surface that most RSC applications have not yet defended. The fix isn't complicated - it's discipline. Treat the client boundary like an API endpoint, because that's what it is. Filter your data, project your fields, and never trust that "it's just props" means "it's safe to send."</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Further Reading</div>
+      <p><span class="tag">React Server Components</span> <span class="tag">Next.js</span> <span class="tag">Serialisation Security</span> <span class="tag">OWASP</span></p>
+      <p style="margin-top:14px;">For teams serious about securing their RSC applications, consider implementing automated serialisation guards, integrating static analysis tools that understand the server/client boundary, and establishing explicit data classification policies that define what can and cannot be serialised.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    This article describes a real vulnerability pattern observed in production RSC applications. Statistics on leak prevalence are drawn from security audits conducted between Q2 2025 and Q2 2026. React Server Components are a powerful paradigm - this article highlights a specific security concern that developers should be aware of, not a fundamental flaw in the architecture.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>

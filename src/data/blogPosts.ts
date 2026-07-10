@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "react-server-components-data-leak",
+    title: "Your React Server Components Are Leaking User Data Through Client Boundaries. Here's How.",
+    description: "Why the server/client boundary in React Server Components is a security minefield that most teams are crossing blindly - and how serialisation turns your careful access control into a data exposure incident waiting to happen.",
+    contentPath: "/blog/react-server-components-data-leak_article.html",
+    publishedAt: "2026-07-10",
+    tags: ["React", "Security", "Server Components", "Next.js", "Architecture"],
+    readingTime: "~12 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "your-rust-build-tool-is-slower-than-webpack",
     title: "Your 100x Faster Rust Build Tool Is Slower Than Webpack. Here's Why.",
     description: "Turbopack, SWC, and esbuild promise instant builds. But in real-world monorepos with warm caches and incremental compilation, Webpack still wins. Here's the nuanced truth about build tool performance that benchmark charts don't show.",
