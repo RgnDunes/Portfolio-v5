@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>I Was Drowning in AI Token Limits. Then I Found a Hack That Compresses Text Into Images.</title>
+<meta property="og:title" content="I Was Drowning in AI Token Limits. Then I Found a Hack That Compresses Text Into Images." />
+<meta property="og:description" content="How one developer's frustration with Claude's token costs led to discovering pxpipe - a tool that packs 18 million characters into a 1M token window by converting text to images." />
+<meta property="og:type" content="article" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── COVER IMAGE ── */
+  .cover-image {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto 0;
+    overflow: hidden;
+  }
+  .cover-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-diagram {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* ── FLOW NODES ── */
+  .flow-track {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 8px 0;
+  }
+  .flow {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+  }
+  .flow-node {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    letter-spacing: 0.01em;
+  }
+  .flow-node.green  { background: var(--accent2); }
+  .flow-node.red    { background: var(--accent); }
+  .flow-node.muted  { background: var(--muted); }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 0 6px;
+    width: 32px;
+    height: 14px;
+    position: relative;
+    font-size: 0;
+    color: transparent;
+    overflow: visible;
+  }
+  .flow-arrow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    background: var(--rule);
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid var(--rule);
+  }
+
+  /* ── NUMBERED LIST ── */
+  ol.styled {
+    counter-reset: item;
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ol.styled li {
+    counter-increment: item;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  ol.styled li::before {
+    content: counter(item, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .flow-arrow {
+      transform: rotate(90deg);
+      margin: 6px 0 6px 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">Engineering Diaries &nbsp;·&nbsp; AI Tooling &nbsp;·&nbsp; Cost Optimisation</div>
+
+<div class="cover-image">
+  <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200&h=600&fit=crop" alt="Abstract data compression visualisation" />
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Developer Tooling · AI Efficiency</div>
+  <h1>I Was Drowning in AI Token Limits. Then I Found a Hack That <em>Compresses Text Into Images</em></h1>
+  <p class="hero-sub">As a Software Engineer 2 in an era where dependence on AI coding assistants has become the norm, one of the most common issues I've faced is token limitation. Here's how one developer solved it by packing 18 million characters into a 1M token window.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>July 2026</span>
+    <span class="byline-dot"></span>
+    <span>~12 min read</span>
+    <span class="byline-dot"></span>
+    <span class="tag green">AI Tooling</span>
+    <span class="tag">Cost Optimisation</span>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- ── 1. THE PROBLEM ── -->
+  <section>
+    <div class="section-num">01 · The Problem</div>
+    <h2>When Your AI Assistant Hits the Token Wall</h2>
+    <p>As a Software Engineer 2 in an era where dependence on AI coding assistants has become the norm, one of the most common issues I've faced is token limitation. You're deep in a debugging session at 2am, Claude Code is your co-pilot, and you're pasting in the fourth consecutive stack trace when you hit it - the context window ceiling.</p>
+    <p>"I apologise, but I've reached my token limit. Could you start a new conversation?"</p>
+    <p>It's not just frustrating. It's expensive. Every character of your file contents, every line of terminal output, every historical message in your conversation - they all count against your token budget. And when you're working with dense content like JSON configs, minified code, or database dumps, the numbers spiral quickly.</p>
+    <p>For context, Claude's text-based encoding runs at roughly 4 characters per token for typical code. That 50KB log file you just pasted? About 12,500 tokens. Do that a few times across a session and you've burned through your daily allocation before lunch.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">~4</div>
+        <div class="stat-label">Chars per<br/>Text Token</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~18</div>
+        <div class="stat-label">Chars per<br/>Vision Token</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4.6×</div>
+        <div class="stat-label">Context Window<br/>Multiplier</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">60-70%</div>
+        <div class="stat-label">Cost Reduction<br/>on Real Traffic</div>
+      </div>
+    </div>
+
+    <p>The math is simple but brutal. A 1 million token context window - which sounds generous - holds roughly 4 million characters as text. For a large codebase review or a multi-file refactoring session, that's not nearly enough.</p>
+    <p>Then I stumbled upon pxpipe, and realised someone had found a loophole in the pricing model itself.</p>
+  </section>
+
+  <!-- ── 2. THE INSIGHT ── -->
+  <section>
+    <div class="section-num">02 · The Insight</div>
+    <h2>The Economics of Vision Tokens</h2>
+    <p>Large language models charge for tokens. But not all tokens cost the same - and not all tokens encode information with the same density.</p>
+    <p>Text tokens are straightforward. A word, a punctuation mark, a fragment of code. Each consumes one token. Dense content like a JSON object or a minified JavaScript bundle consumes tokens linearly with character count.</p>
+    <p>Vision tokens, on the other hand, work differently. When you send Claude an image, the token cost is determined by the image's pixel dimensions, not by how much text is rendered inside it. A 1568×728 PNG costs the same number of tokens whether it's a photo of a cat or a densely-packed monospace rendering of 12,000 characters of code.</p>
+    <p>This creates an arbitrage opportunity. If you can render text as an image using a sufficiently dense monospace font, you can pack far more information into the same token budget.</p>
+
+    <div class="pull-quote">
+      <p>"An image's token cost is fixed by its pixel dimensions, not by how much text is inside it. That's the entire exploit."</p>
+    </div>
+
+    <p>The developer behind pxpipe measured this on real Claude Code traffic and found the compression ratio was approximately <strong>18.3 characters per vision token</strong> compared to 4 characters per text token. That's a 4.6× multiplier on effective context window capacity.</p>
+    <p>Suddenly, that 1 million token window doesn't hold 4 million characters. It holds 18 million.</p>
+  </section>
+
+  <!-- ── 3. WHAT IS PXPIPE ── -->
+  <section>
+    <div class="section-num">03 · The Tool</div>
+    <h2>What Actually Is pxpipe?</h2>
+    <p>pxpipe is a local proxy that sits between your AI client (like Claude Code) and Anthropic's API. It intercepts outgoing requests, identifies large text blocks that would benefit from compression, renders them as dense monospace PNG images, and rewrites the request payload to send images instead of text.</p>
+    <p>From Claude's perspective, nothing changes. It receives the content, processes it using its vision capabilities, and responds normally. From your perspective, your token consumption drops by 60-70% on typical workloads - and your effective context window expands massively.</p>
+
+    <h3>How It Works</h3>
+    <p>The architecture is conceptually clean:</p>
+
+    <div class="arch-diagram">
+      <div class="arch-title">pxpipe Architecture · Request Flow</div>
+      <div class="flow-track">
+        <div class="flow">
+          <div class="flow-node green">Claude Code</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">pxpipe Proxy<br/>127.0.0.1:47821</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node red">Anthropic API</div>
+        </div>
+      </div>
+    </div>
+
+    <p>When you start the proxy and point your Claude Code instance at it, pxpipe intercepts every <code>/v1/messages</code> request. It scans the request body for three types of content blocks:</p>
+    <ol class="styled">
+      <li><span><strong>Large tool results</strong> - file contents, command output, log dumps over approximately 6,000 characters.</span></li>
+      <li><span><strong>Older conversation history</strong> - messages from earlier in the session that are still in context but no longer frequently referenced.</span></li>
+      <li><span><strong>Static system prompts</strong> - large instruction blocks and tool documentation that don't change between requests.</span></li>
+    </ol>
+
+    <p>For each candidate block, pxpipe runs a profitability calculation. It counts the current text token cost using Anthropic's token counting API, estimates the vision token cost for the rendered image at a given pixel density, and only applies the transformation if the savings exceed a threshold (accounting for the slight quality loss inherent in vision encoding).</p>
+    <p>If compression is profitable, the text is rendered to a PNG using a monospace font optimised for readability at small sizes. The default profile for Claude Fable 5 uses 5×8 Spleen font at 1568×728 resolution, packing roughly 12,000 characters per page.</p>
+    <p>The transformed request - now containing image blocks instead of text blocks - is forwarded to Anthropic's API. Claude processes it normally, and the response streams back through the proxy unmodified.</p>
+
+    <div class="code-block">
+      <div class="code-label">Starting pxpipe · Command Line</div>
+      <pre><span class="code-cmt"># Install and run the proxy</span>
+<span class="code-var">npx</span> pxpipe-proxy
+
+<span class="code-cmt"># Point Claude Code at the proxy</span>
+<span class="code-var">ANTHROPIC_BASE_URL</span>=<span class="code-str">http://127.0.0.1:47821</span> <span class="code-var">claude</span>
+
+<span class="code-cmt"># Dashboard available at:</span>
+<span class="code-cmt"># http://127.0.0.1:47821/</span></pre>
+    </div>
+  </section>
+
+  <!-- ── 4. THE TRADEOFF ── -->
+  <section>
+    <div class="section-num">04 · The Catch</div>
+    <h2>It's Lossy, and That Matters</h2>
+    <p>This is not a lossless compression scheme. You're trading token cost for fidelity, and you need to understand exactly what you're losing.</p>
+    <p>When Claude processes an image of text, it's not performing OCR in the traditional sense. It's using its vision encoder - a neural network trained to extract semantic meaning from pixels. For most natural language and well-formatted code, this works remarkably well. The model reads the text, understands it, and reasons about it as if it were sent as text tokens.</p>
+    <p>But vision encoding is probabilistic. When a glyph is ambiguous - a zero vs. the letter O, a lowercase L vs. the number 1 - the model uses linguistic context to disambiguate. Most of the time, it gets it right. But for byte-exact values like cryptographic hashes, API keys, database IDs, or random strings with no linguistic structure, it can fail silently.</p>
+
+    <div class="callout">
+      <div class="callout-label">Measured Failure Rates</div>
+      <p>The pxpipe repository includes benchmark data. When asked to recall exact 12-character hexadecimal strings embedded in compressed image pages:</p>
+      <p><strong>Claude Fable 5:</strong> 13 out of 15 recalled perfectly (86.7% accuracy)</p>
+      <p><strong>Claude Opus 4.8:</strong> 0 out of 15 recalled perfectly (0% accuracy - which is why Opus is opt-in only via explicit configuration)</p>
+      <p>For this reason, the documentation is explicit: byte-exact values must stay as text. Anything where a single character error would break functionality - credentials, hashes, database primary keys - should not be compressed.</p>
+    </div>
+
+    <p>In practice, this means you need to be selective. Compress dense logs, stack traces, documentation, and code where the semantic meaning is what matters. Leave short, exact values as text. The proxy's profitability gate helps here - it won't compress small blocks where the token savings are marginal.</p>
+  </section>
+
+  <!-- ── 5. REAL WORLD PERFORMANCE ── -->
+  <section>
+    <div class="section-num">05 · Benchmarks</div>
+    <h2>Does It Actually Work in Production?</h2>
+    <p>The repository includes benchmark results from SWE-bench (a standard software engineering task evaluation suite) and custom tests. The numbers are instructive.</p>
+
+    <h3>SWE-bench Lite (10 Tasks)</h3>
+    <p>Accuracy: 10/10 solved with pxpipe enabled, 10/10 without. Token reduction: 65% on request payloads. The compression did not degrade task-solving capability for these tasks, which involved debugging Python codebases with large file contexts.</p>
+
+    <h3>SWE-bench Pro (19 Tasks)</h3>
+    <p>Accuracy: 14/19 with pxpipe, 15/19 without. Token reduction: 60%. The one-task regression is within statistical noise for this benchmark, but it demonstrates the real risk - lossy compression can, on occasion, degrade performance when exact string matching is critical.</p>
+
+    <h3>Novel Arithmetic (Synthetic Test)</h3>
+    <p>Fable 5 was given 100 novel arithmetic problems embedded in compressed image pages. Accuracy: 100/100 at 38% token reduction. This suggests that for well-structured, semantically rich content, the vision encoder is highly reliable.</p>
+
+    <h3>Gist Recall A/B Test</h3>
+    <p>Two groups of 98 document summaries were tested - one sent as text, one as compressed images. Recall accuracy: 98/98 on both arms. For natural language content, the compression is effectively transparent.</p>
+
+    <div class="highlight-box">
+      <strong>Production Use Case</strong>
+      The pxpipe repository itself was authored by AI agent sessions running behind the proxy, reading their own collapsed conversation history as image pages. The tool was used to build itself - a practical proof of viability.
+    </div>
+  </section>
+
+  <!-- ── 6. COST ANALYSIS ── -->
+  <section>
+    <div class="section-num">06 · Economics</div>
+    <h2>The Actual Cost Savings</h2>
+    <p>Let's make this concrete with real pricing from Anthropic's published rate card (as of July 2026, Fable 5 list price).</p>
+    <p><strong>Text input tokens:</strong> $3 per million tokens<br/>
+    <strong>Vision input tokens:</strong> Varies by image resolution, approximately $4.50 per million tokens at typical densities</p>
+    <p>Wait - vision tokens cost more per token. How does this save money?</p>
+    <p>Because you're sending far fewer tokens. The 18.3 chars/token compression ratio means that even though vision tokens are 1.5× more expensive per token, you're using 4.6× fewer tokens overall.</p>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">$3</div>
+        <div class="stat-label">Per Million<br/>Text Tokens</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">$4.50</div>
+        <div class="stat-label">Per Million<br/>Vision Tokens</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4.6×</div>
+        <div class="stat-label">Token Count<br/>Reduction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">60-70%</div>
+        <div class="stat-label">Net Cost<br/>Savings</div>
+      </div>
+    </stat-strip>
+
+    <p>For a 50,000 character file (typical for a large source file or config):</p>
+    <p><strong>As text:</strong> ~12,500 tokens at $3/M = $0.0375</p>
+    <p><strong>As compressed image:</strong> ~2,730 vision tokens at $4.50/M = $0.0123</p>
+    <p><strong>Savings per file:</strong> $0.0252 (67% reduction)</p>
+
+    <p>Multiply that across hundreds of files in a codebase review session, and the savings compound quickly. For teams running AI-assisted development at scale - particularly with tools like Claude Code that operate over entire repositories - the reduction in API costs can be substantial.</p>
+  </section>
+
+  <!-- ── 7. WHEN TO USE IT ── -->
+  <section>
+    <div class="section-num">07 · Applicability</div>
+    <h2>When Should You Actually Use This?</h2>
+    <p>pxpipe is not a universal solution. It's a workload-specific optimisation that wins on certain content profiles and loses on others. Here's the decision matrix:</p>
+
+    <h3>Use pxpipe when:</h3>
+    <ol class="styled">
+      <li><span><strong>Your content is dense.</strong> Log files, minified code, JSON dumps, database exports, stack traces. The denser the text, the better the compression ratio.</span></li>
+      <li><span><strong>You're hitting context limits.</strong> If token exhaustion is blocking your workflow, the 4.6× context expansion is transformative.</span></li>
+      <li><span><strong>Semantic understanding is sufficient.</strong> If the AI needs to reason about the content's meaning rather than reproduce it byte-perfectly, compression is safe.</span></li>
+      <li><span><strong>You're using Fable 5 or Sol.</strong> These models have strong vision encoders optimised for text-in-images. The measured accuracy is high enough for production use.</span></li>
+    </ol>
+
+    <h3>Don't use pxpipe when:</h3>
+    <ol class="styled">
+      <li><span><strong>Byte-exact recall is required.</strong> Cryptographic operations, credential handling, hash verification - anything where a single character error breaks functionality.</span></li>
+      <li><span><strong>Your content is sparse prose.</strong> Natural language with typical formatting doesn't compress well. The proxy will likely skip it via the profitability gate.</span></li>
+      <li><span><strong>You're using Opus 4.8.</strong> The verbatim recall failure rate is too high for general use. Only enable Opus via explicit opt-in if you understand the risks.</span></li>
+      <li><span><strong>Latency matters more than cost.</strong> Rendering text to PNG and encoding images adds overhead. If your workflow is latency-sensitive, the cost savings may not justify the slowdown.</span></li>
+    </ol>
+
+    <div class="callout">
+      <div class="callout-label">Model Support</div>
+      <p>pxpipe defaults to Claude Fable 5 only. Other models (Sol, Opus 4.7/4.8, GPT 5.5, Grok) can be enabled via the <code>PXPIPE_MODELS</code> environment variable, but the failure characteristics vary. Test thoroughly before relying on compression with non-default models.</p>
+    </div>
+  </section>
+
+  <!-- ── 8. HOW TO GET STARTED ── -->
+  <section>
+    <div class="section-num">08 · Getting Started</div>
+    <h2>Running pxpipe in Your Workflow</h2>
+    <p>The barrier to entry is deliberately low. It's a Node.js proxy with zero configuration required for basic use.</p>
+
+    <div class="code-block">
+      <div class="code-label">Installation · Three Commands</div>
+      <pre><span class="code-cmt"># 1. Start the proxy (runs on port 47821 by default)</span>
+<span class="code-var">npx</span> pxpipe-proxy
+
+<span class="code-cmt"># 2. Configure your AI tool to use the proxy</span>
+<span class="code-kw">export</span> <span class="code-var">ANTHROPIC_BASE_URL</span>=<span class="code-str">http://127.0.0.1:47821</span>
+
+<span class="code-cmt"># 3. Run Claude Code (or any Anthropic API client)</span>
+<span class="code-var">claude</span></pre>
+    </div>
+
+    <p>That's it. The proxy is now intercepting your requests, compressing where profitable, and logging every transformation to <code>~/.pxpipe/events.jsonl</code> for audit purposes.</p>
+
+    <h3>The Dashboard</h3>
+    <p>Navigate to <code>http://127.0.0.1:47821/</code> in your browser and you'll see a live dashboard showing:</p>
+    <ol class="styled">
+      <li><span>Total tokens saved across all requests since the proxy started</span></li>
+      <li><span>A visualisation of the last compressed page (so you can verify the rendering quality)</span></li>
+      <li><span>Per-request profitability metrics</span></li>
+      <li><span>Model-specific compression statistics</span></li>
+    </ol>
+
+    <p>The dashboard is particularly useful for tuning. If you notice that certain content types are being compressed but causing failures downstream, you can add exclusion patterns via environment variables.</p>
+
+    <h3>Library API</h3>
+    <p>If you want tighter integration, pxpipe exposes a JavaScript library for programmatic use:</p>
+
+    <div class="code-block">
+      <div class="code-label">Library Usage · Programmatic API</div>
+      <pre><span class="code-kw">import</span> { <span class="code-var">renderTextToImages</span>, <span class="code-var">transformAnthropicMessages</span> } <span class="code-kw">from</span> <span class="code-str">"pxpipe-proxy"</span>;
+
+<span class="code-cmt">// Render text to compressed image pages</span>
+<span class="code-kw">const</span> { <span class="code-var">pages</span> } = <span class="code-kw">await</span> <span class="code-fn">renderTextToImages</span>(<span class="code-var">largeLogFile</span>);
+
+<span class="code-cmt">// Transform an Anthropic API request payload</span>
+<span class="code-kw">const</span> { <span class="code-var">body</span>, <span class="code-var">applied</span>, <span class="code-var">info</span> } = <span class="code-kw">await</span> <span class="code-fn">transformAnthropicMessages</span>({
+  <span class="code-var">body</span>: <span class="code-var">requestBytes</span>,
+  <span class="code-var">model</span>: <span class="code-str">"claude-fable-5"</span>,
+});
+
+<span class="code-cmt">// `applied` is true if compression was profitable</span>
+<span class="code-cmt">// `info` contains token savings breakdown</span></pre>
+    </div>
+  </section>
+
+  <!-- ── 9. LIMITATIONS ── -->
+  <section>
+    <div class="section-num">09 · Constraints</div>
+    <h2>What This Tool Cannot Do</h2>
+    <p>Be clear-eyed about the constraints. pxpipe is powerful within its niche, but it's not magic.</p>
+
+    <h3>It's Lossy</h3>
+    <p>This cannot be overstated. The failure modes are silent. The model will not tell you "I couldn't read character 47." It will give you a plausible wrong answer. For any workflow where exact string matching is critical - test assertions, hash verification, credential parsing - keep that content as text.</p>
+
+    <h3>It's Local-Only</h3>
+    <p>The proxy runs on your machine. If you're using a hosted AI service or a web-based IDE, you can't intercept the requests. This is a tool for developers running Claude Code locally or using the Anthropic API directly from code.</p>
+
+    <h3>It Doesn't Help Output Tokens</h3>
+    <p>pxpipe only compresses input (requests to the API). Claude's responses still come back as text tokens. If your bottleneck is output token cost (e.g., the model generating large code files), this tool doesn't address it.</p>
+
+    <h3>Model Coverage Is Limited</h3>
+    <p>The default profile is tuned for Fable 5. Other models require opt-in configuration and have not been as thoroughly tested. The vision encoder quality varies significantly between models - what works reliably on Fable may fail on Opus.</p>
+
+    <div class="highlight-box">
+      <strong>Cache Compatibility</strong>
+      pxpipe preserves Anthropic's prompt caching behaviour. If a compressed image page is sent in a cacheable context, subsequent requests can reuse it without re-processing. This is critical for long sessions where the same system prompt or large file is referenced repeatedly.
+    </div>
+  </section>
+
+  <!-- ── 10. CLOSING THOUGHTS ── -->
+  <section>
+    <div class="section-num">10 · Reflection</div>
+    <h2>What This Means for AI-Assisted Development</h2>
+    <p>pxpipe is a symptom of a deeper tension in the current AI pricing model. As context windows grow - Claude now offers 1 million tokens, and there are rumours of 10 million token windows in development - the economic pressure to fill those windows efficiently grows with them.</p>
+    <p>Token-based pricing made sense when context was scarce. But as models become more capable of processing multimodal input, the abstraction starts to crack. A vision token and a text token are not equivalent in information density, yet they're priced as if they were.</p>
+    <p>pxpipe exploits that gap. It's a clever hack, and for workloads that fit its profile, it's transformative. But it's also a signal that the pricing model will need to evolve. As more developers discover techniques like this, providers will either adjust vision token pricing to close the arbitrage, or they'll move toward pricing based on actual compute and information content rather than token count.</p>
+
+    <div class="pull-quote">
+      <p>"This tool exists because the pricing model has a seam. The question is whether that seam is a feature or a bug."</p>
+    </div>
+
+    <p>For now, if you're a developer hitting token limits regularly - particularly in data-heavy workflows like log analysis, debugging complex distributed systems, or large-scale refactoring - pxpipe is worth evaluating. The setup cost is low, the dashboard gives you immediate feedback, and the token savings are measurable.</p>
+    <p>Just remember: it's lossy. Test it on your actual workload. Verify that the compression doesn't degrade the AI's performance on your specific tasks. And for anything where exact correctness matters, keep it as text.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="callout">
+      <div class="callout-label">Further Reading & Credits</div>
+      <p><strong>Repository:</strong> <a href="https://github.com/teamchong/pxpipe" style="color: var(--accent);">github.com/teamchong/pxpipe</a></p>
+      <p><strong>Installation:</strong> <code>npx pxpipe-proxy</code></p>
+      <p><strong>License:</strong> MIT (open source, free for commercial use)</p>
+      <p><strong>Model support:</strong> Fable 5 (default), Sol, Opus 4.7/4.8 (opt-in), GPT 5.5, Grok</p>
+      <p style="margin-top:14px; padding-top:14px; border-top: 1px solid rgba(255,255,255,0.1);"><strong>Credit where credit is due:</strong> Massive kudos to the developer behind pxpipe (teamchong on GitHub) for building this remarkably clever tool and open-sourcing it. This article is a deep dive into their work - all the engineering insight belongs to them.</p>
+    </div>
+  </section>
+
+  <div class="footnote">
+    All pricing and token counts referenced are based on Anthropic's published rate card as of July 2026 and the pxpipe repository's measured compression ratios on real Claude Code traffic. Actual savings will vary based on workload characteristics.
+  </div>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
