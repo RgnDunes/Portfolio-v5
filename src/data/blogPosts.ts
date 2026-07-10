@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-token-limits-pxpipe-solution",
+    title: "I Was Drowning in AI Token Limits. Then I Found a Hack That Compresses Text Into Images.",
+    description: "How one developer's frustration with Claude's token costs led to discovering pxpipe - a tool that packs 18 million characters into a 1M token window by converting text to images.",
+    contentPath: "/blog/ai-token-limits-pxpipe-solution_article.html",
+    publishedAt: "2026-07-10",
+    tags: ["AI Tooling", "Cost Optimisation", "Claude", "Developer Tools", "Performance"],
+    readingTime: "~12 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "react-server-components-data-leak",
     title: "Your React Server Components Are Leaking User Data Through Client Boundaries. Here's How.",
     description: "Why the server/client boundary in React Server Components is a security minefield that most teams are crossing blindly - and how serialisation turns your careful access control into a data exposure incident waiting to happen.",
