@@ -3,15 +3,15 @@
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
+import NavbarModern from "@/components/NavbarModern";
+import HeroModern from "@/components/sections/HeroModern";
+import AboutModern from "@/components/sections/AboutModern";
 import Experience from "@/components/sections/Experience";
 import Skills from "@/components/sections/Skills";
 import GameModeWrapper from "@/components/game3d/GameModeWrapper";
 
 // Dynamically import components that are below the fold
-const Projects = dynamic(() => import("@/components/sections/Projects"), {
+const Projects = dynamic(() => import("@/components/sections/ProjectsModern"), {
   loading: () => <div className="min-h-screen" />,
 });
 const DigitalProducts = dynamic(
@@ -50,7 +50,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar onGameModeToggle={enterGameMode} />
+      <NavbarModern onGameModeToggle={enterGameMode} />
       {!gameMode && (
         <motion.main
           initial={{ opacity: 0 }}
@@ -59,8 +59,8 @@ export default function Home() {
           className="min-h-screen"
           style={{ background: '#dad4cc', color: '#0f0e0c' }}
         >
-          <Hero />
-          <About />
+          <HeroModern />
+          <AboutModern />
           <Experience />
           <Skills />
           <Projects />
