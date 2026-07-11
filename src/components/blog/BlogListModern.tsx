@@ -40,54 +40,69 @@ export default function BlogListModern({ posts }: BlogListProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="mt-12 space-y-6"
+        className="mt-12 space-y-8"
       >
         {/* Search */}
-        <div className="relative max-w-xl">
-          <FaSearch className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" />
+        <div className="relative max-w-2xl">
+          <FaSearch className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted/50" />
           <motion.input
-            whileFocus={{ scale: 1.02 }}
+            whileFocus={{ scale: 1.01 }}
             type="text"
             placeholder="Search articles by title, description, or tags..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="glass-strong w-full rounded-2xl border border-white/20 px-12 py-4 text-base text-ink placeholder-muted outline-none transition-all focus:border-accent/50 focus:shadow-lg"
+            className="glass-strong w-full rounded-2xl border border-white/20 px-14 py-5 text-base text-ink placeholder-muted/60 outline-none transition-all focus:border-accent/50 focus:shadow-xl"
           />
-        </div>
-
-        {/* Tag Filters */}
-        <div className="flex flex-wrap gap-3">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setSelectedTag(null)}
-            className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
-              selectedTag === null
-                ? "bg-gradient-to-r from-accent to-accent2 text-white shadow-lg"
-                : "glass-strong text-ink hover:bg-white/30"
-            }`}
-          >
-            All Articles
-          </motion.button>
-          {allTags.map((tag, index) => (
+          {searchQuery && (
             <motion.button
-              key={tag}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-              className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
-                selectedTag === tag
-                  ? "bg-accent text-white shadow-lg"
-                  : "glass-strong text-ink hover:bg-white/30"
+              whileHover={{ scale: 1.1 }}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-5 top-1/2 -translate-y-1/2 rounded-lg bg-muted/10 p-2 text-muted transition-all hover:bg-accent/20 hover:text-accent"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </motion.button>
+          )}
+        </div>
+
+        {/* Tag Filters - Multi-row layout */}
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-2.5">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setSelectedTag(null)}
+              className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
+                selectedTag === null
+                  ? "bg-gradient-to-r from-accent via-[#d55a3f] to-accent2 text-white shadow-lg"
+                  : "glass bg-white/60 text-ink hover:bg-white/80"
               }`}
             >
-              <FaTag className="h-3 w-3" />
-              {tag}
+              All Articles
             </motion.button>
-          ))}
+            {allTags.map((tag, index) => (
+              <motion.button
+                key={tag}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2, delay: 0.02 * index }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
+                  selectedTag === tag
+                    ? "bg-accent text-white shadow-md"
+                    : "glass bg-white/60 text-ink/90 hover:bg-white/80"
+                }`}
+              >
+                <FaTag className="h-3 w-3" />
+                {tag}
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         {/* Result count */}

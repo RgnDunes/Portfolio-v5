@@ -110,99 +110,85 @@ export default function SkillsModern() {
         transition={{ duration: 0.5 }}
         className="relative z-10"
       >
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {selectedCategoryData?.skills.map((skill: any, index: number) => (
             <motion.div
               key={skill.name}
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.05 }}
-              whileHover={{ scale: 1.05, y: -5 }}
+              transition={{ duration: 0.4, delay: index * 0.03 }}
+              whileHover={{ scale: 1.05, y: -8 }}
               className="glass-strong group relative overflow-hidden rounded-2xl border border-white/20 p-6 transition-all hover:border-accent/50 hover:shadow-2xl"
             >
-              {/* Gradient overlay on hover */}
-              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-accent/5 via-transparent to-accent2/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              {/* Animated gradient background */}
+              <motion.div
+                className="absolute inset-0 -z-10 bg-gradient-to-br from-accent/10 via-transparent to-accent2/10 opacity-0 transition-opacity duration-500"
+                whileHover={{ opacity: 1 }}
+              />
 
-              {/* Skill icon */}
-              {skill.icon && (
+              {/* Skill icon - larger and more prominent */}
+              {skill.image && (
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.05 + 0.2 }}
-                  className="mb-4 flex items-center justify-between"
+                  transition={{ duration: 0.6, delay: index * 0.03 + 0.2, type: "spring" }}
+                  className="mb-6 flex justify-center"
                 >
-                  <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-white p-2 shadow-md transition-all group-hover:scale-110 group-hover:shadow-lg">
+                  <div className="relative h-20 w-20 overflow-hidden rounded-2xl bg-white p-3 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:rotate-6">
                     <Image
-                      src={skill.icon}
+                      src={skill.image}
                       alt={skill.name}
                       fill
-                      className="object-contain"
+                      className="object-contain transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
-                  {skill.level && (
-                    <span className="glass rounded-full px-3 py-1 text-xs font-semibold text-accent">
-                      {skill.level}%
-                    </span>
-                  )}
                 </motion.div>
               )}
 
               {/* Skill name */}
-              <h3 className="mb-2 font-serif text-xl font-bold text-ink transition-colors group-hover:text-accent">
+              <h3 className="mb-2 text-center font-serif text-lg font-bold text-ink transition-colors duration-300 group-hover:text-accent">
                 {skill.name}
               </h3>
 
-              {/* Skill description */}
-              {skill.description && (
-                <p className="mb-4 text-sm text-muted">{skill.description}</p>
-              )}
-
-              {/* Progress bar */}
-              {skill.level && (
-                <div className="relative h-2 overflow-hidden rounded-full bg-white/50">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${skill.level}%` }}
-                    transition={{ duration: 1, delay: index * 0.05 + 0.4, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-accent to-accent2"
-                  />
-                  <motion.div
-                    animate={{ x: ["-100%", "100%"] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                  />
-                </div>
-              )}
-
-              {/* Years of experience badge */}
-              {skill.years && (
+              {/* Experience badge */}
+              {skill.experience && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 + 0.5 }}
-                  className="mt-4 inline-flex items-center gap-2 text-xs font-medium text-muted"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.03 + 0.4 }}
+                  className="flex justify-center"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                  {skill.years} years experience
+                  <span className="glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-accent">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+                    {skill.experience}
+                  </span>
                 </motion.div>
               )}
 
-              {/* Floating accent element */}
+              {/* Decorative corner elements */}
               <motion.div
                 animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.05, 0.15, 0.05],
+                  scale: [1, 1.3, 1],
+                  opacity: [0.1, 0.2, 0.1],
                 }}
                 transition={{
-                  duration: 4,
+                  duration: 3,
                   repeat: Infinity,
-                  delay: index * 0.2,
+                  delay: index * 0.1,
                 }}
-                className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-accent blur-3xl"
+                className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-accent blur-2xl"
+              />
+              <motion.div
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.1, 0.2, 0.1],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: index * 0.1 + 0.5,
+                }}
+                className="absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-accent2 blur-2xl"
               />
             </motion.div>
           ))}

@@ -16,7 +16,7 @@ const Projects = dynamic(() => import("@/components/sections/ProjectsModern"), {
   loading: () => <div className="min-h-screen" />,
 });
 const DigitalProducts = dynamic(
-  () => import("@/components/sections/DigitalProducts"),
+  () => import("@/components/sections/DigitalProductsModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }

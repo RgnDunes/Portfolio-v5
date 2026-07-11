@@ -1,14 +1,27 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export default function ScrollProgress() {
   const { scrollYProgress } = useScroll();
+  const [scrollPercentage, setScrollPercentage] = useState(0);
+
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001,
   });
+
+  // Update percentage on scroll
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      setScrollPercentage(Math.round(latest * 100));
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
+
+  const showButton = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
 
   return (
     <>
@@ -22,6 +35,7 @@ export default function ScrollProgress() {
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
+        style={{ opacity: showButton }}
         className="fixed bottom-8 right-8 z-50 hidden lg:block"
       >
         <svg className="h-16 w-16 -rotate-90" viewBox="0 0 100 100">
@@ -45,8 +59,8 @@ export default function ScrollProgress() {
             strokeLinecap="round"
             style={{
               pathLength: scrollYProgress,
+              strokeDasharray: "0 1",
             }}
-            strokeDasharray="0 1"
           />
           {/* Gradient definition */}
           <defs>
@@ -58,28 +72,16 @@ export default function ScrollProgress() {
         </svg>
 
         {/* Percentage text */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{
-            opacity: useSpring(scrollYProgress, {
-              stiffness: 100,
-              damping: 30,
-            }),
-          }}
-        >
-          <motion.span className="text-xs font-bold text-accent">
-            {Math.round(scrollYProgress.get() * 100)}%
-          </motion.span>
-        </motion.div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xs font-bold text-accent">
+            {scrollPercentage}%
+          </span>
+        </div>
       </motion.div>
 
       {/* Scroll to top button */}
       <motion.button
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{
-          opacity: scrollYProgress.get() > 0.1 ? 1 : 0,
-          scale: scrollYProgress.get() > 0.1 ? 1 : 0,
-        }}
+        style={{ opacity: showButton, scale: showButton }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
