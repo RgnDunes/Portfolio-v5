@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import NavbarModern from "@/components/NavbarModern";
+import ScrollProgress from "@/components/ScrollProgress";
 import HeroModern from "@/components/sections/HeroModern";
 import AboutModern from "@/components/sections/AboutModern";
 import ExperienceModern from "@/components/sections/ExperienceModern";
@@ -50,6 +51,7 @@ export default function Home() {
 
   return (
     <>
+      <ScrollProgress />
       <NavbarModern onGameModeToggle={enterGameMode} />
       {!gameMode && (
         <motion.main
