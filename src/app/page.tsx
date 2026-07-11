@@ -8,7 +8,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import HeroModern from "@/components/sections/HeroModern";
 import AboutModern from "@/components/sections/AboutModern";
 import ExperienceModern from "@/components/sections/ExperienceModern";
-import SkillsModern from "@/components/sections/SkillsModern";
+import SkillsImproved from "@/components/sections/SkillsImproved";
 import GameModeWrapper from "@/components/game3d/GameModeWrapper";
 
 // Dynamically import components that are below the fold
@@ -64,7 +64,7 @@ export default function Home() {
           <HeroModern />
           <AboutModern />
           <ExperienceModern />
-          <SkillsModern />
+          <SkillsImproved />
           <Projects />
           <DigitalProducts />
           <ArticlesAndProducts />
