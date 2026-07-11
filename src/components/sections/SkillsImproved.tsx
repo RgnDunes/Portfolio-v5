@@ -84,18 +84,18 @@ export default function SkillsImproved() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              className="glass group relative overflow-hidden rounded-3xl bg-white/60 p-8 transition-all hover:bg-white/80 hover:shadow-2xl"
+              whileHover={{ y: -6, scale: 1.01 }}
+              className="glass group relative overflow-hidden rounded-2xl bg-white/70 p-6 transition-all hover:bg-white/90 hover:shadow-xl"
             >
-              {/* Skill icon - Large and centered */}
+              {/* Skill icon - Professional size */}
               {skill.image && (
                 <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
+                  initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.05 + 0.2 }}
-                  className="mb-6 flex justify-center"
+                  transition={{ duration: 0.4, delay: index * 0.04 + 0.2 }}
+                  className="mb-5 flex justify-center"
                 >
-                  <div className="relative h-24 w-24 overflow-hidden rounded-2xl bg-white p-4 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-xl bg-white p-3 shadow-md transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg">
                     <Image
                       src={skill.image}
                       alt={skill.name}
@@ -107,15 +107,15 @@ export default function SkillsImproved() {
               )}
 
               {/* Skill name */}
-              <h3 className="mb-3 text-center font-serif text-xl font-bold text-ink">
+              <h3 className="mb-2 text-center font-serif text-lg font-bold text-ink">
                 {skill.name}
               </h3>
 
               {/* Experience badge */}
               {skill.experience && (
                 <div className="flex justify-center">
-                  <span className="inline-flex items-center gap-2 text-sm font-medium text-accent">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-accent">
+                    <span className="h-1 w-1 rounded-full bg-accent" />
                     {skill.experience}
                   </span>
                 </div>
