@@ -6,8 +6,8 @@ import { motion } from "framer-motion";
 import NavbarModern from "@/components/NavbarModern";
 import HeroModern from "@/components/sections/HeroModern";
 import AboutModern from "@/components/sections/AboutModern";
-import Experience from "@/components/sections/Experience";
-import Skills from "@/components/sections/Skills";
+import ExperienceModern from "@/components/sections/ExperienceModern";
+import SkillsModern from "@/components/sections/SkillsModern";
 import GameModeWrapper from "@/components/game3d/GameModeWrapper";
 
 // Dynamically import components that are below the fold
@@ -61,8 +61,8 @@ export default function Home() {
         >
           <HeroModern />
           <AboutModern />
-          <Experience />
-          <Skills />
+          <ExperienceModern />
+          <SkillsModern />
           <Projects />
           <DigitalProducts />
           <ArticlesAndProducts />

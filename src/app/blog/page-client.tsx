@@ -1,17 +1,16 @@
 "use client";
 
-import { blogPosts } from "@/data/blogPosts";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaArrowLeft } from "react-icons/fa";
 import BlogListModern from "@/components/blog/BlogListModern";
+import { BlogPost } from "@/data/blogPosts";
 
-export default function BlogPageModern() {
-  const sortedPosts = blogPosts.sort(
-    (a, b) =>
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  );
+interface BlogPageClientProps {
+  posts: BlogPost[];
+}
 
+export default function BlogPageClient({ posts }: BlogPageClientProps) {
   return (
     <div className="relative min-h-screen">
       {/* Animated background */}
@@ -94,19 +93,19 @@ export default function BlogPageModern() {
           >
             <div className="glass-strong rounded-xl px-6 py-3">
               <div className="text-2xl font-bold text-accent">
-                {sortedPosts.length}
+                {posts.length}
               </div>
               <div className="text-sm text-muted">Articles</div>
             </div>
             <div className="glass-strong rounded-xl px-6 py-3">
               <div className="text-2xl font-bold text-accent2">
-                {new Set(sortedPosts.flatMap((p) => p.tags)).size}
+                {new Set(posts.flatMap((p) => p.tags)).size}
               </div>
               <div className="text-sm text-muted">Topics</div>
             </div>
             <div className="glass-strong rounded-xl px-6 py-3">
               <div className="text-2xl font-bold text-accent">
-                {sortedPosts.reduce(
+                {posts.reduce(
                   (sum, post) => sum + parseInt(post.readingTime),
                   0
                 )}
@@ -117,7 +116,7 @@ export default function BlogPageModern() {
           </motion.div>
         </motion.div>
 
-        <BlogListModern posts={sortedPosts} />
+        <BlogListModern posts={posts} />
       </div>
     </div>
   );
