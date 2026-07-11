@@ -31,6 +31,18 @@ export const blogPosts: BlogPost[] = [
     },
   },
   {
+    slug: "i-stopped-using-npm-install-heres-the-40-second-trick-that-changed-how-i-debug-dependencies",
+    title: "I Stopped Using npm install. Here's the 40-Second Trick That Changed How I Debug Dependencies.",
+    description: "Most engineers reinstall node_modules when debugging dependency issues. There's a faster way that lets you patch, test, and iterate on third-party packages in seconds - without waiting for CI or publishing to a test registry.",
+    contentPath: "/blog/i-stopped-using-npm-install-heres-the-40-second-trick-that-changed-how-i-debug-dependencies_article.html",
+    publishedAt: "2026-07-11",
+    tags: ["Frontend Infrastructure", "npm", "Developer Experience"],
+    readingTime: "~17 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "ai-token-limits-pxpipe-solution",
     title: "I Was Drowning in AI Token Limits. Then I Found a Hack That Compresses Text Into Images.",
     description: "How one developer's frustration with Claude's token costs led to discovering pxpipe - a tool that packs 18 million characters into a 1M token window by converting text to images.",

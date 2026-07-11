@@ -503,372 +503,132 @@
   <section>
     <div class="section-num">01 · The Problem</div>
     <h2>The 3 AM Debugging Session That Changed Everything</h2>
-    It was 3 AM, and I was staring at a cryptic error deep inside a popular React animation library. The stack trace pointed to line 247 of a file buried in node_modules. I knew exactly what the fix was - a single conditional check - but testing it meant:
-
-1. Fork the repo
-2. Make the change
-3. Commit and push
-4. Publish to a scoped test registry
-5. Update my app's package.json
-6. Run npm install
-7. Test
-8. Repeat for every iteration
-
-That's 40 minutes per iteration, minimum. Instead, I added a single line to my package.json and had the fix running in 40 seconds.
-
-I haven't debugged a dependency the slow way since.
+    <p>It was 3 AM, and I was staring at a cryptic error deep inside a popular React animation library. The stack trace pointed to line 247 of a file buried in node_modules. I knew exactly what the fix was - a single conditional check - but testing it meant:</p><ol><li>Fork the repo</li><li>Make the change</li><li>Commit and push</li><li>Publish to a scoped test registry</li><li>Update my app's package.json</li><li>Run npm install</li><li>Test</li><li>Repeat for every iteration</li></ol><p>That's 40 minutes per iteration, minimum. Instead, I added a single line to my package.json and had the fix running in 40 seconds.</p><p>I haven't debugged a dependency the slow way since.</p>
   </section>
 
   <!-- 02. THE WRONG APPROACH -->
   <section>
     <div class="section-num">02 · The Wrong Approach</div>
     <h2>Why npm install Is the Wrong Tool for Debugging</h2>
-    npm install is designed for one thing: fetching immutable packages from a registry. When you're debugging a dependency, you need the opposite - a mutable, local version you can edit and see changes instantly.
-
-The typical debugging flow looks like this:
-
-**The Slow Way (what most engineers do):**
-- Edit code in node_modules directly (changes vanish on next install)
-- Or fork → publish → install → test (15-40 minute cycle)
-- Or use npm link (works, but has weird edge cases)
-
-**The Fast Way (what changed my workflow):**
-- Point package.json directly at a local directory
-- Edit the source
-- See changes instantly
-- No reinstall needed
-
-The difference isn't just speed. It's the difference between "I'll debug this later" and "I'll debug this now."
+    <p>npm install is designed for one thing: fetching immutable packages from a registry. When you're debugging a dependency, you need the opposite - a mutable, local version you can edit and see changes instantly.</p><p>The typical debugging flow looks like this:</p><p><strong>The Slow Way (what most engineers do):</strong></p><ul><li>Edit code in node_modules directly (changes vanish on next install)</li><li>Or fork → publish → install → test (15-40 minute cycle)</li><li>Or use npm link (works, but has weird edge cases)</li></ul><p><strong>The Fast Way (what changed my workflow):</strong></p><ul><li>Point package.json directly at a local directory</li><li>Edit the source</li><li>See changes instantly</li><li>No reinstall needed</li></ul><p>The difference isn't just speed. It's the difference between "I'll debug this later" and "I'll debug this now."</p>
   </section>
 
   <!-- 03. THE SOLUTION -->
   <section>
     <div class="section-num">03 · The Solution</div>
     <h2>The file: Protocol - Your New Best Friend</h2>
-    Here's the trick: npm (and yarn, and pnpm) all support the file: protocol in package.json. Instead of a version number, you can point directly to a local directory.
-
-**Before:**
-```json
-{
-  "dependencies": {
-    "react-spring": "^9.7.0"
+    <p>Here's the trick: npm (and yarn, and pnpm) all support the file: protocol in package.json. Instead of a version number, you can point directly to a local directory.</p><p><strong>Before:</strong></p><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"dependencies"</span>: {
+    <span class="code-str">"react-spring"</span>: <span class="code-str">"^9.7.0"</span>
   }
-}
-```
-
-**After:**
-```json
-{
-  "dependencies": {
-    "react-spring": "file:../react-spring-debug"
+}</pre></div><p><strong>After:</strong></p><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"dependencies"</span>: {
+    <span class="code-str">"react-spring"</span>: <span class="code-str">"file:../react-spring-debug"</span>
   }
-}
-```
-
-Now when you run npm install, it creates a symlink (or copies the directory, depending on your package manager) from node_modules/react-spring to your local ../react-spring-debug directory.
-
-Edit a file in ../react-spring-debug. Save. Your app sees the change immediately. No reinstall. No cache busting. No publishing.
-
-This works for any dependency - not just React libraries. I've used it to debug build tools, ESLint plugins, Babel presets, and even TypeScript itself.
+}</pre></div><p>Now when you run npm install, it creates a symlink (or copies the directory, depending on your package manager) from node_modules/react-spring to your local ../react-spring-debug directory.</p><p>Edit a file in ../react-spring-debug. Save. Your app sees the change immediately. No reinstall. No cache busting. No publishing.</p><p>This works for any dependency - not just React libraries. I've used it to debug build tools, ESLint plugins, Babel presets, and even TypeScript itself.</p>
   </section>
 
   <!-- 04. THE WORKFLOW -->
   <section>
     <div class="section-num">04 · The Workflow</div>
     <h2>The Full Workflow (40 Seconds, Start to Finish)</h2>
-    Here's the exact flow I use when I hit a bug in a dependency:
-
-**Step 1: Clone the dependency locally (10 seconds)**
-```bash
-git clone https://github.com/pmndrs/react-spring.git ../react-spring-debug
-cd ../react-spring-debug
-npm install && npm run build
-```
-
-**Step 2: Point your app at it (5 seconds)**
-In your app's package.json:
-```json
-"react-spring": "file:../react-spring-debug"
-```
-
-**Step 3: Reinstall (10 seconds)**
-```bash
-npm install
-```
-
-**Step 4: Debug (15 seconds)**
-Edit ../react-spring-debug/src/whatever.ts. Save. Your app's dev server auto-reloads with the change.
-
-Total time: 40 seconds to go from "there's a bug" to "I can edit the source and see my fix."
-
-Compare that to forking, publishing to a test registry, and reinstalling - which takes 15-40 minutes *per iteration*.
+    <p>Here's the exact flow I use when I hit a bug in a dependency:</p><p><strong>Step 1: Clone the dependency locally (10 seconds)</strong></p><div class="code-block"><div class="code-label">terminal</div><pre><span class="code-fn">git</span> clone https://github.com/pmndrs/react-spring.git ../react-spring-debug
+<span class="code-fn">cd</span> ../react-spring-debug
+<span class="code-fn">npm</span> install && npm run build</pre></div><p><strong>Step 2: Point your app at it (5 seconds)</strong></p><p>In your app's package.json:</p><div class="code-block"><div class="code-label">package.json</div><pre><span class="code-str">"react-spring"</span>: <span class="code-str">"file:../react-spring-debug"</span></pre></div><p><strong>Step 3: Reinstall (10 seconds)</strong></p><div class="code-block"><div class="code-label">terminal</div><pre><span class="code-fn">npm</span> install</pre></div><p><strong>Step 4: Debug (15 seconds)</strong></p><p>Edit ../react-spring-debug/src/whatever.ts. Save. Your app's dev server auto-reloads with the change.</p><p>Total time: 40 seconds to go from "there's a bug" to "I can edit the source and see my fix."</p><p>Compare that to forking, publishing to a test registry, and reinstalling - which takes 15-40 minutes <em>per iteration</em>.</p>
   </section>
 
   <!-- 05. THE GOTCHAS -->
   <section>
     <div class="section-num">05 · The Gotchas</div>
     <h2>When It Gets Messy - The Gotchas Nobody Warns You About</h2>
-    This technique is powerful, but it has sharp edges. Here's what I learned the hard way:
-
-**Gotcha #1: Build output vs source**
-Most packages publish built code (dist/), not source (src/). If you clone the repo and point file: at it, your app might try to import from src/ - which isn't transpiled.
-
-**The fix:** Always run `npm run build` in the local dependency after making changes. Or configure your app's bundler to transpile node_modules/react-spring (most bundlers exclude node_modules by default for performance).
-
-**Gotcha #2: Transitive dependencies**
-If your local dependency has its own dependencies, npm will install them inside the local directory. If you then run npm install in your app, you might end up with duplicate versions - one in node_modules, one in ../react-spring-debug/node_modules.
-
-**The fix:** Use npm's workspaces or pnpm's workspace protocol (more on this later).
-
-**Gotcha #3: Cache invalidation**
-Some bundlers (looking at you, Webpack) aggressively cache node_modules. After you change ../react-spring-debug, your app's dev server might not pick up the change until you restart it or clear the cache.
-
-**The fix:** Add the local dependency's directory to your bundler's watch list, or disable caching for that specific package during debugging.
+    <p>This technique is powerful, but it has sharp edges. Here's what I learned the hard way:</p><p><strong>Gotcha #1: Build output vs source</strong></p><p>Most packages publish built code (dist/), not source (src/). If you clone the repo and point file: at it, your app might try to import from src/ - which isn't transpiled.</p><div class="callout"><div class="callout-label">The Fix</div><p>Always run <code>npm run build</code> in the local dependency after making changes. Or configure your app's bundler to transpile node_modules/react-spring (most bundlers exclude node_modules by default for performance).</p></div><p><strong>Gotcha #2: Transitive dependencies</strong></p><p>If your local dependency has its own dependencies, npm will install them inside the local directory. If you then run npm install in your app, you might end up with duplicate versions - one in node_modules, one in ../react-spring-debug/node_modules.</p><div class="callout"><div class="callout-label">The Fix</div><p>Use npm's workspaces or pnpm's workspace protocol (more on this later).</p></div><p><strong>Gotcha #3: Cache invalidation</strong></p><p>Some bundlers (looking at you, Webpack) aggressively cache node_modules. After you change ../react-spring-debug, your app's dev server might not pick up the change until you restart it or clear the cache.</p><div class="callout"><div class="callout-label">The Fix</div><p>Add the local dependency's directory to your bundler's watch list, or disable caching for that specific package during debugging.</p></div>
   </section>
 
   <!-- 06. MONOREPO SETUP -->
   <section>
     <div class="section-num">06 · Monorepo Setup</div>
     <h2>The Workspace Protocol - When file: Isn't Enough</h2>
-    In a monorepo, you don't want file: - you want the workspace protocol. This is what we use at scale.
-
-**In pnpm:**
-```json
-{
-  "dependencies": {
-    "@company/design-system": "workspace:*"
+    <p>In a monorepo, you don't want file: - you want the workspace protocol. This is what we use at scale.</p><p><strong>In pnpm:</strong></p><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"dependencies"</span>: {
+    <span class="code-str">"@company/design-system"</span>: <span class="code-str">"workspace:*"</span>
   }
-}
-```
-
-**In npm (7+):**
-```json
-{
-  "dependencies": {
-    "@company/design-system": "workspace:*"
+}</pre></div><p><strong>In npm (7+):</strong></p><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"dependencies"</span>: {
+    <span class="code-str">"@company/design-system"</span>: <span class="code-str">"workspace:*"</span>
   }
-}
-```
-
-**In yarn (2+):**
-```json
-{
-  "dependencies": {
-    "@company/design-system": "workspace:*"
+}</pre></div><p><strong>In yarn (2+):</strong></p><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"dependencies"</span>: {
+    <span class="code-str">"@company/design-system"</span>: <span class="code-str">"workspace:*"</span>
   }
-}
-```
-
-The workspace protocol tells the package manager: "This package lives in this repository. Link to it directly, and respect the monorepo's dependency resolution."
-
-The difference between workspace: and file: is subtle but critical:
-- file: is a static path. If the package moves, your link breaks.
-- workspace: is a reference to a package *name*. The package manager resolves it to the correct directory in your workspace.
-
-If you're in a monorepo, always use workspace:. If you're debugging a third-party package, use file:.
+}</pre></div><p>The workspace protocol tells the package manager: "This package lives in this repository. Link to it directly, and respect the monorepo's dependency resolution."</p><p>The difference between workspace: and file: is subtle but critical:</p><ul><li>file: is a static path. If the package moves, your link breaks.</li><li>workspace: is a reference to a package <em>name</em>. The package manager resolves it to the correct directory in your workspace.</li></ul><p>If you're in a monorepo, always use workspace:. If you're debugging a third-party package, use file:.</p>
   </section>
 
   <!-- 07. ALTERNATIVE APPROACHES -->
   <section>
     <div class="section-num">07 · Alternative Approaches</div>
     <h2>npm link - The Old Way (And Why I Stopped Using It)</h2>
-    Before I learned about file:, I used npm link. It's the "official" way to test local dependencies.
+    <p>Before I learned about file:, I used npm link. It's the "official" way to test local dependencies.</p><p>The workflow:</p><div class="code-block"><div class="code-label">terminal</div><pre><span class="code-fn">cd</span> ../react-spring-debug
+<span class="code-fn">npm</span> link
 
-The workflow:
-```bash
-cd ../react-spring-debug
-npm link
-
-cd ../my-app
-npm link react-spring
-```
-
-This creates a global symlink in your npm cache, then links your app to it.
-
-**Why I stopped using it:**
-
-1. **Global state.** npm link modifies your system's global npm cache. If you link 5 different local versions of react-spring across 5 projects, only the last one wins. Debugging multiple apps simultaneously becomes a nightmare.
-
-2. **Peer dependency hell.** If react-spring has a peer dependency on React, and your local version expects React 18 but your app uses React 17, npm link silently breaks. file: respects your app's node_modules.
-
-3. **You forget to unlink.** I've lost count of how many times I ran npm link for a quick test, forgot about it, and spent an hour debugging why my app was pulling in a stale local version months later.
-
-file: is local to the project. No global state. No "wait, did I unlink that?" It's scoped, explicit, and obvious when you git diff package.json.
+<span class="code-fn">cd</span> ../my-app
+<span class="code-fn">npm</span> link react-spring</pre></div><p>This creates a global symlink in your npm cache, then links your app to it.</p><p><strong>Why I stopped using it:</strong></p><ol><li><strong>Global state.</strong> npm link modifies your system's global npm cache. If you link 5 different local versions of react-spring across 5 projects, only the last one wins. Debugging multiple apps simultaneously becomes a nightmare.</li><li><strong>Peer dependency hell.</strong> If react-spring has a peer dependency on React, and your local version expects React 18 but your app uses React 17, npm link silently breaks. file: respects your app's node_modules.</li><li><strong>You forget to unlink.</strong> I've lost count of how many times I ran npm link for a quick test, forgot about it, and spent an hour debugging why my app was pulling in a stale local version months later.</li></ol><p>file: is local to the project. No global state. No "wait, did I unlink that?" It's scoped, explicit, and obvious when you git diff package.json.</p>
   </section>
 
   <!-- 08. CASE STUDY -->
   <section>
     <div class="section-num">08 · Case Study</div>
     <h2>The Real-World Example - Debugging a Babel Plugin</h2>
-    Here's a concrete case from last year. We were using a Babel plugin that transformed import statements for our monorepo. It worked in dev but broke in production - imports were being rewritten incorrectly, causing 404s for half our assets.
-
-The plugin is 800 lines of AST traversal code. The error was somewhere in there. I needed to add console.log statements, test different hypotheses, and iterate fast.
-
-**What I did:**
-
-1. Cloned the plugin repo to ../babel-plugin-debug
-2. Added `"babel-plugin-transform-imports": "file:../babel-plugin-debug"` to package.json
-3. Ran npm install
-4. Added console.log statements throughout the plugin's source
-5. Ran the build
-6. Saw the logs
-7. Identified the bug (a regex that didn't account for scoped package names)
-8. Fixed it
-9. Ran the build again
-10. Confirmed the fix
-
-Total time: 30 minutes from "there's a bug" to "I have a fix and a PR open."
-
-Without file:, I would have either:
-- Edited node_modules directly (and lost my changes on the next install)
-- Or forked the repo, published to a test registry, and waited 20 minutes per iteration
-
-The file: protocol turned a multi-hour debugging session into a 30-minute focused sprint.
+    <p>Here's a concrete case from last year. We were using a Babel plugin that transformed import statements for our monorepo. It worked in dev but broke in production - imports were being rewritten incorrectly, causing 404s for half our assets.</p><p>The plugin is 800 lines of AST traversal code. The error was somewhere in there. I needed to add console.log statements, test different hypotheses, and iterate fast.</p><p><strong>What I did:</strong></p><ol><li>Cloned the plugin repo to ../babel-plugin-debug</li><li>Added <code>"babel-plugin-transform-imports": "file:../babel-plugin-debug"</code> to package.json</li><li>Ran npm install</li><li>Added console.log statements throughout the plugin's source</li><li>Ran the build</li><li>Saw the logs</li><li>Identified the bug (a regex that didn't account for scoped package names)</li><li>Fixed it</li><li>Ran the build again</li><li>Confirmed the fix</li></ol><p>Total time: 30 minutes from "there's a bug" to "I have a fix and a PR open."</p><p>Without file:, I would have either:</p><ul><li>Edited node_modules directly (and lost my changes on the next install)</li><li>Or forked the repo, published to a test registry, and waited 20 minutes per iteration</li></ul><p>The file: protocol turned a multi-hour debugging session into a 30-minute focused sprint.</p>
   </section>
 
   <!-- 09. LIMITATIONS -->
   <section>
     <div class="section-num">09 · Limitations</div>
     <h2>When NOT to Use This Trick</h2>
-    This technique is a debugging tool, not a long-term solution. Here's when you should NOT use it:
-
-**Don't use file: in production.** It's for local dev only. Before you push, revert package.json to point at the published version (or your forked version on a test registry).
-
-**Don't use file: for packages you don't own.** If you're using file: to permanently patch a third-party dependency, you're setting up a maintenance nightmare. Either:
-- Open a PR upstream and wait for it to merge, or
-- Use patch-package to commit a patch file to your repo
-
-**Don't use file: across machines.** The path ../react-spring-debug is relative to your local filesystem. If you commit that to git and your teammate checks it out, it breaks unless they also have ../react-spring-debug. (This is why workspace: exists - it's portable across machines in a monorepo.)
-
-**The rule:** file: is a debugging superpower. Use it to iterate fast, find the root cause, and ship a fix. Then clean it up before you push.
+    <p>This technique is a debugging tool, not a long-term solution. Here's when you should NOT use it:</p><p><strong>Don't use file: in production.</strong> It's for local dev only. Before you push, revert package.json to point at the published version (or your forked version on a test registry).</p><p><strong>Don't use file: for packages you don't own.</strong> If you're using file: to permanently patch a third-party dependency, you're setting up a maintenance nightmare. Either:</p><ul><li>Open a PR upstream and wait for it to merge, or</li><li>Use patch-package to commit a patch file to your repo</li></ul><p><strong>Don't use file: across machines.</strong> The path ../react-spring-debug is relative to your local filesystem. If you commit that to git and your teammate checks it out, it breaks unless they also have ../react-spring-debug. (This is why workspace: exists - it's portable across machines in a monorepo.)</p><div class="highlight-box"><strong>The Rule</strong>file: is a debugging superpower. Use it to iterate fast, find the root cause, and ship a fix. Then clean it up before you push.</div>
   </section>
 
   <!-- 10. PRODUCTION FIXES -->
   <section>
     <div class="section-num">10 · Production Fixes</div>
     <h2>The Patch-Package Escape Hatch</h2>
-    Sometimes you find a bug in a dependency, fix it locally, but the upstream maintainer hasn't merged your PR yet (or won't). You need the fix in production *now*.
-
-Enter patch-package.
-
-**The workflow:**
-
-1. Debug the dependency locally using file: (as described above)
-2. Once you have a fix, run:
-```bash
-npm install patch-package
-npx patch-package react-spring
-```
-
-This diffs your local node_modules/react-spring against the published version and saves the diff as a .patch file in patches/react-spring+9.7.0.patch.
-
-3. Commit the patch file to your repo
-4. Add a postinstall script to package.json:
-```json
-{
-  "scripts": {
-    "postinstall": "patch-package"
+    <p>Sometimes you find a bug in a dependency, fix it locally, but the upstream maintainer hasn't merged your PR yet (or won't). You need the fix in production <em>now</em>.</p><p>Enter patch-package.</p><p><strong>The workflow:</strong></p><ol><li>Debug the dependency locally using file: (as described above)</li><li>Once you have a fix, run:</li></ol><div class="code-block"><div class="code-label">terminal</div><pre><span class="code-fn">npm</span> install patch-package
+<span class="code-fn">npx</span> patch-package react-spring</pre></div><p>This diffs your local node_modules/react-spring against the published version and saves the diff as a .patch file in patches/react-spring+9.7.0.patch.</p><ol start="3"><li>Commit the patch file to your repo</li><li>Add a postinstall script to package.json:</li></ol><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"scripts"</span>: {
+    <span class="code-str">"postinstall"</span>: <span class="code-str">"patch-package"</span>
   }
-}
-```
-
-Now every time anyone runs npm install, patch-package automatically applies your patch.
-
-This is how we've shipped urgent fixes for dependencies at every company I've worked at. It's not pretty, but it works, and it beats waiting weeks for an upstream PR to merge.
+}</pre></div><p>Now every time anyone runs npm install, patch-package automatically applies your patch.</p><p>This is how we've shipped urgent fixes for dependencies at every company I've worked at. It's not pretty, but it works, and it beats waiting weeks for an upstream PR to merge.</p>
   </section>
 
   <!-- 11. MONOREPO DEEP DIVE -->
   <section>
     <div class="section-num">11 · Monorepo Deep Dive</div>
     <h2>The Monorepo Case - Why workspace: Exists</h2>
-    In a monorepo with 50+ packages, file: doesn't scale. You need workspace:.
-
-Here's the problem with file: in a monorepo:
-
-**Scenario:** You have packages/design-system and apps/web. apps/web depends on @company/design-system.
-
-With file:, you'd write:
-```json
-{
-  "dependencies": {
-    "@company/design-system": "file:../../packages/design-system"
+    <p>In a monorepo with 50+ packages, file: doesn't scale. You need workspace:.</p><p>Here's the problem with file: in a monorepo:</p><p><strong>Scenario:</strong> You have packages/design-system and apps/web. apps/web depends on @company/design-system.</p><p>With file:, you'd write:</p><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"dependencies"</span>: {
+    <span class="code-str">"@company/design-system"</span>: <span class="code-str">"file:../../packages/design-system"</span>
   }
-}
-```
-
-That works. But:
-- The path is fragile. If you move apps/web, it breaks.
-- It doesn't respect the monorepo's global dependency resolution. If design-system depends on React 18, and web depends on React 17, you end up with two copies of React.
-
-With workspace:, you write:
-```json
-{
-  "dependencies": {
-    "@company/design-system": "workspace:*"
+}</pre></div><p>That works. But:</p><ul><li>The path is fragile. If you move apps/web, it breaks.</li><li>It doesn't respect the monorepo's global dependency resolution. If design-system depends on React 18, and web depends on React 17, you end up with two copies of React.</li></ul><p>With workspace:, you write:</p><div class="code-block"><div class="code-label">package.json</div><pre>{
+  <span class="code-str">"dependencies"</span>: {
+    <span class="code-str">"@company/design-system"</span>: <span class="code-str">"workspace:*"</span>
   }
-}
-```
-
-The package manager reads the root package.json, finds all workspaces, and resolves @company/design-system to the correct directory. It also hoists shared dependencies to the root node_modules, so you only ever have one copy of React.
-
-If you're in a monorepo, use workspace:. If you're debugging a third-party package temporarily, use file:.
+}</pre></div><p>The package manager reads the root package.json, finds all workspaces, and resolves @company/design-system to the correct directory. It also hoists shared dependencies to the root node_modules, so you only ever have one copy of React.</p><p>If you're in a monorepo, use workspace:. If you're debugging a third-party package temporarily, use file:.</p>
   </section>
 
   <!-- 12. MINDSET SHIFT -->
   <section>
     <div class="section-num">12 · Mindset Shift</div>
     <h2>The Performance Win Nobody Talks About</h2>
-    Here's a side effect I didn't expect: debugging with file: made me faster at *everything*, not just dependency bugs.
-
-Before, when I hit a bug in a dependency, my mental model was: "This is a black box. I can read the source on GitHub, but I can't easily test changes. I'll work around it."
-
-Workarounds compound. You write defensive code. You add extra conditionals. You avoid certain APIs because you don't trust them. Your codebase gets messier.
-
-After I learned file:, my mental model shifted: "This is editable source code. If it's broken, I can fix it. If it's unclear, I can add logging. If it's slow, I can profile it."
-
-The result: I stopped writing workarounds and started writing fixes. My code got simpler. I shipped faster.
-
-The debugging trick isn't just about saving time. It's about shifting from "dependencies are immutable" to "dependencies are source code I can read, edit, and improve."
+    <p>Here's a side effect I didn't expect: debugging with file: made me faster at <em>everything</em>, not just dependency bugs.</p><p>Before, when I hit a bug in a dependency, my mental model was: "This is a black box. I can read the source on GitHub, but I can't easily test changes. I'll work around it."</p><p>Workarounds compound. You write defensive code. You add extra conditionals. You avoid certain APIs because you don't trust them. Your codebase gets messier.</p><p>After I learned file:, my mental model shifted: "This is editable source code. If it's broken, I can fix it. If it's unclear, I can add logging. If it's slow, I can profile it."</p><p>The result: I stopped writing workarounds and started writing fixes. My code got simpler. I shipped faster.</p><div class="pull-quote"><p>The debugging trick isn't just about saving time. It's about shifting from "dependencies are immutable" to "dependencies are source code I can read, edit, and improve."</p></div>
   </section>
 
   <!-- 13. THE COMPLETE SYSTEM -->
   <section>
     <div class="section-num">13 · The Complete System</div>
     <h2>What I Do Now</h2>
-    Here's my current workflow for any dependency issue:
-
-**Step 1: Reproduce locally**
-Create a minimal reproduction in my app. Confirm the bug exists.
-
-**Step 2: Clone and link**
-```bash
-git clone <dependency-repo> ../debug-<dependency>
-cd ../debug-<dependency>
-npm install && npm run build
-```
-
-In my app's package.json:
-```json
-"<dependency>": "file:../debug-<dependency>"
-```
-
-Run npm install.
-
-**Step 3: Add logging**
-Litter the dependency's source with console.log statements. Find the exact line where the bug happens.
-
-**Step 4: Fix it**
-Make the smallest change that fixes the bug.
-
-**Step 5: Test it**
-Run my app. Confirm the fix works.
-
-**Step 6: Clean up**
-Open a PR upstream with the fix. Revert my package.json to point at the published version. If the fix is urgent, use patch-package to commit a patch file.
-
-This workflow takes 30-60 minutes from "there's a bug" to "I have a fix and a PR open." Before I learned file:, it took 2-4 hours and often involved working around the bug instead of fixing it.
-
-The 40-second trick isn't just about speed. It's about not accepting "the dependency is broken" as an immutable fact. It's about treating open source dependencies as editable source code, not black boxes.
+    <p>Here's my current workflow for any dependency issue:</p><p><strong>Step 1: Reproduce locally</strong></p><p>Create a minimal reproduction in my app. Confirm the bug exists.</p><p><strong>Step 2: Clone and link</strong></p><div class="code-block"><div class="code-label">terminal</div><pre><span class="code-fn">git</span> clone &lt;dependency-repo&gt; ../debug-&lt;dependency&gt;
+<span class="code-fn">cd</span> ../debug-&lt;dependency&gt;
+<span class="code-fn">npm</span> install && npm run build</pre></div><p>In my app's package.json:</p><div class="code-block"><div class="code-label">package.json</div><pre><span class="code-str">"&lt;dependency&gt;"</span>: <span class="code-str">"file:../debug-&lt;dependency&gt;"</span></pre></div><p>Run npm install.</p><p><strong>Step 3: Add logging</strong></p><p>Litter the dependency's source with console.log statements. Find the exact line where the bug happens.</p><p><strong>Step 4: Fix it</strong></p><p>Make the smallest change that fixes the bug.</p><p><strong>Step 5: Test it</strong></p><p>Run my app. Confirm the fix works.</p><p><strong>Step 6: Clean up</strong></p><p>Open a PR upstream with the fix. Revert my package.json to point at the published version. If the fix is urgent, use patch-package to commit a patch file.</p><p>This workflow takes 30-60 minutes from "there's a bug" to "I have a fix and a PR open." Before I learned file:, it took 2-4 hours and often involved working around the bug instead of fixing it.</p><div class="pull-quote"><p>The 40-second trick isn't just about speed. It's about not accepting "the dependency is broken" as an immutable fact. It's about treating open source dependencies as editable source code, not black boxes.</p></div>
   </section>
 
   <div class="ornament">&middot; &middot; &middot;</div>
