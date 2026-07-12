@@ -108,8 +108,8 @@ export default function ArticlesModern() {
                 <span className="glass rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
                   {article.type}
                 </span>
-                {article.year && (
-                  <span className="text-xs font-medium text-muted">{article.year}</span>
+                {article.date && (
+                  <span className="text-xs font-medium text-muted">{article.date}</span>
                 )}
               </div>
 
