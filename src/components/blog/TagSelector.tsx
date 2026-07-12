@@ -85,15 +85,22 @@ export default function TagSelector({ allTags, selectedTag, onSelectTag }: TagSe
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             />
 
             {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed left-1/2 top-1/2 z-50 w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white p-8 shadow-2xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed z-[101] max-h-[85vh] w-[90vw] max-w-3xl overflow-hidden rounded-3xl bg-white p-8 shadow-2xl"
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
             >
               {/* Header */}
               <div className="mb-6 flex items-center justify-between">
