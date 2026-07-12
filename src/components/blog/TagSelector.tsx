@@ -78,29 +78,24 @@ export default function TagSelector({ allTags, selectedTag, onSelectTag }: TagSe
       {/* Modal for all tags */}
       <AnimatePresence>
         {isOpen && (
-          <>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
-              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
 
             {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed z-[101] max-h-[85vh] w-[90vw] max-w-3xl overflow-hidden rounded-3xl bg-white p-8 shadow-2xl"
-              style={{
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-              }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white p-8 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="mb-6 flex items-center justify-between">
@@ -171,7 +166,7 @@ export default function TagSelector({ allTags, selectedTag, onSelectTag }: TagSe
                 )}
               </div>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
     </>

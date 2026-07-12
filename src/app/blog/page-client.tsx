@@ -105,15 +105,20 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
             </div>
             <div className="glass-strong rounded-xl px-6 py-3">
               <div className="text-2xl font-bold text-accent">
-                {posts && posts.length > 0
-                  ? posts.reduce((sum, post) => {
-                      if (!post.readingTime) return sum;
-                      const match = post.readingTime.match(/\d+/);
-                      const time = match ? parseInt(match[0], 10) : 0;
-                      return sum + time;
-                    }, 0)
-                  : 0}
-                min
+                {(() => {
+                  if (!posts || posts.length === 0) return '0 min';
+                  const totalMinutes = posts.reduce((sum, post) => {
+                    if (!post.readingTime) return sum;
+                    const match = post.readingTime.match(/\d+/);
+                    const time = match ? parseInt(match[0], 10) : 0;
+                    return sum + time;
+                  }, 0);
+
+                  if (totalMinutes < 60) return `${totalMinutes} min`;
+                  const hours = Math.floor(totalMinutes / 60);
+                  const mins = totalMinutes % 60;
+                  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+                })()}
               </div>
               <div className="text-sm text-muted">Total Reading</div>
             </div>
