@@ -22,22 +22,22 @@ const DigitalProducts = dynamic(
   }
 );
 const ArticlesAndProducts = dynamic(
-  () => import("@/components/sections/ArticlesAndProducts"),
+  () => import("@/components/sections/ArticlesModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }
 );
 const Testimonials = dynamic(
-  () => import("@/components/sections/Testimonials"),
+  () => import("@/components/sections/TestimonialsModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }
 );
-const Contact = dynamic(() => import("@/components/sections/Contact"), {
+const Contact = dynamic(() => import("@/components/sections/ContactModern"), {
   loading: () => <div className="min-h-screen" />,
 });
 const LatestBlogPosts = dynamic(
-  () => import("@/components/sections/LatestBlogPosts"),
+  () => import("@/components/sections/LatestBlogModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }
