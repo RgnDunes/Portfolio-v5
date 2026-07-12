@@ -222,8 +222,8 @@ export default function ExperienceModern() {
                     </div>
                   )}
 
-                  {/* Expandable roles */}
-                  {experience.roles && experience.roles.length > 0 && (
+                  {/* Expandable previous roles */}
+                  {experience.previousRoles && experience.previousRoles.length > 0 && (
                     <div className="mt-4">
                       <motion.button
                         onClick={() =>
@@ -251,7 +251,7 @@ export default function ExperienceModern() {
                         className="overflow-hidden"
                       >
                         <div className="mt-4 space-y-4">
-                          {experience.roles.map((role: any, i: number) => (
+                          {experience.previousRoles.map((role: any, i: number) => (
                             <motion.div
                               key={i}
                               initial={{ opacity: 0, y: 10 }}
@@ -263,12 +263,82 @@ export default function ExperienceModern() {
                               transition={{ delay: i * 0.1 }}
                               className="glass rounded-lg p-4"
                             >
-                              <div className="flex items-start justify-between">
-                                <h4 className="font-semibold text-ink">{role.title}</h4>
+                              <div className="mb-3 flex items-start justify-between">
+                                <h4 className="font-semibold text-ink">{role.position}</h4>
                                 <span className="text-xs font-medium text-accent">
                                   {role.duration}
                                 </span>
                               </div>
+                              <p className="mb-3 text-sm text-muted">{role.description}</p>
+                              {role.achievements && role.achievements.length > 0 && (
+                                <ul className="space-y-2">
+                                  {role.achievements.map((achievement: string, idx: number) => (
+                                    <li key={idx} className="flex gap-2 text-xs text-muted">
+                                      <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent2" />
+                                      <span>{achievement}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+
+                  {/* Media gallery */}
+                  {experience.media && experience.media.length > 0 && (
+                    <div className="mt-4">
+                      <motion.button
+                        onClick={() =>
+                          setExpandedMediaIndex(expandedMediaIndex === index ? null : index)
+                        }
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="glass-strong flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-semibold text-ink transition-all hover:bg-white/30"
+                      >
+                        <span>Awards & Recognition</span>
+                        {expandedMediaIndex === index ? (
+                          <FaChevronUp className="h-4 w-4 text-accent" />
+                        ) : (
+                          <FaChevronDown className="h-4 w-4 text-accent" />
+                        )}
+                      </motion.button>
+
+                      <motion.div
+                        initial={false}
+                        animate={{
+                          height: expandedMediaIndex === index ? "auto" : 0,
+                          opacity: expandedMediaIndex === index ? 1 : 0,
+                        }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {experience.media.map((item: any, i: number) => (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={
+                                expandedMediaIndex === index
+                                  ? { opacity: 1, scale: 1 }
+                                  : { opacity: 0, scale: 0.9 }
+                              }
+                              transition={{ delay: i * 0.1 }}
+                              className="glass overflow-hidden rounded-lg"
+                            >
+                              <div className="relative aspect-video">
+                                <Image
+                                  src={item.src}
+                                  alt={item.caption}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <p className="p-3 text-xs font-medium text-center text-muted">
+                                {item.caption}
+                              </p>
                             </motion.div>
                           ))}
                         </div>
