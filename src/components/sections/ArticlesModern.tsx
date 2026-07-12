@@ -9,7 +9,7 @@ export default function ArticlesModern() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("All");
   const [showAll, setShowAll] = useState(false);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
   const filteredArticles = useMemo(() => {
