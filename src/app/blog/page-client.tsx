@@ -105,13 +105,13 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
             </div>
             <div className="glass-strong rounded-xl px-6 py-3">
               <div className="text-2xl font-bold text-accent">
-                {posts.reduce(
-                  (sum, post) => {
-                    const time = parseInt(post.readingTime.replace(/\D/g, ''));
-                    return sum + (isNaN(time) ? 0 : time);
-                  },
-                  0
-                )}
+                {(() => {
+                  const total = posts.reduce((sum, post) => {
+                    const match = post.readingTime.match(/\d+/);
+                    return sum + (match ? parseInt(match[0]) : 0);
+                  }, 0);
+                  return total || 0;
+                })()}
                 min
               </div>
               <div className="text-sm text-muted">Total Reading</div>

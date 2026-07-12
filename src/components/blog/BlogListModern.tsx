@@ -68,47 +68,12 @@ export default function BlogListModern({ posts }: BlogListProps) {
           )}
         </div>
 
-        {/* Tag Filters - Show only top 15 tags */}
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-2.5">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setSelectedTag(null)}
-              className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
-                selectedTag === null
-                  ? "bg-gradient-to-r from-accent via-[#d55a3f] to-accent2 text-white shadow-lg"
-                  : "glass bg-white/60 text-ink hover:bg-white/80"
-              }`}
-            >
-              All Articles
-            </motion.button>
-            {allTags.slice(0, 15).map((tag, index) => (
-              <motion.button
-                key={tag}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.2, delay: 0.02 * index }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
-                  selectedTag === tag
-                    ? "bg-accent text-white shadow-md"
-                    : "glass bg-white/60 text-ink/90 hover:bg-white/80"
-                }`}
-              >
-                <FaTag className="h-3 w-3" />
-                {tag}
-              </motion.button>
-            ))}
-            {allTags.length > 15 && (
-              <span className="flex items-center rounded-xl bg-white/60 px-4 py-2.5 text-sm font-medium text-muted">
-                +{allTags.length - 15} more
-              </span>
-            )}
-          </div>
-        </div>
+        {/* Tag Filters with modal */}
+        <TagSelector
+          allTags={allTags}
+          selectedTag={selectedTag}
+          onSelectTag={setSelectedTag}
+        />
 
         {/* Result count */}
         {(selectedTag || searchQuery) && (
