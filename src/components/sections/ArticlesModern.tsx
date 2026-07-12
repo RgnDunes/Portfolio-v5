@@ -126,7 +126,7 @@ export default function ArticlesModern() {
               {/* Footer */}
               <div className="flex items-center justify-between border-t border-white/20 pt-4">
                 <span className="text-xs font-medium text-muted">
-                  {article.platform || article.publication}
+                  {article.stats}
                 </span>
                 <motion.a
                   href={article.link}
