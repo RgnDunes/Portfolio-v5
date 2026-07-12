@@ -3,40 +3,41 @@
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import Experience from "@/components/sections/Experience";
-import Skills from "@/components/sections/Skills";
+import NavbarModern from "@/components/NavbarModern";
+import ScrollProgress from "@/components/ScrollProgress";
+import HeroModern from "@/components/sections/HeroModern";
+import AboutModern from "@/components/sections/AboutModern";
+import ExperienceModern from "@/components/sections/ExperienceModern";
+import SkillsImproved from "@/components/sections/SkillsImproved";
 import GameModeWrapper from "@/components/game3d/GameModeWrapper";
 
 // Dynamically import components that are below the fold
-const Projects = dynamic(() => import("@/components/sections/Projects"), {
+const Projects = dynamic(() => import("@/components/sections/ProjectsModern"), {
   loading: () => <div className="min-h-screen" />,
 });
 const DigitalProducts = dynamic(
-  () => import("@/components/sections/DigitalProducts"),
+  () => import("@/components/sections/DigitalProductsModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }
 );
 const ArticlesAndProducts = dynamic(
-  () => import("@/components/sections/ArticlesAndProducts"),
+  () => import("@/components/sections/ArticlesModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }
 );
 const Testimonials = dynamic(
-  () => import("@/components/sections/Testimonials"),
+  () => import("@/components/sections/TestimonialsModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }
 );
-const Contact = dynamic(() => import("@/components/sections/Contact"), {
+const Contact = dynamic(() => import("@/components/sections/ContactModern"), {
   loading: () => <div className="min-h-screen" />,
 });
 const LatestBlogPosts = dynamic(
-  () => import("@/components/sections/LatestBlogPosts"),
+  () => import("@/components/sections/LatestBlogModern"),
   {
     loading: () => <div className="min-h-screen" />,
   }
@@ -50,7 +51,8 @@ export default function Home() {
 
   return (
     <>
-      <Navbar onGameModeToggle={enterGameMode} />
+      <ScrollProgress />
+      <NavbarModern onGameModeToggle={enterGameMode} />
       {!gameMode && (
         <motion.main
           initial={{ opacity: 0 }}
@@ -59,10 +61,10 @@ export default function Home() {
           className="min-h-screen"
           style={{ background: '#dad4cc', color: '#0f0e0c' }}
         >
-          <Hero />
-          <About />
-          <Experience />
-          <Skills />
+          <HeroModern />
+          <AboutModern />
+          <ExperienceModern />
+          <SkillsImproved />
           <Projects />
           <DigitalProducts />
           <ArticlesAndProducts />
