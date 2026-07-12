@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BlogPost } from "@/data/blogPosts";
 import { motion } from "framer-motion";
 import { FaSearch, FaClock, FaTag } from "react-icons/fa";
+import TagSelector from "./TagSelector";
 
 interface BlogListProps {
   posts: BlogPost[];
