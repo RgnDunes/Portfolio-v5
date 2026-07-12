@@ -40,14 +40,14 @@ export default function SkillsImproved() {
         </p>
       </motion.div>
 
-      {/* Category filters - Single clean row */}
+      {/* Category filters - Minimalist */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="relative z-10 mb-16 flex justify-center"
       >
-        <div className="glass-strong inline-flex gap-2 rounded-2xl p-2">
+        <div className="inline-flex gap-2 rounded-2xl bg-white/60 p-2 shadow-sm">
           {skillCategories.map((category, index) => (
             <motion.button
               key={category.name}
@@ -55,21 +55,21 @@ export default function SkillsImproved() {
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.3, delay: 0.3 + index * 0.05 }}
               onClick={() => setSelectedCategory(category.name)}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className={`relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold transition-all ${
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`rounded-xl px-6 py-3 text-sm font-medium transition-all ${
                 selectedCategory === category.name
-                  ? "bg-gradient-to-r from-accent to-accent2 text-white shadow-lg"
-                  : "bg-transparent text-ink hover:bg-white/50"
+                  ? "bg-gradient-to-r from-accent to-accent2 text-white"
+                  : "bg-transparent text-ink hover:bg-white"
               }`}
             >
-              <span className="relative z-10">{category.name}</span>
+              {category.name}
             </motion.button>
           ))}
         </div>
       </motion.div>
 
-      {/* Skills grid - Clean card layout */}
+      {/* Skills grid - Minimalist clean cards */}
       <motion.div
         key={selectedCategory}
         initial={{ opacity: 0, y: 20 }}
@@ -81,21 +81,16 @@ export default function SkillsImproved() {
           {selectedCategoryData?.skills.map((skill: any, index: number) => (
             <motion.div
               key={skill.name}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ y: -6, scale: 1.01 }}
-              className="glass group relative overflow-hidden rounded-2xl bg-white/70 p-6 transition-all hover:bg-white/90 hover:shadow-xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.03 }}
+              whileHover={{ y: -4 }}
+              className="group rounded-2xl bg-white p-6 shadow-sm transition-all hover:shadow-md"
             >
-              {/* Skill icon - Professional size */}
+              {/* Skill icon - Clean and simple */}
               {skill.image && (
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4, delay: index * 0.04 + 0.2 }}
-                  className="mb-5 flex justify-center"
-                >
-                  <div className="relative h-16 w-16 overflow-hidden rounded-xl bg-white p-3 shadow-md transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg">
+                <div className="mb-5 flex justify-center">
+                  <div className="relative h-16 w-16 transition-transform duration-200 group-hover:scale-105">
                     <Image
                       src={skill.image}
                       alt={skill.name}
@@ -103,7 +98,7 @@ export default function SkillsImproved() {
                       className="object-contain"
                     />
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {/* Skill name */}
@@ -111,11 +106,10 @@ export default function SkillsImproved() {
                 {skill.name}
               </h3>
 
-              {/* Experience badge */}
+              {/* Experience badge - minimal */}
               {skill.experience && (
                 <div className="flex justify-center">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-accent">
-                    <span className="h-1 w-1 rounded-full bg-accent" />
+                  <span className="text-xs font-medium text-accent">
                     {skill.experience}
                   </span>
                 </div>
