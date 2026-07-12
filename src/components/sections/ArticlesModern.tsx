@@ -25,7 +25,7 @@ export default function ArticlesModern() {
   const displayedArticles = showAll ? filteredArticles : filteredArticles.slice(0, 6);
 
   const articleTypes = useMemo(() => {
-    return ["All", ...Array.from(new Set(articles.map((article) => article.type)))];
+    return ["All", ...Array.from(new Set(articles.map((article) => article.type).filter(Boolean)))];
   }, []);
 
   return (
