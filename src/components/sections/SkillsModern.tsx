@@ -194,19 +194,6 @@ export default function SkillsModern() {
           ))}
         </div>
 
-        {/* Category summary */}
-        {selectedCategoryData?.description && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="glass-strong mt-12 rounded-2xl border border-white/20 p-8 text-center"
-          >
-            <p className="text-lg leading-relaxed text-muted">
-              {selectedCategoryData.description}
-            </p>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* Floating decorative elements */}
