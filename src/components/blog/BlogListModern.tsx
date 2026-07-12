@@ -68,7 +68,7 @@ export default function BlogListModern({ posts }: BlogListProps) {
           )}
         </div>
 
-        {/* Tag Filters - Multi-row layout */}
+        {/* Tag Filters - Show only top 15 tags */}
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2.5">
             <motion.button
@@ -83,7 +83,7 @@ export default function BlogListModern({ posts }: BlogListProps) {
             >
               All Articles
             </motion.button>
-            {allTags.map((tag, index) => (
+            {allTags.slice(0, 15).map((tag, index) => (
               <motion.button
                 key={tag}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -102,6 +102,11 @@ export default function BlogListModern({ posts }: BlogListProps) {
                 {tag}
               </motion.button>
             ))}
+            {allTags.length > 15 && (
+              <span className="flex items-center rounded-xl bg-white/60 px-4 py-2.5 text-sm font-medium text-muted">
+                +{allTags.length - 15} more
+              </span>
+            )}
           </div>
         </div>
 
