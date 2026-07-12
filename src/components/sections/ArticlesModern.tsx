@@ -8,6 +8,7 @@ import { articles } from "@/data/articles";
 export default function ArticlesModern() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("All");
+  const [showAll, setShowAll] = useState(false);
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
@@ -20,6 +21,8 @@ export default function ArticlesModern() {
       return matchesSearch && matchesTab;
     });
   }, [searchQuery, activeTab]);
+
+  const displayedArticles = showAll ? filteredArticles : filteredArticles.slice(0, 6);
 
   const articleTypes = useMemo(() => {
     return ["All", ...Array.from(new Set(articles.map((article) => article.type)))];
@@ -90,7 +93,7 @@ export default function ArticlesModern() {
 
       {/* Articles grid */}
       <div className="grid gap-6 md:grid-cols-2">
-        {filteredArticles.map((article, index) => (
+        {displayedArticles.map((article, index) => (
           <motion.article
             key={article.title}
             initial={{ opacity: 0, y: 30 }}
@@ -140,6 +143,46 @@ export default function ArticlesModern() {
           </motion.article>
         ))}
       </div>
+
+      {/* View More button */}
+      {!showAll && filteredArticles.length > 6 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="mt-12 text-center"
+        >
+          <motion.button
+            onClick={() => setShowAll(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-accent to-accent2 px-8 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-accent/50"
+          >
+            View All {filteredArticles.length} Articles
+            <FaExternalLinkAlt className="h-4 w-4" />
+          </motion.button>
+        </motion.div>
+      )}
+
+      {/* Show less button */}
+      {showAll && filteredArticles.length > 6 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mt-12 text-center"
+        >
+          <button
+            onClick={() => {
+              setShowAll(false);
+              containerRef.current?.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="text-sm font-medium text-accent hover:text-accent2 transition-colors"
+          >
+            Show Less ↑
+          </button>
+        </motion.div>
+      )}
 
       {/* Empty state */}
       {filteredArticles.length === 0 && (
