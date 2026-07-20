@@ -436,7 +436,7 @@
     <p>Here's what the model landscape actually looks like right now, based on official documentation and verified pricing.</p>
 
     <h3>Claude (Anthropic)</h3>
-    <p>Four tiers, all with 1M token context windows except Haiku (200K):</p>
+    <p>Four tiers, all with 1M token context windows except Haiku (200K). <strong>Note:</strong> Fable 5 is Anthropic's most expensive model (2x Opus pricing) - reserved for the most demanding workloads.</p>
 
     <table class="model-table">
       <tr>
@@ -449,7 +449,7 @@
         <td><strong>Fable 5</strong></td>
         <td>$10/MTok</td>
         <td>$50/MTok</td>
-        <td>Long-running agents, max capability</td>
+        <td>Most expensive - long-running agents, absolute max capability</td>
       </tr>
       <tr>
         <td><strong>Opus 4.8</strong></td>
@@ -459,17 +459,19 @@
       </tr>
       <tr>
         <td><strong>Sonnet 5</strong></td>
-        <td>$3/MTok</td>
-        <td>$15/MTok</td>
+        <td>$2/MTok*</td>
+        <td>$10/MTok*</td>
         <td>Speed + intelligence balance</td>
       </tr>
       <tr>
         <td><strong>Haiku 4.5</strong></td>
         <td>$1/MTok</td>
         <td>$5/MTok</td>
-        <td>Fast, high-volume tasks</td>
+        <td>Cheapest - fast, high-volume tasks</td>
       </tr>
     </table>
+
+    <p style="font-size: 0.85rem; color: var(--muted); margin-top: 8px;">* Sonnet 5 introductory pricing through August 31, 2026. Standard pricing thereafter: $3/$15 per MTok.</p>
 
     <p>Claude supports <code>effort</code> levels (low, medium, high, xhigh, max) that trade speed and cost for quality. Opus 4.8 defaults to <code>high</code> effort; Sonnet 5 defaults to <code>high</code> on API.</p>
 
@@ -580,8 +582,8 @@
 
     <h3>Task Type 3: Complex Reasoning</h3>
     <p><strong>Examples:</strong> Tracing subtle bugs across multiple files, understanding why a complex algorithm fails on edge cases, reviewing architecture for hidden issues, refactoring tangled legacy code.</p>
-    <p><strong>Model choice:</strong> Top-tier with high effort - Claude Opus 4.8 at <code>high</code> effort ($5/$25), GPT-5.6 Sol ($5/$30), or Gemini 3.1 Pro ($2-4/$12-18). For open-source: DeepSeek-R1 70B.</p>
-    <p><strong>Why:</strong> This is where cheap models confidently hallucinate solutions that compile but break in production. The cost of a wrong answer here - wasted debugging time, shipped bugs - exceeds the API cost by orders of magnitude. Use the expensive model.</p>
+    <p><strong>Model choice:</strong> Top-tier with high effort - Claude Opus 4.8 at <code>high</code> effort ($5/$25), GPT-5.6 Sol ($5/$30), or Gemini 3.1 Pro ($2-4/$12-18). For open-source: DeepSeek-R1 70B. <strong>Reserve Fable 5 ($10/$50) only for the most critical, highest-stakes work</strong> - it's 2x Opus cost.</p>
+    <p><strong>Why:</strong> This is where cheap models confidently hallucinate solutions that compile but break in production. The cost of a wrong answer here - wasted debugging time, shipped bugs - exceeds the API cost by orders of magnitude. Use an expensive model, but Opus 4.8 is usually sufficient. Fable 5's premium is justified only for multi-hour agent workflows or mission-critical debugging where absolute maximum capability matters more than cost.</p>
 
     <h3>Task Type 4: Long Context</h3>
     <p><strong>Examples:</strong> Summarising lengthy transcripts, finding patterns across 20+ files, analysing full git diffs, processing documentation sites.</p>
@@ -616,7 +618,7 @@
     <div class="callout">
       <div class="callout-label">Real Budget Example</div>
       <p>Monthly allocation: $100 Claude, $75 OpenAI, $50 Gemini. How I use it:</p>
-      <p><strong>Claude ($100):</strong> $15 Haiku (mechanical tasks), $60 Sonnet (ambiguous work), $25 Opus (hard debugging).</p>
+      <p><strong>Claude ($100):</strong> $15 Haiku (mechanical tasks), $60 Sonnet at intro pricing (ambiguous work), $25 Opus (hard debugging). <em>Note: Fable 5 not in regular rotation - too expensive for routine work.</em></p>
       <p><strong>OpenAI ($75):</strong> $20 Luna (volume tasks), $40 Terra (balanced work), $15 Sol (complex reasoning).</p>
       <p><strong>Gemini ($50):</strong> $10 Flash-Lite (mechanical overflow), $30 3.5 Flash (ambiguous overflow), $10 Pro (long-context one-offs).</p>
       <p><strong>Open-source (hardware cost, not credits):</strong> DeepSeek-R1 7B and Llama 3.3 70B for after-hours work and experimentation.</p>
@@ -682,7 +684,7 @@
       <div class="callout-label">Getting Started with Open-Source</div>
       <p><strong>Easiest path:</strong> Install Ollama, run <code>ollama pull deepseek-r1:7b</code>, and start querying. Works on consumer hardware (16GB RAM).</p>
       <p><strong>For production:</strong> Deploy via vLLM or TensorRT-LLM on cloud GPU instances. DeepSeek-R1 70B runs on A100 (80GB) or 2x A6000 (48GB each). Cost: ~$1.50/hour on AWS.</p>
-      <p><strong>When to use API models instead:</strong> One-off tasks, prototyping, or when you need cutting-edge capability (Fable 5, Sol). Open-source shines for repetitive, high-volume, or privacy-sensitive work.</p>
+      <p><strong>When to use API models instead:</strong> One-off tasks, prototyping, or when you need absolute maximum capability and cost isn't a constraint (Fable 5 at $10/$50, Sol at $5/$30). For most work, Opus 4.8 or DeepSeek-R1 70B suffice. Open-source shines for repetitive, high-volume, or privacy-sensitive work.</p>
     </div>
 
   </section>
