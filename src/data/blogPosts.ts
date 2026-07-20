@@ -19,6 +19,18 @@ export interface BlogPost {
 // Your blog posts go here - add new posts to this array
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-model-paralysis",
+    title: "There Are 47 AI Models. I Have Credits for 12 of Them. I Still Don't Know Which One to Use.",
+    description: "When your org gives you access to Claude, Gemini, ChatGPT, and a dozen others - each with different models, effort levels, and credit caps - how do you decide? A framework for choosing AI models that maximises accuracy without burning through your budget.",
+    contentPath: "/blog/ai-model-paralysis_article.html",
+    publishedAt: "2026-07-20",
+    tags: ["AI Tools", "Developer Experience", "Decision Frameworks"],
+    readingTime: "~12 min read",
+    author: {
+      name: "Divyansh Singh",
+    },
+  },
+  {
     slug: "i-stopped-using-npm-install-heres-the-40-second-trick-that-changed-how-i-debug-dependencies",
     title: "I Stopped Using npm install. Here's the 40-Second Trick That Changed How I Debug Dependencies.",
     description: "Most engineers reinstall node_modules when debugging dependency issues. There's a faster way that lets you patch, test, and iterate on third-party packages in seconds - without waiting for CI or publishing to a test registry.",
