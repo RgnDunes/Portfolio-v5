@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>There Are 47 AI Models. I Have Credits for 12 of Them. I Still Don't Know Which One to Use.</title>
+<meta name="description" content="When your org gives you access to Claude, Gemini, ChatGPT, and a dozen others - each with different models, effort levels, and credit caps - how do you decide? A developer's honest guide to AI model selection that doesn't waste your budget." />
+<meta property="og:title" content="There Are 47 AI Models. I Have Credits for 12 of Them. I Still Don't Know Which One to Use." />
+<meta property="og:description" content="When your org gives you access to Claude, Gemini, ChatGPT, and a dozen others - each with different models, effort levels, and credit caps - how do you decide?" />
+<meta property="og:type" content="article" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2a6e4a;
+    --muted: #8a8275;
+    --rule: #d4cdc0;
+    --highlight: #fff3b0;
+    --code-bg: #1e1e1e;
+    --code-text: #d4d4d4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  .byline-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  /* ── COVER IMAGE ── */
+  .cover-image {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    display: block;
+  }
+  .cover-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── LAYOUT ── */
+  .content-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 28px;
+    margin: 36px 0;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .callout .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .callout p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #d8d2c6;
+    margin-bottom: 10px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight);
+    border: 1px solid #e0d06a;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.93rem;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #7a6a00;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a9955;
+    margin-bottom: 14px;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-kw  { color: #569cd6; }
+  .code-fn  { color: #dcdcaa; }
+  .code-str { color: #ce9178; }
+  .code-cmt { color: #6a9955; font-style: italic; }
+  .code-num { color: #b5cea8; }
+  .code-var { color: #9cdcfe; }
+
+  /* ── BULLET LIST (Use for ALL lists - better engagement) ── */
+  ul.bullet-list {
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+  }
+  ul.bullet-list li {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  ul.bullet-list li::before {
+    content: '●';
+    font-size: 10px;
+    color: var(--accent);
+    min-width: 12px;
+    padding-top: 6px;
+    flex-shrink: 0;
+  }
+  ul.bullet-list li span {
+    line-height: 1.7;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .stat-item {
+    background: #fff;
+    padding: 20px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    background: var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin: 2px 3px 2px 0;
+    color: var(--muted);
+  }
+  .tag.green { background: #d4ede0; color: var(--accent2); }
+  .tag.red   { background: #fde8e3; color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.4rem;
+    letter-spacing: 0.5em;
+    padding: 8px 0;
+  }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">AI Tools · Developer Experience · Decision Frameworks</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Developer Productivity · AI Tooling</div>
+  <h1>There Are 47 AI Models. I Have Credits for 12 of Them. <em>I Still Don't Know Which One to Use.</em></h1>
+  <p class="hero-sub">When your org gives you access to Claude, Gemini, ChatGPT, Kimi, and a dozen others - each with different models, effort levels, and credit caps - how do you actually decide? A framework for choosing AI models that maximises accuracy without burning through your budget in three days.</p>
+  <div class="byline">
+    <span>By Divyansh Singh</span>
+    <span class="byline-dot"></span>
+    <span>July 2026</span>
+    <span class="byline-dot"></span>
+    <span>~12 min read</span>
+  </div>
+</div>
+
+<!-- COVER IMAGE -->
+<div class="cover-image">
+  <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&h=600&fit=crop" alt="Abstract network of interconnected nodes representing AI model choices" />
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="content-wrap">
+
+  <!-- ── 1. THE PROBLEM ── -->
+  <section>
+    <div class="section-num">01 · The Problem</div>
+    <h2>The Paralysis Is Real</h2>
+    <p>Last Tuesday I spent 20 minutes staring at my terminal trying to decide which AI model to use for a code refactoring task. Not because I didn't know how - because I had too many options.</p>
+    <p>Claude Sonnet 4.5. Claude Opus 4.8. Claude Fable 5. Gemini Flash 2.0. Gemini Pro 2.0. Gemini Thinking. ChatGPT o1. ChatGPT 4o. Kimi. DeepSeek v3. Llama 3.3. And that's before you factor in the effort levels - <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code> - each consuming different amounts of tokens and producing different quality outputs.</p>
+    <p>My org had given me access to all of them, with monthly credit caps on each provider. The freedom was paralysing. Use the wrong model and I'd burn through credits on a task that didn't need it. Use too cheap a model and I'd waste time fixing hallucinated code. Twenty minutes of decision paralysis is twenty minutes not shipping.</p>
+
+    <div class="pull-quote">
+      <p>"The paradox of choice isn't theoretical when you're burning $0.50 per API call and your monthly budget resets in six days."</p>
+    </div>
+
+    <p>This isn't a complaint about having too many tools. It's an observation that the AI landscape has fragmented faster than the mental models developers use to navigate it. We went from "use GPT-4 for hard stuff, GPT-3.5 for cheap stuff" to a 12-dimensional decision matrix in 18 months.</p>
+  </section>
+
+  <!-- ── 2. WHY THIS IS HARD ── -->
+  <section>
+    <div class="section-num">02 · The Real Problem</div>
+    <h2>Why Model Selection Actually Matters</h2>
+    <p>The stakes are higher than they look. Pick wrong and one of three things happens:</p>
+
+    <ul class="bullet-list">
+      <li><span><strong>You overspend.</strong> Running Opus 4.8 at <code>max</code> effort on a task that Flash 2.0 could handle burns through your monthly budget in a week. Then you're stuck with the free tier, rate-limited to hell, for the rest of the month.</span></li>
+      <li><span><strong>You underspend and pay with time.</strong> A cheaper model gives you plausible-looking code that breaks in production. You spend two hours debugging what a better model would've caught. The API cost was lower; the engineer cost was higher.</span></li>
+      <li><span><strong>You spend decision energy instead of coding.</strong> Every task becomes a meta-task: "Which model should I use for this?" That cognitive overhead compounds. By afternoon you've spent more time choosing models than using them.</span></li>
+    </ul>
+
+    <p>The root issue is that most developers don't have a consistent decision framework. We're guessing, or copying what worked last time, or defaulting to whichever model we saw mentioned on Twitter recently. That works until your budget runs dry or you ship a bug that a $0.30 API call would've prevented.</p>
+
+    <div class="highlight-box">
+      <strong>Real Example</strong>
+      I used Claude Opus 4.7 at <code>high</code> effort to generate a regex pattern for URL validation. Took 8 seconds, cost $0.40, worked perfectly. A week later I caught myself doing the same thing - and realised Gemini Flash could've done it in 2 seconds for $0.02. The output would've been identical. I'd wasted $0.38 because I didn't stop to think.
+    </div>
+  </section>
+
+  <!-- ── 3. THE MODEL LANDSCAPE ── -->
+  <section>
+    <div class="section-num">03 · The Landscape</div>
+    <h2>What You're Actually Choosing Between</h2>
+    <p>Let's map the territory. These are the models most orgs are giving devs access to as of mid-2026:</p>
+
+    <h3>The Claude Family (Anthropic)</h3>
+    <ul class="bullet-list">
+      <li><span><strong>Fable 5</strong> - fastest, cheapest, good for simple tasks</span></li>
+      <li><span><strong>Sonnet 4.5 / 4.6</strong> - balanced, most versatile, default for general coding</span></li>
+      <li><span><strong>Opus 4.7 / 4.8</strong> - slowest, most expensive, best for complex reasoning</span></li>
+    </ul>
+    <p>Each supports effort levels (<code>low</code> to <code>max</code>) that trade speed and cost for output quality. A Sonnet 4.5 call at <code>max</code> effort can rival Opus at <code>medium</code> - but costs more and takes longer.</p>
+
+    <h3>The Gemini Family (Google)</h3>
+    <ul class="bullet-list">
+      <li><span><strong>Flash 2.0</strong> - extremely fast, dirt cheap, shockingly good for structured tasks</span></li>
+      <li><span><strong>Pro 2.0</strong> - slower than Flash, better at ambiguous or creative prompts</span></li>
+      <li><span><strong>Thinking</strong> - experimental reasoning-focused model, slow but strong on logic puzzles and deep debugging</span></li>
+    </ul>
+
+    <h3>OpenAI (ChatGPT)</h3>
+    <ul class="bullet-list">
+      <li><span><strong>GPT-4o</strong> - fast, multimodal, decent at code but occasionally overconfident</span></li>
+      <li><span><strong>o1 / o3</strong> - reasoning models, slow, expensive, excellent for algorithmic problems</span></li>
+    </ul>
+
+    <h3>Open-Source & Alternatives</h3>
+    <ul class="bullet-list">
+      <li><span><strong>Kimi</strong> - Chinese model with massive context windows, excellent for document analysis</span></li>
+      <li><span><strong>DeepSeek v3</strong> - open-source, competitive quality, great for self-hosted setups</span></li>
+      <li><span><strong>Llama 3.3</strong> - Meta's offering, good balance of speed and capability for local use</span></li>
+    </ul>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-num">~12</div>
+        <div class="stat-label">Major AI Models<br/>Available to Devs</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5+</div>
+        <div class="stat-label">Effort Levels<br/>Per Model</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">60+</div>
+        <div class="stat-label">Possible<br/>Configurations</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Decision<br/>Frameworks</div>
+      </div>
+    </stat-strip>
+
+    <p>The combinatorial explosion is the problem. You're not choosing between three models. You're choosing between 12 models, each with 3-5 effort settings, for hundreds of different task types. No one can hold that decision tree in their head.</p>
+  </section>
+
+  <!-- ── 4. THE FRAMEWORK ── -->
+  <section>
+    <div class="section-num">04 · The Framework</div>
+    <h2>A Decision Framework That Actually Works</h2>
+    <p>Here's the system I've used for the past three months. It's not perfect, but it's reduced my decision time from minutes to seconds and cut my monthly AI spend by roughly 40% without sacrificing output quality.</p>
+
+    <p>The core insight: <strong>task classification matters more than model specs.</strong> Instead of memorising which model is best at what, classify your task into one of four buckets, then use a preset model + effort combo for that bucket.</p>
+
+    <h3>Bucket 1: Mechanical Tasks</h3>
+    <p><strong>Examples:</strong> writing boilerplate, generating test cases, formatting JSON, regex patterns, simple refactors, docstring generation.</p>
+    <p><strong>Model:</strong> Gemini Flash 2.0 or Claude Fable 5.</p>
+    <p><strong>Effort:</strong> <code>low</code> or default.</p>
+    <p><strong>Why:</strong> These tasks have clear right answers and no ambiguity. Speed and cost matter more than deep reasoning. Flash is shockingly good here - I've had it generate 200 unit test stubs in under 3 seconds for $0.01. Fable is slightly better at code formatting edge cases but slower.</p>
+
+    <div class="code-block">
+      <div class="code-label">Example Prompt · Mechanical Task</div>
+      <pre><span class="code-cmt"># Use: Gemini Flash 2.0 (low effort)</span>
+
+Generate TypeScript test stubs for all exported functions in <span class="code-str">'utils.ts'</span>.
+Use Vitest syntax. Include describe blocks grouped by function.</pre>
+    </div>
+
+    <h3>Bucket 2: Ambiguous or Creative Tasks</h3>
+    <p><strong>Examples:</strong> API design decisions, naming things, architectural tradeoff discussions, explaining unfamiliar codebases, writing human-facing documentation.</p>
+    <p><strong>Model:</strong> Claude Sonnet 4.5 or Gemini Pro 2.0.</p>
+    <p><strong>Effort:</strong> <code>medium</code>.</p>
+    <p><strong>Why:</strong> These tasks need judgment, not just correctness. Sonnet is excellent at understanding context and making reasonable recommendations. Pro is slightly better at creative naming but weaker on code-heavy analysis. For pure coding tasks, Sonnet wins. For docs or explanations, Pro is competitive and cheaper.</p>
+
+    <h3>Bucket 3: Complex Reasoning or Debugging</h3>
+    <p><strong>Examples:</strong> tracing a subtle bug through multiple files, understanding why a complex algorithm fails, reviewing architecture for hidden issues, refactoring tangled legacy code.</p>
+    <p><strong>Model:</strong> Claude Opus 4.8, ChatGPT o1, or Gemini Thinking.</p>
+    <p><strong>Effort:</strong> <code>high</code> to <code>max</code>.</p>
+    <p><strong>Why:</strong> These are the tasks where a cheap model will confidently give you wrong answers. Opus is the most reliable here - it's slower and costs more, but it catches edge cases the others miss. o1 is great for algorithmic problems but occasionally overthinks simple bugs. Gemini Thinking is underrated for deep debugging but has a smaller context window.</p>
+
+    <div class="callout">
+      <div class="callout-label">When to Use Max Effort</div>
+      <p>Reserve <code>max</code> effort for tasks where a mistake costs more than the API call. Debugging a production incident? Max. Refactoring payment logic? Max. Writing a regex for a contact form? Absolutely not.</p>
+      <p>As a rule: if the code touches money, auth, or user data, or if you're about to commit something you won't review again for weeks, use max. Everything else can live at medium or lower.</p>
+    </div>
+
+    <h3>Bucket 4: Long Context or Document Analysis</h3>
+    <p><strong>Examples:</strong> summarising long transcripts, finding patterns across 10+ files, analysing full git diffs, processing documentation sites.</p>
+    <p><strong>Model:</strong> Kimi, Claude Opus, or Gemini Pro 2.0.</p>
+    <p><strong>Effort:</strong> <code>medium</code>.</p>
+    <p><strong>Why:</strong> Kimi has a 200k+ token context window and handles massive inputs without choking. Opus is better at synthesis but more expensive. Pro sits between them - decent context, good summarisation, cheaper than Opus. Pick based on input size: under 50k tokens, use Pro. Over 100k, use Kimi.</p>
+  </section>
+
+  <!-- ── 5. THE CREDIT OPTIMISATION LAYER ── -->
+  <section>
+    <div class="section-num">05 · Budget Management</div>
+    <h2>Optimising for Credit Caps</h2>
+    <p>The framework above assumes unlimited budget. Real orgs give you caps. Here's how to adapt:</p>
+
+    <h3>Track Spend by Task Type, Not by Day</h3>
+    <p>Most devs track AI spend by checking their dashboard once a week and panicking when it's at 80%. Better approach: log every API call by task bucket. At the end of the week, look at the distribution.</p>
+    <p>If 60% of your spend is on Bucket 1 (mechanical tasks), you're overspending. Those should be 10-15% of budget, max. Shift those tasks to Flash or Fable and your budget stretches.</p>
+
+    <h3>Front-Load Expensive Models Early in the Month</h3>
+    <p>Don't ration Opus evenly across 30 days. Use it liberally in week one when your budget is full. By week three, you'll have fewer complex tasks (because you've already debugged the hard stuff) and can coast on cheaper models.</p>
+
+    <h3>Set Hard Caps Per Task Type</h3>
+    <p>I allocate my monthly AI budget (let's say it's $100 as an example) roughly like this:</p>
+
+    <ul class="bullet-list">
+      <li><span>15% on mechanical tasks (Fable, low effort)</span></li>
+      <li><span>50% on ambiguous/creative tasks (Sonnet, medium effort)</span></li>
+      <li><span>30% on complex reasoning (Opus, high effort)</span></li>
+      <li><span>5% buffer for emergencies</span></li>
+    </ul>
+
+    <p>When a bucket hits its cap, I either switch to a cheaper provider (Gemini Flash for mechanical, GPT-4o for reasoning if I've burned through Opus) or defer non-urgent tasks to next month. Sounds rigid, but it prevents the "burn 80% of your budget in week one on regex generation" disaster.</p>
+
+    <div class="highlight-box">
+      <strong>Budget Alert System</strong>
+      I wrote a 30-line bash script that wraps my AI CLI calls and logs cost to a local JSON file. Every morning it shows me: budget used, budget remaining, projected end-of-month spend at current rate. When projected spend hits 90%, I get a desktop notification. Took 20 minutes to build, saves me from budget surprises every month.
+    </div>
+  </section>
+
+  <!-- ── 6. WHAT EACH MODEL IS ACTUALLY GOOD AT ── -->
+  <section>
+    <div class="section-num">06 · Model Strengths</div>
+    <h2>What Each Model Actually Excels At</h2>
+    <p>Beyond the buckets, here are the specific tasks where each model genuinely outperforms the others:</p>
+
+    <h3>Claude Sonnet: Code That Needs to Be Right</h3>
+    <p>Sonnet is conservative. It won't hallucinate a library that doesn't exist or invent an API method. When I ask it to refactor, it preserves behaviour obsessively. The downside is it's occasionally too cautious - it won't suggest a clever trick because it's not 100% sure it'll work. But for production code, cautious is good.</p>
+
+    <h3>Claude Opus: The Bug You Can't Find</h3>
+    <p>Opus has caught bugs in my code that I'd stared at for an hour and missed. It's expensive, but when you're stuck, it's worth it. I've also used it for architectural review - it'll spot patterns like "this function does three unrelated things" that cheaper models miss.</p>
+
+    <h3>Gemini Flash: The One You're Underestimating</h3>
+    <p>Flash is absurdly underrated. It's faster than Fable, cheaper than Sonnet, and for structured tasks - JSON parsing, config generation, test stubs - it's as accurate as models 10x the price. The catch: it struggles with ambiguity. Ask it "should I use X or Y?" and it'll confidently pick one without explaining tradeoffs. But ask it "generate X" and it's flawless.</p>
+
+    <h3>Gemini Thinking: Deep Debugging Only</h3>
+    <p>Thinking is slow. Like, 30-second response times for a medium prompt. But when you're debugging a gnarly algorithmic issue - "why does this sorting function produce wrong output on arrays with duplicates?" - it's shockingly good. It genuinely reasons through edge cases step by step. Don't use it for normal coding. Save it for the problems that make you question your career choices.</p>
+
+    <h3>ChatGPT o1: Algorithmic Interviews and Logic Puzzles</h3>
+    <p>o1 is the model you want if you're grinding LeetCode or implementing a non-trivial algorithm from a paper. It's excellent at formal reasoning. The downside: it sometimes over-engineers. Ask it for a simple function and you'll get a beautifully optimised O(n log n) solution when O(n²) was fine for your 10-element array.</p>
+
+    <h3>Kimi: The Document Analyst</h3>
+    <p>Kimi's party trick is handling huge inputs. I've thrown 100k-token git diffs at it and asked "what changed in the auth layer?" and it finds it. Opus can do this too, but Kimi is cheaper. The catch: it's not as good at synthesis. It'll tell you <em>what</em> changed but struggle to explain <em>why</em> it matters.</p>
+  </section>
+
+  <!-- ── 7. COMMON MISTAKES ── -->
+  <section>
+    <div class="section-num">07 · Common Mistakes</div>
+    <h2>The Mistakes Everyone Makes</h2>
+    <p>I've made every one of these. You probably will too. Here's how to avoid them:</p>
+
+    <h3>Mistake 1: Using One Model for Everything</h3>
+    <p>Defaulting to Sonnet for every task because it's "the good one" is like using a sledgehammer for every nail. You'll burn budget on tasks that didn't need it. Diversify.</p>
+
+    <h3>Mistake 2: Penny-Pinching on Critical Tasks</h3>
+    <p>The opposite mistake: using Flash to debug a race condition because "it's just a quick question". Cheap models give you plausible-sounding nonsense on hard problems. I've wasted hours following Flash's confident-but-wrong debugging advice. The API call cost $0.02; the wasted time cost $50 in opportunity cost.</p>
+
+    <h3>Mistake 3: Ignoring Effort Levels</h3>
+    <p>Most devs don't even know effort levels exist. They use default for everything. But a Sonnet call at <code>high</code> effort is often better than an Opus call at <code>low</code> - and cheaper. Experiment with effort before jumping to a bigger model.</p>
+
+    <h3>Mistake 4: Not Logging What Works</h3>
+    <p>You'll forget which model you used for that task that worked perfectly three weeks ago. I keep a plaintext log: date, task, model, effort, outcome. Takes 10 seconds per call. After a month you'll have a personal dataset of what works for you.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Log That Changed My Workflow</div>
+      <p>My log has 200+ entries now. The patterns were surprising: Flash handled 40% of tasks I'd been using Sonnet for, with identical results. Opus was worth it for debugging but overkill for architecture discussion. Gemini Thinking never justified its cost - I'd get better results from Opus at medium effort.</p>
+      <p>The log takes 5 minutes a week to maintain. It's saved me probably $400 in wasted API calls.</p>
+    </div>
+  </section>
+
+  <!-- ── 8. THE DECISION TREE ── -->
+  <section>
+    <div class="section-num">08 · Quick Reference</div>
+    <h2>The 30-Second Decision Tree</h2>
+    <p>When you're about to make an AI call and don't want to think about it:</p>
+
+    <ul class="bullet-list">
+      <li><span><strong>Is there a clear right answer?</strong> (Boilerplate, tests, formatting) → Flash or Fable, low effort.</span></li>
+      <li><span><strong>Is it ambiguous or creative?</strong> (API design, naming, docs) → Sonnet or Pro, medium effort.</span></li>
+      <li><span><strong>Are you stuck on a hard problem?</strong> (Deep bug, complex refactor) → Opus or o1, high effort.</span></li>
+      <li><span><strong>Is the input huge?</strong> (Long diffs, documentation) → Kimi or Opus, medium effort.</span></li>
+      <li><span><strong>Does it touch money, auth, or user data?</strong> → Opus, max effort, no exceptions.</span></li>
+    </ul>
+
+    <p>That covers 90% of tasks. For the other 10%, use your log.</p>
+  </section>
+
+  <!-- ── 9. FUTURE-PROOFING ── -->
+  <section>
+    <div class="section-num">09 · The Meta-Problem</div>
+    <h2>The Real Problem: This Will Get Worse</h2>
+    <p>The model landscape is accelerating. In six months there will be 20 major models, each with new capabilities we'll have to evaluate. The framework above won't scale forever.</p>
+    <p>What will scale: <strong>task-based classification</strong>. New models will come and go, but tasks stay the same. Mechanical tasks will still be mechanical. Ambiguous tasks will still be ambiguous. When a new model drops, you don't need to re-learn your entire workflow - you just test it on your four buckets and see where it fits.</p>
+    <p>The companies that figure out model routing for developers will win. Imagine a tool that auto-selects the right model based on your prompt and your budget cap. You write "debug this race condition" and it routes to Opus at high. You write "generate test stubs" and it routes to Flash at low. Zero decision overhead.</p>
+    <p>That tool doesn't exist yet. Until it does, frameworks like this are the best we have.</p>
+
+    <div class="pull-quote">
+      <p>"The endgame isn't developers memorising model capabilities. It's developers never having to think about models at all."</p>
+    </div>
+  </section>
+
+  <!-- ── 10. CONCLUSION ── -->
+  <section>
+    <div class="section-num">10 · What to Do Monday</div>
+    <h2>What to Actually Do With This</h2>
+    <p>If you take one thing from this article, make it this: <strong>classify your tasks, then preset your models.</strong></p>
+    <p>Spend 20 minutes this week defining your four buckets and picking a default model + effort combo for each. Write it down. Stick it on your wall. For the next month, use those defaults religiously and log the outcome of every call.</p>
+    <p>At the end of the month, look at your log. You'll see patterns - tasks where the cheap model was fine, tasks where you should've used the expensive one, tasks where effort level mattered more than model choice. Adjust your defaults based on that. Repeat monthly.</p>
+    <p>The goal isn't to find the perfect model for every task. The goal is to remove the decision paralysis so you can spend your time coding instead of comparison-shopping AI models at 2am.</p>
+    <p>And if your org only gives you access to one model? You're reading the wrong article, but also: you're lucky. Constraints are clarifying.</p>
+
+    <div class="ornament">· · ·</div>
+
+    <div class="footnote">
+      Model names, capabilities, and pricing mentioned in this article reflect the landscape as of July 2026. The decision framework is model-agnostic and should remain relevant as new models are released. Pricing and credit caps are illustrative examples based on typical enterprise AI tooling budgets.
+    </div>
+  </section>
+
+</div><!-- /content-wrap -->
+</body>
+</html>
