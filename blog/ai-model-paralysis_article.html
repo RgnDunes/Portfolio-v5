@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>There Are 47 AI Models. I Have Credits for 12 of Them. I Still Don't Know Which One to Use.</title>
-<meta name="description" content="When your org gives you access to Claude, Gemini, ChatGPT, and a dozen others - each with different models, effort levels, and credit caps - how do you decide? A developer's honest guide to AI model selection that doesn't waste your budget." />
-<meta property="og:title" content="There Are 47 AI Models. I Have Credits for 12 of Them. I Still Don't Know Which One to Use." />
-<meta property="og:description" content="When your org gives you access to Claude, Gemini, ChatGPT, and a dozen others - each with different models, effort levels, and credit caps - how do you decide?" />
+<title>47 AI Models, $275 in Monthly Credits, Zero Clue Which One to Use</title>
+<meta name="description" content="When your org hands you Claude, GPT, Gemini, and 12 open-source models - all with different pricing, capabilities, and context windows - how do you actually decide? A developer's framework for choosing AI models without burning through your budget." />
+<meta property="og:title" content="47 AI Models, $275 in Monthly Credits, Zero Clue Which One to Use" />
+<meta property="og:description" content="When your org hands you Claude, GPT, Gemini, and 12 open-source models - all with different pricing, capabilities, and context windows - how do you actually decide?" />
 <meta property="og:type" content="article" />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
@@ -252,7 +252,7 @@
   .code-num { color: #b5cea8; }
   .code-var { color: #9cdcfe; }
 
-  /* ── BULLET LIST (Use for ALL lists - better engagement) ── */
+  /* ── BULLET LIST ── */
   ul.bullet-list {
     list-style: none;
     margin: 20px 0;
@@ -279,7 +279,7 @@
   /* ── STAT STRIP ── */
   .stat-strip {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1px;
     background: var(--rule);
     border: 1px solid var(--rule);
@@ -289,7 +289,7 @@
   }
   .stat-item {
     background: #fff;
-    padding: 28px 20px;
+    padding: 32px 24px;
     text-align: center;
   }
   .stat-num {
@@ -298,7 +298,7 @@
     font-weight: 900;
     color: var(--accent);
     line-height: 1;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .stat-label {
     font-family: 'DM Mono', monospace;
@@ -344,287 +344,375 @@
     margin-top: 40px;
   }
 
+  /* ── MODEL TABLE ── */
+  .model-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 0.9rem;
+  }
+  .model-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid var(--rule);
+  }
+  .model-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .model-table tr:last-child td {
+    border-bottom: none;
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .model-table { font-size: 0.8rem; }
+    .model-table th, .model-table td { padding: 8px 6px; }
   }
 </style>
 </head>
 <body>
 
-<div class="masthead">AI Tools · Developer Experience · Decision Frameworks</div>
+<div class="masthead">AI Tools · Developer Productivity · Model Selection</div>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-label">Developer Productivity · AI Tooling</div>
-  <h1>There Are 47 AI Models. I Have Credits for 12 of Them. <em>I Still Don't Know Which One to Use.</em></h1>
-  <p class="hero-sub">When your org gives you access to Claude, Gemini, ChatGPT, Kimi, and a dozen others - each with different models, effort levels, and credit caps - how do you actually decide? A framework for choosing AI models that maximises accuracy without burning through your budget in three days.</p>
+  <div class="hero-label">Developer Experience · AI Tooling · July 2026</div>
+  <h1>47 AI Models, $275 in Monthly Credits, <em>Zero Clue Which One to Use</em></h1>
+  <p class="hero-sub">When your org hands you access to Claude, GPT, Gemini, and a dozen open-source models - each with wildly different pricing, capabilities, and context windows - how do you actually decide? A practical framework for choosing AI models that maximises accuracy without burning through your budget in three days.</p>
   <div class="byline">
     <span>By Divyansh Singh</span>
     <span class="byline-dot"></span>
     <span>July 2026</span>
     <span class="byline-dot"></span>
-    <span>~12 min read</span>
+    <span>~14 min read</span>
   </div>
 </div>
 
 <!-- COVER IMAGE -->
 <div class="cover-image">
-  <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&h=600&fit=crop" alt="Abstract network of interconnected nodes representing AI model choices" />
+  <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&h=600&fit=crop" alt="Abstract network representing AI model choices" />
 </div>
 
 <!-- ARTICLE BODY -->
 <div class="content-wrap">
 
-  <!-- ── 1. THE PROBLEM ── -->
+  <!-- ── 1. THE LANDSCAPE ── -->
   <section>
     <div class="section-num">01 · The Problem</div>
-    <h2>The Paralysis Is Real</h2>
-    <p>Last Tuesday I spent 20 minutes staring at my terminal trying to decide which AI model to use for a code refactoring task. Not because I didn't know how - because I had too many options.</p>
-    <p>Three tiers of Claude models. Multiple Gemini variants. Several ChatGPT options. Kimi for long context. DeepSeek and Llama for self-hosting. And that's before you factor in the effort levels - <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code> - each consuming different amounts of tokens and producing different quality outputs.</p>
-    <p>My org had given me access to all of them, with monthly credit caps on each provider. The freedom was paralysing. Use the wrong model and I'd burn through credits on a task that didn't need it. Use too cheap a model and I'd waste time fixing hallucinated code. Twenty minutes of decision paralysis is twenty minutes not shipping.</p>
-
-    <div class="pull-quote">
-      <p>"The paradox of choice isn't theoretical when you're burning $0.50 per API call and your monthly budget resets in six days."</p>
-    </div>
-
-    <p>This isn't a complaint about having too many tools. It's an observation that the AI landscape has fragmented faster than the mental models developers use to navigate it. We went from "use GPT-4 for hard stuff, GPT-3.5 for cheap stuff" to a 12-dimensional decision matrix in 18 months.</p>
-  </section>
-
-  <!-- ── 2. WHY THIS IS HARD ── -->
-  <section>
-    <div class="section-num">02 · The Real Problem</div>
-    <h2>Why Model Selection Actually Matters</h2>
-    <p>The stakes are higher than they look. Pick wrong and one of three things happens:</p>
-
-    <ul class="bullet-list">
-      <li><span><strong>You overspend.</strong> Running Opus 4.8 at <code>max</code> effort on a task that Flash 2.0 could handle burns through your monthly budget in a week. Then you're stuck with the free tier, rate-limited to hell, for the rest of the month.</span></li>
-      <li><span><strong>You underspend and pay with time.</strong> A cheaper model gives you plausible-looking code that breaks in production. You spend two hours debugging what a better model would've caught. The API cost was lower; the engineer cost was higher.</span></li>
-      <li><span><strong>You spend decision energy instead of coding.</strong> Every task becomes a meta-task: "Which model should I use for this?" That cognitive overhead compounds. By afternoon you've spent more time choosing models than using them.</span></li>
-    </ul>
-
-    <p>The root issue is that most developers don't have a consistent decision framework. We're guessing, or copying what worked last time, or defaulting to whichever model we saw mentioned on Twitter recently. That works until your budget runs dry or you ship a bug that a $0.30 API call would've prevented.</p>
-
-    <div class="highlight-box">
-      <strong>Real Example</strong>
-      I used Claude Opus 4.7 at <code>high</code> effort to generate a regex pattern for URL validation. Took 8 seconds, cost $0.40, worked perfectly. A week later I caught myself doing the same thing - and realised Gemini Flash could've done it in 2 seconds for $0.02. The output would've been identical. I'd wasted $0.38 because I didn't stop to think.
-    </div>
-  </section>
-
-  <!-- ── 3. THE MODEL LANDSCAPE ── -->
-  <section>
-    <div class="section-num">03 · The Landscape</div>
-    <h2>What You're Actually Choosing Between</h2>
-    <p>Let's map the territory. These are the models most orgs are giving devs access to as of mid-2026:</p>
-
-    <p>Most orgs provide access to models across several tiers:</p>
-
-    <h3>Tier 1: Fast & Economical</h3>
-    <p>Models optimised for speed and cost. Good for straightforward tasks with clear right answers - code generation, simple refactors, test case creation. Examples include Claude Haiku, Gemini Flash, and similar fast-tier options from other providers.</p>
-
-    <h3>Tier 2: Balanced</h3>
-    <p>The middle ground - capable enough for most coding tasks, priced reasonably. This is where you'll spend most of your budget. Examples include Claude Sonnet, GPT-4o, and Gemini Pro variants.</p>
-
-    <h3>Tier 3: Maximum Capability</h3>
-    <p>The expensive, slow, powerful models reserved for complex reasoning. Claude Opus, GPT o1, and similar top-tier models live here. Use sparingly - these justify their cost on hard problems but waste budget on simple tasks.</p>
-
-    <h3>Specialised Models</h3>
-    <p>Some models have specific strengths: long context windows, multimodal capabilities, or particular reasoning styles. Kimi handles massive documents well. Open-source options like DeepSeek and Llama offer self-hosted alternatives. Match these to specific needs rather than using them as general-purpose tools.</p>
+    <h2>The Current Model Landscape Is Absurd</h2>
+    <p>Last week I spent 18 minutes staring at my IDE trying to decide which AI model to use for a straightforward refactoring task. Not because I didn't know how to refactor the code - because I had 47 possible model configurations to choose from.</p>
+    <p>Four Claude models. Three GPT-5.6 variants. Five Gemini options. Eight different open-source models running locally through Ollama. And that's before you factor in the reality that most of these support multiple inference modes, context caching strategies, and reasoning levels.</p>
+    <p>My org gives me a fixed monthly credit allocation across three providers. Blow through it too fast and I'm stuck with free-tier rate limits for the rest of the month. Use the wrong model and I waste credits on tasks that didn't need them. Use too cheap a model and I spend two hours debugging hallucinated code. The cost of the wrong decision compounds.</p>
 
     <div class="stat-strip">
       <div class="stat-item">
-        <div class="stat-num">~12</div>
-        <div class="stat-label">Major AI Models<br/>Available to Devs</div>
+        <div class="stat-num">47+</div>
+        <div class="stat-label">Model<br/>Configurations</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">5+</div>
-        <div class="stat-label">Effort Levels<br/>Per Model</div>
+        <div class="stat-num">$0.25<br/>to<br/>$50</div>
+        <div class="stat-label">Cost Range<br/>Per MTok Output</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">60+</div>
-        <div class="stat-label">Possible<br/>Configurations</div>
+        <div class="stat-num">200K<br/>to<br/>10M</div>
+        <div class="stat-label">Context Window<br/>Range (tokens)</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">0</div>
-        <div class="stat-label">Decision<br/>Frameworks</div>
-      </div>
-    </stat-strip>
-
-    <p>The combinatorial explosion is the problem. You're not choosing between three models. You're choosing between 12 models, each with 3-5 effort settings, for hundreds of different task types. No one can hold that decision tree in their head.</p>
-  </section>
-
-  <!-- ── 4. THE FRAMEWORK ── -->
-  <section>
-    <div class="section-num">04 · The Framework</div>
-    <h2>A Decision Framework That Actually Works</h2>
-    <p>Here's the system I've used for the past three months. It's not perfect, but it's reduced my decision time from minutes to seconds and cut my monthly AI spend by roughly 40% without sacrificing output quality.</p>
-
-    <p>The core insight: <strong>task classification matters more than model specs.</strong> Instead of memorising which model is best at what, classify your task into one of four buckets, then use a preset model + effort combo for that bucket.</p>
-
-    <h3>Bucket 1: Mechanical Tasks</h3>
-    <p><strong>Examples:</strong> writing boilerplate, generating test cases, formatting JSON, regex patterns, simple refactors, docstring generation.</p>
-    <p><strong>Model tier:</strong> Fast/economical tier (the cheapest option from your available providers).</p>
-    <p><strong>Effort:</strong> <code>low</code> or default.</p>
-    <p><strong>Why:</strong> These tasks have clear right answers and no ambiguity. Speed and cost matter more than deep reasoning. Fast-tier models excel at structured, deterministic tasks - generating hundreds of test stubs or boilerplate in seconds for pennies. Save your expensive model credits for problems that actually need them.</p>
-
-    <div class="code-block">
-      <div class="code-label">Example Prompt · Mechanical Task</div>
-      <pre><span class="code-cmt"># Use: Gemini Flash 2.0 (low effort)</span>
-
-Generate TypeScript test stubs for all exported functions in <span class="code-str">'utils.ts'</span>.
-Use Vitest syntax. Include describe blocks grouped by function.</pre>
     </div>
 
-    <h3>Bucket 2: Ambiguous or Creative Tasks</h3>
-    <p><strong>Examples:</strong> API design decisions, naming things, architectural tradeoff discussions, explaining unfamiliar codebases, writing human-facing documentation.</p>
-    <p><strong>Model:</strong> Balanced-tier models (mid-range options from your providers).</p>
-    <p><strong>Effort:</strong> <code>medium</code>.</p>
-    <p><strong>Why:</strong> These tasks need judgment, not just correctness. Sonnet is excellent at understanding context and making reasonable recommendations. Pro is slightly better at creative naming but weaker on code-heavy analysis. For pure coding tasks, Sonnet wins. For docs or explanations, Pro is competitive and cheaper.</p>
-
-    <h3>Bucket 3: Complex Reasoning or Debugging</h3>
-    <p><strong>Examples:</strong> tracing a subtle bug through multiple files, understanding why a complex algorithm fails, reviewing architecture for hidden issues, refactoring tangled legacy code.</p>
-    <p><strong>Model:</strong> Top-tier models (the most capable, expensive options).</p>
-    <p><strong>Effort:</strong> <code>high</code> to <code>max</code>.</p>
-    <p><strong>Why:</strong> These are the tasks where a cheap model will confidently give you wrong answers. Opus is the most reliable here - it's slower and costs more, but it catches edge cases the others miss. o1 is great for algorithmic problems but occasionally overthinks simple bugs. Gemini Thinking is underrated for deep debugging but has a smaller context window.</p>
-
-    <div class="callout">
-      <div class="callout-label">When to Use Max Effort</div>
-      <p>Reserve <code>max</code> effort for tasks where a mistake costs more than the API call. Debugging a production incident? Max. Refactoring payment logic? Max. Writing a regex for a contact form? Absolutely not.</p>
-      <p>As a rule: if the code touches money, auth, or user data, or if you're about to commit something you won't review again for weeks, use max. Everything else can live at medium or lower.</p>
-    </div>
-
-    <h3>Bucket 4: Long Context or Document Analysis</h3>
-    <p><strong>Examples:</strong> summarising long transcripts, finding patterns across 10+ files, analysing full git diffs, processing documentation sites.</p>
-    <p><strong>Model:</strong> Models with large context windows or strong document analysis capabilities.</p>
-    <p><strong>Effort:</strong> <code>medium</code>.</p>
-    <p><strong>Why:</strong> Kimi has a 200k+ token context window and handles massive inputs without choking. Opus is better at synthesis but more expensive. Pro sits between them - decent context, good summarisation, cheaper than Opus. Pick based on input size: under 50k tokens, use Pro. Over 100k, use Kimi.</p>
+    <p style="margin-top: 40px;">This isn't a complaint about having too many tools. It's an observation that the AI model landscape fragmented faster than the decision frameworks developers use to navigate it.</p>
   </section>
 
-  <!-- ── 5. THE CREDIT OPTIMISATION LAYER ── -->
+  <!-- ── 2. THE ACTUAL OPTIONS ── -->
   <section>
-    <div class="section-num">05 · Budget Management</div>
-    <h2>Optimising for Credit Caps</h2>
-    <p>The framework above assumes unlimited budget. Real orgs give you caps. Here's how to adapt:</p>
+    <div class="section-num">02 · The Current Landscape</div>
+    <h2>What You're Actually Choosing Between (Mid-2026)</h2>
+    <p>Here's what the model landscape actually looks like right now, based on official documentation and verified pricing.</p>
 
-    <h3>Track Spend by Task Type, Not by Day</h3>
-    <p>Most devs track AI spend by checking their dashboard once a week and panicking when it's at 80%. Better approach: log every API call by task bucket. At the end of the week, look at the distribution.</p>
-    <p>If 60% of your spend is on Bucket 1 (mechanical tasks), you're overspending. Those should be 10-15% of budget, max. Shift those tasks to Flash or Fable and your budget stretches.</p>
+    <h3>Claude (Anthropic)</h3>
+    <p>Four tiers, all with 1M token context windows except Haiku (200K):</p>
 
-    <h3>Front-Load Expensive Models Early in the Month</h3>
-    <p>Don't ration Opus evenly across 30 days. Use it liberally in week one when your budget is full. By week three, you'll have fewer complex tasks (because you've already debugged the hard stuff) and can coast on cheaper models.</p>
+    <table class="model-table">
+      <tr>
+        <th>Model</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Best For</th>
+      </tr>
+      <tr>
+        <td><strong>Fable 5</strong></td>
+        <td>$10/MTok</td>
+        <td>$50/MTok</td>
+        <td>Long-running agents, max capability</td>
+      </tr>
+      <tr>
+        <td><strong>Opus 4.8</strong></td>
+        <td>$5/MTok</td>
+        <td>$25/MTok</td>
+        <td>Complex coding, enterprise work</td>
+      </tr>
+      <tr>
+        <td><strong>Sonnet 5</strong></td>
+        <td>$3/MTok</td>
+        <td>$15/MTok</td>
+        <td>Speed + intelligence balance</td>
+      </tr>
+      <tr>
+        <td><strong>Haiku 4.5</strong></td>
+        <td>$1/MTok</td>
+        <td>$5/MTok</td>
+        <td>Fast, high-volume tasks</td>
+      </tr>
+    </table>
 
-    <h3>Set Hard Caps Per Task Type</h3>
-    <p>I allocate my monthly AI budget (let's say it's $100 as an example) roughly like this:</p>
+    <p>Claude supports <code>effort</code> levels (low, medium, high, xhigh, max) that trade speed and cost for quality. Opus 4.8 defaults to <code>high</code> effort; Sonnet 5 defaults to <code>high</code> on API.</p>
+
+    <h3>OpenAI (GPT-5.6 Series)</h3>
+    <p>Three variants, all with 1.05M context windows:</p>
+
+    <table class="model-table">
+      <tr>
+        <th>Model</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Reasoning</th>
+      </tr>
+      <tr>
+        <td><strong>GPT-5.6 Sol</strong></td>
+        <td>$5/MTok</td>
+        <td>$30/MTok</td>
+        <td>Maximum</td>
+      </tr>
+      <tr>
+        <td><strong>GPT-5.6 Terra</strong></td>
+        <td>$2.50/MTok</td>
+        <td>$15/MTok</td>
+        <td>High</td>
+      </tr>
+      <tr>
+        <td><strong>GPT-5.6 Luna</strong></td>
+        <td>$1/MTok</td>
+        <td>$6/MTok</td>
+        <td>Medium-High</td>
+      </tr>
+    </table>
+
+    <h3>Google (Gemini)</h3>
+    <p>Multiple tiers with varying context windows:</p>
+
+    <table class="model-table">
+      <tr>
+        <th>Model</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Notes</th>
+      </tr>
+      <tr>
+        <td><strong>Gemini 3.5 Flash</strong></td>
+        <td>$1.50/MTok</td>
+        <td>$9/MTok</td>
+        <td>Frontier performance, efficient</td>
+      </tr>
+      <tr>
+        <td><strong>Gemini 3.1 Flash-Lite</strong></td>
+        <td>$0.25/MTok</td>
+        <td>$1.50/MTok</td>
+        <td>Fastest, most budget-friendly</td>
+      </tr>
+      <tr>
+        <td><strong>Gemini 3.1 Pro</strong></td>
+        <td>$2-4/MTok</td>
+        <td>$12-18/MTok</td>
+        <td>Advanced reasoning (preview)</td>
+      </tr>
+      <tr>
+        <td><strong>Gemini 2.5 Pro</strong></td>
+        <td>$1.25-2.50/MTok</td>
+        <td>$10-15/MTok</td>
+        <td>Deep reasoning, coding</td>
+      </tr>
+    </table>
+
+    <p>Gemini offers 50% batch discounts and context caching at ~10% of input cost.</p>
+
+    <h3>Open-Source (Self-Hosted or API)</h3>
+    <p>The open-source landscape has matured significantly. Here are the most credible options as of mid-2026:</p>
 
     <ul class="bullet-list">
-      <li><span>15% on mechanical tasks (Fable, low effort)</span></li>
-      <li><span>50% on ambiguous/creative tasks (Sonnet, medium effort)</span></li>
-      <li><span>30% on complex reasoning (Opus, high effort)</span></li>
-      <li><span>5% buffer for emergencies</span></li>
+      <li><span><strong>DeepSeek-R1 (671B total, 37B active per token)</strong> - Family of open reasoning models with performance approaching proprietary models. Available in sizes from 1.5B to 671B. MIT licence for code, commercial-use licence for weights. Outperforms many closed-source models on code and maths benchmarks.</span></li>
+      <li><span><strong>Llama 4 Scout & Maverick (17B)</strong> - Meta's latest natively multimodal models with mixture-of-experts architecture. 10M token context window on Scout variant. Requires licence acceptance.</span></li>
+      <li><span><strong>Llama 3.3 (70B)</strong> - Strong instruction-tuned model with 693K downloads on Hugging Face. Text-only, multilingual, trained on ~15 trillion tokens.</span></li>
+      <li><span><strong>Qwen 2.5-Coder (0.5B to 32B)</strong> - Code-specific models with improvements in generation and reasoning. Supports 128K token context.</span></li>
+      <li><span><strong>Gemma 3 (270M to 27B)</strong> - Google's efficient models that run on single GPU. Vision support on larger variants.</span></li>
+      <li><span><strong>Mistral (7B)</strong> - Proven workhorse for local deployment. 31M+ downloads on Ollama.</span></li>
     </ul>
 
-    <p>When a bucket hits its cap, I either switch to a cheaper provider (Gemini Flash for mechanical, GPT-4o for reasoning if I've burned through Opus) or defer non-urgent tasks to next month. Sounds rigid, but it prevents the "burn 80% of your budget in week one on regex generation" disaster.</p>
+    <div class="callout">
+      <div class="callout-label">Why Open-Source Matters</div>
+      <p>Open-source models eliminate vendor lock-in and credit caps. DeepSeek-R1 matches or beats GPT-4o on many benchmarks. Llama 4 Scout handles 10M tokens - 10x Claude's context window. For long-context document analysis, research, or privacy-sensitive work, open-source isn't a compromise. It's often the better choice.</p>
+      <p>The trade-off: you're managing infrastructure, dealing with quantisation and VRAM constraints, and handling model updates yourself. For high-volume, latency-tolerant workloads, the cost savings justify it. For one-off tasks, API models are faster to spin up.</p>
+    </div>
+
+  </section>
+
+  <!-- ── 3. THE FRAMEWORK ── -->
+  <section>
+    <div class="section-num">03 · The Framework</div>
+    <h2>A Task-Based Decision Model</h2>
+    <p>The insight that made this manageable: <strong>classify the task, not the model.</strong></p>
+    <p>Instead of memorising which model excels at what, I built a task taxonomy with preset model choices. Here's what actually works:</p>
+
+    <h3>Task Type 1: Mechanical</h3>
+    <p><strong>Examples:</strong> Boilerplate generation, test case scaffolding, JSON formatting, regex patterns, docstring writing.</p>
+    <p><strong>Model choice:</strong> Cheapest available - Gemini 3.1 Flash-Lite ($0.25/$1.50 per MTok), Haiku 4.5 ($1/$5), or open-source Gemma 3 4B locally.</p>
+    <p><strong>Why:</strong> These tasks have objective right answers. Speed and cost matter more than reasoning depth. Flash-Lite generates 200 test stubs in under 2 seconds for under a penny. There's no reason to burn Opus credits here.</p>
+
+    <h3>Task Type 2: Ambiguous</h3>
+    <p><strong>Examples:</strong> API design decisions, naming debates, architectural trade-offs, explaining unfamiliar code, writing documentation.</p>
+    <p><strong>Model choice:</strong> Mid-tier balanced models - Claude Sonnet 5 ($3/$15), GPT-5.6 Terra ($2.50/$15), or Gemini 3.5 Flash ($1.50/$9).</p>
+    <p><strong>Why:</strong> These need judgement, not just correctness. The model must understand context, weigh trade-offs, and explain reasoning. Cheap models confidently pick one option without explaining why. Expensive models overthink it. Mid-tier hits the sweet spot.</p>
+
+    <h3>Task Type 3: Complex Reasoning</h3>
+    <p><strong>Examples:</strong> Tracing subtle bugs across multiple files, understanding why a complex algorithm fails on edge cases, reviewing architecture for hidden issues, refactoring tangled legacy code.</p>
+    <p><strong>Model choice:</strong> Top-tier with high effort - Claude Opus 4.8 at <code>high</code> effort ($5/$25), GPT-5.6 Sol ($5/$30), or Gemini 3.1 Pro ($2-4/$12-18). For open-source: DeepSeek-R1 70B.</p>
+    <p><strong>Why:</strong> This is where cheap models confidently hallucinate solutions that compile but break in production. The cost of a wrong answer here - wasted debugging time, shipped bugs - exceeds the API cost by orders of magnitude. Use the expensive model.</p>
+
+    <h3>Task Type 4: Long Context</h3>
+    <p><strong>Examples:</strong> Summarising lengthy transcripts, finding patterns across 20+ files, analysing full git diffs, processing documentation sites.</p>
+    <p><strong>Model choice:</strong> Long-context specialists - Llama 4 Scout (10M tokens, open-source), Claude Opus/Sonnet (1M tokens), Gemini 2.5 Pro (1M+ with extended context), or GPT-5.6 (1.05M).</p>
+    <p><strong>Why:</strong> Context window size matters here more than reasoning capability. For truly massive inputs (multi-million tokens), open-source Llama 4 Scout is the only option. For 1M token range, Claude and Gemini are reliable. Pricing gets complex at scale - context caching can cut costs 90%.</p>
 
     <div class="highlight-box">
-      <strong>Budget Alert System</strong>
-      I wrote a 30-line bash script that wraps my AI CLI calls and logs cost to a local JSON file. Every morning it shows me: budget used, budget remaining, projected end-of-month spend at current rate. When projected spend hits 90%, I get a desktop notification. Took 20 minutes to build, saves me from budget surprises every month.
+      <strong>The Effort Level Hack</strong>
+      Before jumping to a more expensive model, try cranking up the effort level on your current one. Claude Sonnet 5 at <code>xhigh</code> effort often matches Opus 4.8 at <code>medium</code> - and costs less. GPT-5.6 Terra at max reasoning beats Luna at default. Experiment with effort before upgrading tiers.
     </div>
+
   </section>
 
-  <!-- ── 6. WHAT EACH MODEL IS ACTUALLY GOOD AT ── -->
+  <!-- ── 4. BUDGET MANAGEMENT ── -->
   <section>
-    <div class="section-num">06 · Testing Your Models</div>
-    <h2>Building Your Own Model Profile</h2>
-    <p>The tier system gives you a starting point, but every model has quirks. Some are conservative and won't suggest risky refactors. Others are aggressive and will confidently propose solutions that don't compile. Some handle ambiguity well. Others need crystal-clear prompts.</p>
+    <div class="section-num">04 · Managing Credit Caps</div>
+    <h2>Making Your Budget Last the Month</h2>
+    <p>The framework above assumes unlimited credits. Real organisations give you caps. Here's how to stretch them:</p>
 
-    <p>You need to profile your available models yourself. Here's the fast way:</p>
+    <h3>Track by Task Type, Not Calendar Day</h3>
+    <p>Log every API call by task type (mechanical, ambiguous, complex, long-context). At week's end, check the distribution. If 60% of spend is on mechanical tasks, you're overspending. Those should be 10-15% max. Shift them to cheaper models or open-source.</p>
 
-    <h3>Week One: Baseline Testing</h3>
-    <p>Pick five representative tasks from your actual work. One mechanical, two balanced, two complex. Run each through every model in your toolkit at medium effort. Log the results: which succeeded, which failed, which were close but needed tweaking.</p>
+    <h3>Front-Load Expensive Models Early</h3>
+    <p>Don't ration Opus evenly across 30 days. Use it liberally in week one when complex problems are fresh and your budget is full. By week three, you've already debugged the gnarly stuff. Mechanical and ambiguous tasks dominate. Cheaper models suffice.</p>
 
-    <p>This gives you a rough map. You'll spot the models that consistently nail certain task types and the ones that consistently miss.</p>
+    <h3>Leverage Batch APIs and Caching</h3>
+    <p>Gemini's batch API gives 50% discounts. Context caching (available on Claude and Gemini) charges ~10% of input cost for cached content. If you're repeatedly processing the same large codebase, cache it. A 100K token codebase cached costs $30 once on Sonnet, then $0.30 per subsequent query instead of $300.</p>
 
-    <h3>Week Two: Effort Calibration</h3>
-    <p>Take the models that did well on complex tasks. Run the same tasks again at low, medium, high, and max effort. Log cost and quality. Find the inflection point - where does more effort stop improving output?</p>
-
-    <p>For most models, there's a sweet spot. Below it, quality drops fast. Above it, you're burning credits for marginal gains.</p>
-
-    <h3>Month One: Pattern Recognition</h3>
-    <p>By the end of the first month, you'll have a personal dataset. Some fast-tier models will surprise you - handling tasks you assumed needed balanced-tier. Some expensive models will disappoint - costing 5x more for identical output.</p>
-
-    <p>This data is worth more than any article or benchmark. It's based on your actual workload, your prompting style, your code patterns. Trust it over marketing claims.</p>
-  </section>
-
-  <!-- ── 7. COMMON MISTAKES ── -->
-  <section>
-    <div class="section-num">07 · Common Mistakes</div>
-    <h2>The Mistakes Everyone Makes</h2>
-    <p>I've made every one of these. You probably will too. Here's how to avoid them:</p>
-
-    <h3>Mistake 1: Using One Model for Everything</h3>
-    <p>Defaulting to your "favourite" model for every task is like using a sledgehammer for every nail. You'll burn budget on tasks that didn't need it. Diversify.</p>
-
-    <h3>Mistake 2: Penny-Pinching on Critical Tasks</h3>
-    <p>The opposite mistake: using a fast-tier model to debug a race condition because "it's just a quick question". Cheap models give you plausible-sounding nonsense on hard problems. I've wasted hours following confident-but-wrong debugging advice from the wrong tier. The API call saved 20 cents; the wasted time cost $50 in opportunity cost.</p>
-
-    <h3>Mistake 3: Ignoring Effort Levels</h3>
-    <p>Most devs don't even know effort levels exist. They use default for everything. But a balanced-tier call at <code>high</code> effort is often better than a top-tier call at <code>low</code> - and cheaper. Experiment with effort before jumping to a bigger model.</p>
-
-    <h3>Mistake 4: Not Logging What Works</h3>
-    <p>You'll forget which model you used for that task that worked perfectly three weeks ago. I keep a plaintext log: date, task, model, effort, outcome. Takes 10 seconds per call. After a month you'll have a personal dataset of what works for you.</p>
+    <h3>Open-Source as Overflow</h3>
+    <p>When API credits run low, shift to open-source. DeepSeek-R1 7B runs locally on a decent GPU and handles most coding tasks competently. Llama 3.3 70B via Ollama is free once you've paid for the hardware. Use API models for the first 80% of your budget, then fall back to local for the final stretch.</p>
 
     <div class="callout">
-      <div class="callout-label">The Log That Changed My Workflow</div>
-      <p>My log has 200+ entries now. The patterns were surprising: fast-tier models handled 40% of tasks I'd been using balanced-tier for, with identical results. Top-tier was worth it for debugging but overkill for architecture discussion. Effort level often mattered more than model choice.</p>
-      <p>The log takes 5 minutes a week to maintain. It's saved me probably $400 in wasted API calls.</p>
+      <div class="callout-label">Real Budget Example</div>
+      <p>Monthly allocation: $100 Claude, $75 OpenAI, $50 Gemini. How I use it:</p>
+      <p><strong>Claude ($100):</strong> $15 Haiku (mechanical tasks), $60 Sonnet (ambiguous work), $25 Opus (hard debugging).</p>
+      <p><strong>OpenAI ($75):</strong> $20 Luna (volume tasks), $40 Terra (balanced work), $15 Sol (complex reasoning).</p>
+      <p><strong>Gemini ($50):</strong> $10 Flash-Lite (mechanical overflow), $30 3.5 Flash (ambiguous overflow), $10 Pro (long-context one-offs).</p>
+      <p><strong>Open-source (hardware cost, not credits):</strong> DeepSeek-R1 7B and Llama 3.3 70B for after-hours work and experimentation.</p>
     </div>
+
   </section>
 
-  <!-- ── 8. THE DECISION TREE ── -->
+  <!-- ── 5. COMMON MISTAKES ── -->
   <section>
-    <div class="section-num">08 · Quick Reference</div>
+    <div class="section-num">05 · What Everyone Gets Wrong</div>
+    <h2>The Mistakes That Burn Budgets</h2>
+
+    <h3>Mistake 1: Defaulting to One Model</h3>
+    <p>Using Sonnet for everything because it's "good enough" wastes money on tasks that Flash-Lite could handle. Diversify. Log your usage for a week. You'll find 40% of your Sonnet calls could've been Haiku with identical output.</p>
+
+    <h3>Mistake 2: Penny-Pinching on Critical Tasks</h3>
+    <p>The inverse mistake: using Flash-Lite to debug a race condition because "it's just a quick question." Cheap models give confident, plausible, wrong answers on hard problems. The API call saves $0.15. The two hours of misdirected debugging costs $100 in opportunity cost.</p>
+
+    <h3>Mistake 3: Ignoring Open-Source</h3>
+    <p>DeepSeek-R1 outperforms GPT-4o on many benchmarks. Llama 4 Scout handles 10M tokens. Yet most developers never try them because "setup is hard." For recurring tasks - code review, test generation, documentation - the upfront setup cost amortises fast.</p>
+
+    <h3>Mistake 4: Not Logging</h3>
+    <p>You'll forget which model worked for which task. I keep a plaintext log: date, task, model, effort, cost, outcome. Takes 10 seconds per call. After a month, patterns emerge. Your log becomes your personal benchmark suite.</p>
+
+  </section>
+
+  <!-- ── 6. DECISION TREE ── -->
+  <section>
+    <div class="section-num">06 · Quick Reference</div>
     <h2>The 30-Second Decision Tree</h2>
-    <p>When you're about to make an AI call and don't want to think about it:</p>
+    <p>When you're about to make an API call:</p>
 
     <ul class="bullet-list">
-      <li><span><strong>Is there a clear right answer?</strong> (Boilerplate, tests, formatting) → Fast tier, low effort.</span></li>
-      <li><span><strong>Is it ambiguous or creative?</strong> (API design, naming, docs) → Balanced tier, medium effort.</span></li>
-      <li><span><strong>Are you stuck on a hard problem?</strong> (Deep bug, complex refactor) → Top tier, high effort.</span></li>
-      <li><span><strong>Is the input huge?</strong> (Long diffs, documentation) → Long-context model, medium effort.</span></li>
-      <li><span><strong>Does it touch money, auth, or user data?</strong> → Top tier, max effort, no exceptions.</span></li>
+      <li><span><strong>Is there an objectively correct answer?</strong> (Boilerplate, tests, formatting) → Use cheapest: Flash-Lite, Haiku, or Gemma 3 locally.</span></li>
+      <li><span><strong>Does it require judgement or trade-off evaluation?</strong> (API design, naming, docs) → Use mid-tier: Sonnet 5, Terra, or 3.5 Flash.</span></li>
+      <li><span><strong>Are you stuck on a genuinely hard problem?</strong> (Deep bug, algorithmic edge case, architectural flaw) → Use top-tier: Opus 4.8, Sol, or DeepSeek-R1 70B.</span></li>
+      <li><span><strong>Is the input massive?</strong> (Multi-file diffs, long transcripts) → Use long-context: Llama 4 Scout (10M), Claude/Gemini/GPT (1M+).</span></li>
+      <li><span><strong>Does it touch money, auth, or user data?</strong> → Use Opus 4.8 at <code>max</code> effort, no exceptions. Bugs here are catastrophic.</span></li>
     </ul>
 
-    <p>That covers 90% of tasks. For the other 10%, use your log.</p>
+    <p>This handles 90% of decisions. For the remaining 10%, consult your log.</p>
   </section>
 
-  <!-- ── 9. FUTURE-PROOFING ── -->
+  <!-- ── 7. OPEN-SOURCE DEEP DIVE ── -->
   <section>
-    <div class="section-num">09 · The Meta-Problem</div>
-    <h2>The Real Problem: This Will Get Worse</h2>
-    <p>The model landscape is accelerating. In six months there will be 20 major models, each with new capabilities we'll have to evaluate. The framework above won't scale forever.</p>
-    <p>What will scale: <strong>task-based classification</strong>. New models will come and go, but tasks stay the same. Mechanical tasks will still be mechanical. Ambiguous tasks will still be ambiguous. When a new model drops, you don't need to re-learn your entire workflow - you just test it on your four buckets and see where it fits.</p>
-    <p>The companies that figure out model routing for developers will win. Imagine a tool that auto-selects the right model based on your prompt and your budget cap. You write "debug this race condition" and it routes to top-tier at high effort. You write "generate test stubs" and it routes to fast-tier at low. Zero decision overhead.</p>
-    <p>That tool doesn't exist yet. Until it does, frameworks like this are the best we have.</p>
+    <div class="section-num">07 · The Open-Source Case</div>
+    <h2>Why Open-Source Models Deserve Serious Consideration</h2>
+    <p>The gap between open-source and proprietary models has collapsed. DeepSeek-R1 (fully open, MIT licence) beats GPT-4o on code and maths. Llama 4 handles more context than any API model. Here's why that matters:</p>
+
+    <h3>Cost at Scale</h3>
+    <p>For high-volume workloads, open-source is dramatically cheaper. Running DeepSeek-R1 70B locally costs GPU depreciation + electricity. No per-token charges. If you're generating thousands of test cases daily, the hardware pays for itself in weeks.</p>
+
+    <h3>Privacy and Control</h3>
+    <p>API models send your data to third-party servers. For legal code, unreleased features, or proprietary algorithms, that's a non-starter. Open-source models run in your VPC. You control the data.</p>
+
+    <h3>Customisation</h3>
+    <p>You can fine-tune open-source models on your codebase. A Llama 3.3 70B fine-tuned on your org's patterns understands your naming conventions, architecture decisions, and code style. API models don't.</p>
+
+    <h3>No Vendor Lock-In</h3>
+    <p>Anthropic changes Opus pricing or deprecates a model? You're stuck migrating. Open-source models are yours forever. Download the weights, host them yourself, and you're immune to vendor decisions.</p>
+
+    <div class="callout">
+      <div class="callout-label">Getting Started with Open-Source</div>
+      <p><strong>Easiest path:</strong> Install Ollama, run <code>ollama pull deepseek-r1:7b</code>, and start querying. Works on consumer hardware (16GB RAM).</p>
+      <p><strong>For production:</strong> Deploy via vLLM or TensorRT-LLM on cloud GPU instances. DeepSeek-R1 70B runs on A100 (80GB) or 2x A6000 (48GB each). Cost: ~$1.50/hour on AWS.</p>
+      <p><strong>When to use API models instead:</strong> One-off tasks, prototyping, or when you need cutting-edge capability (Fable 5, Sol). Open-source shines for repetitive, high-volume, or privacy-sensitive work.</p>
+    </div>
+
+  </section>
+
+  <!-- ── 8. FUTURE-PROOFING ── -->
+  <section>
+    <div class="section-num">08 · The Meta-Problem</div>
+    <h2>This Will Get Worse Before It Gets Better</h2>
+    <p>The model count is accelerating. In six months, there will be 60+ options. The framework above scales because it's task-based, not model-based. New models slot into existing task categories. When GPT-6 or Claude Opus 5 drops, you don't relearn your workflow - you test it on your four task types and see where it fits.</p>
+    <p>The real solution is automated routing. A tool that ingests your prompt, classifies the task, checks your budget, and routes to the optimal model. That tool doesn't exist yet in a production-grade form. When it does, frameworks like this become obsolete.</p>
+    <p>Until then: classify tasks, preset models, log outcomes, iterate monthly.</p>
 
     <div class="pull-quote">
-      <p>"The endgame isn't developers memorising model capabilities. It's developers never having to think about models at all."</p>
+      <p>"The endgame isn't developers memorising model specs. It's developers never thinking about models at all."</p>
     </div>
   </section>
 
-  <!-- ── 10. CONCLUSION ── -->
+  <!-- ── 9. ACTION ITEMS ── -->
   <section>
-    <div class="section-num">10 · What to Do Monday</div>
-    <h2>What to Actually Do With This</h2>
-    <p>If you take one thing from this article, make it this: <strong>classify your tasks, then preset your models.</strong></p>
-    <p>Spend 20 minutes this week defining your four buckets and picking a default model + effort combo for each. Write it down. Stick it on your wall. For the next month, use those defaults religiously and log the outcome of every call.</p>
-    <p>At the end of the month, look at your log. You'll see patterns - tasks where the cheap model was fine, tasks where you should've used the expensive one, tasks where effort level mattered more than model choice. Adjust your defaults based on that. Repeat monthly.</p>
-    <p>The goal isn't to find the perfect model for every task. The goal is to remove the decision paralysis so you can spend your time coding instead of comparison-shopping AI models at 2am.</p>
-    <p>And if your org only gives you access to one model? You're reading the wrong article, but also: you're lucky. Constraints are clarifying.</p>
+    <div class="section-num">09 · What to Do Monday</div>
+    <h2>Implementing This</h2>
+    <p>If you take one thing from this, make it this: <strong>spend 30 minutes classifying your typical tasks, then preset a model for each category.</strong></p>
+    <p>Write it down. Stick it on your wall or in a gist. For the next month, use those presets religiously and log every call with outcome. At month-end, look for patterns. Tasks where the cheap model was fine. Tasks where you should've used the expensive one. Adjust presets accordingly. Repeat monthly.</p>
+    <p>Try at least one open-source model this week. Install Ollama, pull DeepSeek-R1 7B, and give it three real tasks from your work. You'll be surprised how capable it is - and how freeing it feels to have no per-token cost.</p>
+    <p>The goal isn't perfect model selection. The goal is eliminating decision paralysis so you spend your time coding instead of comparison-shopping AI models at 2am.</p>
 
     <div class="ornament">· · ·</div>
 
     <div class="footnote">
-      Model names, capabilities, and pricing mentioned in this article reflect the landscape as of July 2026. The decision framework is model-agnostic and should remain relevant as new models are released. Pricing and credit caps are illustrative examples based on typical enterprise AI tooling budgets.
+      Pricing and model capabilities referenced in this article reflect mid-2026 data from official documentation (Anthropic, OpenAI, Google AI, Hugging Face, Ollama). Open-source model performance claims are based on published benchmarks from model authors (DeepSeek-V3 technical report, Meta Llama documentation). Pricing subject to change; consult provider documentation for current rates.
     </div>
   </section>
 
