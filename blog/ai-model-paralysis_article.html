@@ -279,7 +279,7 @@
   /* ── STAT STRIP ── */
   .stat-strip {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1px;
     background: var(--rule);
     border: 1px solid var(--rule);
@@ -289,24 +289,24 @@
   }
   .stat-item {
     background: #fff;
-    padding: 20px 20px;
+    padding: 28px 20px;
     text-align: center;
   }
   .stat-num {
     font-family: 'Playfair Display', serif;
-    font-size: 2.2rem;
+    font-size: 2.6rem;
     font-weight: 900;
     color: var(--accent);
     line-height: 1;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
   }
   .stat-label {
     font-family: 'DM Mono', monospace;
-    font-size: 9.5px;
-    letter-spacing: 0.15em;
+    font-size: 10px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
-    line-height: 1.3;
+    line-height: 1.5;
   }
 
   /* ── TAG ── */
@@ -381,7 +381,7 @@
     <div class="section-num">01 · The Problem</div>
     <h2>The Paralysis Is Real</h2>
     <p>Last Tuesday I spent 20 minutes staring at my terminal trying to decide which AI model to use for a code refactoring task. Not because I didn't know how - because I had too many options.</p>
-    <p>Claude Sonnet 4.5. Claude Opus 4.8. Claude Fable 5. Gemini Flash 2.0. Gemini Pro 2.0. Gemini Thinking. ChatGPT o1. ChatGPT 4o. Kimi. DeepSeek v3. Llama 3.3. And that's before you factor in the effort levels - <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code> - each consuming different amounts of tokens and producing different quality outputs.</p>
+    <p>Three tiers of Claude models. Multiple Gemini variants. Several ChatGPT options. Kimi for long context. DeepSeek and Llama for self-hosting. And that's before you factor in the effort levels - <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code> - each consuming different amounts of tokens and producing different quality outputs.</p>
     <p>My org had given me access to all of them, with monthly credit caps on each provider. The freedom was paralysing. Use the wrong model and I'd burn through credits on a task that didn't need it. Use too cheap a model and I'd waste time fixing hallucinated code. Twenty minutes of decision paralysis is twenty minutes not shipping.</p>
 
     <div class="pull-quote">
@@ -417,33 +417,19 @@
     <h2>What You're Actually Choosing Between</h2>
     <p>Let's map the territory. These are the models most orgs are giving devs access to as of mid-2026:</p>
 
-    <h3>The Claude Family (Anthropic)</h3>
-    <ul class="bullet-list">
-      <li><span><strong>Fable 5</strong> - fastest, cheapest, good for simple tasks</span></li>
-      <li><span><strong>Sonnet 4.5 / 4.6</strong> - balanced, most versatile, default for general coding</span></li>
-      <li><span><strong>Opus 4.7 / 4.8</strong> - slowest, most expensive, best for complex reasoning</span></li>
-    </ul>
-    <p>Each supports effort levels (<code>low</code> to <code>max</code>) that trade speed and cost for output quality. A Sonnet 4.5 call at <code>max</code> effort can rival Opus at <code>medium</code> - but costs more and takes longer.</p>
+    <p>Most orgs provide access to models across several tiers:</p>
 
-    <h3>The Gemini Family (Google)</h3>
-    <ul class="bullet-list">
-      <li><span><strong>Flash 2.0</strong> - extremely fast, dirt cheap, shockingly good for structured tasks</span></li>
-      <li><span><strong>Pro 2.0</strong> - slower than Flash, better at ambiguous or creative prompts</span></li>
-      <li><span><strong>Thinking</strong> - experimental reasoning-focused model, slow but strong on logic puzzles and deep debugging</span></li>
-    </ul>
+    <h3>Tier 1: Fast & Economical</h3>
+    <p>Models optimised for speed and cost. Good for straightforward tasks with clear right answers - code generation, simple refactors, test case creation. Examples include Claude Haiku, Gemini Flash, and similar fast-tier options from other providers.</p>
 
-    <h3>OpenAI (ChatGPT)</h3>
-    <ul class="bullet-list">
-      <li><span><strong>GPT-4o</strong> - fast, multimodal, decent at code but occasionally overconfident</span></li>
-      <li><span><strong>o1 / o3</strong> - reasoning models, slow, expensive, excellent for algorithmic problems</span></li>
-    </ul>
+    <h3>Tier 2: Balanced</h3>
+    <p>The middle ground - capable enough for most coding tasks, priced reasonably. This is where you'll spend most of your budget. Examples include Claude Sonnet, GPT-4o, and Gemini Pro variants.</p>
 
-    <h3>Open-Source & Alternatives</h3>
-    <ul class="bullet-list">
-      <li><span><strong>Kimi</strong> - Chinese model with massive context windows, excellent for document analysis</span></li>
-      <li><span><strong>DeepSeek v3</strong> - open-source, competitive quality, great for self-hosted setups</span></li>
-      <li><span><strong>Llama 3.3</strong> - Meta's offering, good balance of speed and capability for local use</span></li>
-    </ul>
+    <h3>Tier 3: Maximum Capability</h3>
+    <p>The expensive, slow, powerful models reserved for complex reasoning. Claude Opus, GPT o1, and similar top-tier models live here. Use sparingly - these justify their cost on hard problems but waste budget on simple tasks.</p>
+
+    <h3>Specialised Models</h3>
+    <p>Some models have specific strengths: long context windows, multimodal capabilities, or particular reasoning styles. Kimi handles massive documents well. Open-source options like DeepSeek and Llama offer self-hosted alternatives. Match these to specific needs rather than using them as general-purpose tools.</p>
 
     <div class="stat-strip">
       <div class="stat-item">
@@ -477,9 +463,9 @@
 
     <h3>Bucket 1: Mechanical Tasks</h3>
     <p><strong>Examples:</strong> writing boilerplate, generating test cases, formatting JSON, regex patterns, simple refactors, docstring generation.</p>
-    <p><strong>Model:</strong> Gemini Flash 2.0 or Claude Fable 5.</p>
+    <p><strong>Model tier:</strong> Fast/economical tier (the cheapest option from your available providers).</p>
     <p><strong>Effort:</strong> <code>low</code> or default.</p>
-    <p><strong>Why:</strong> These tasks have clear right answers and no ambiguity. Speed and cost matter more than deep reasoning. Flash is shockingly good here - I've had it generate 200 unit test stubs in under 3 seconds for $0.01. Fable is slightly better at code formatting edge cases but slower.</p>
+    <p><strong>Why:</strong> These tasks have clear right answers and no ambiguity. Speed and cost matter more than deep reasoning. Fast-tier models excel at structured, deterministic tasks - generating hundreds of test stubs or boilerplate in seconds for pennies. Save your expensive model credits for problems that actually need them.</p>
 
     <div class="code-block">
       <div class="code-label">Example Prompt · Mechanical Task</div>
@@ -491,13 +477,13 @@ Use Vitest syntax. Include describe blocks grouped by function.</pre>
 
     <h3>Bucket 2: Ambiguous or Creative Tasks</h3>
     <p><strong>Examples:</strong> API design decisions, naming things, architectural tradeoff discussions, explaining unfamiliar codebases, writing human-facing documentation.</p>
-    <p><strong>Model:</strong> Claude Sonnet 4.5 or Gemini Pro 2.0.</p>
+    <p><strong>Model:</strong> Balanced-tier models (mid-range options from your providers).</p>
     <p><strong>Effort:</strong> <code>medium</code>.</p>
     <p><strong>Why:</strong> These tasks need judgment, not just correctness. Sonnet is excellent at understanding context and making reasonable recommendations. Pro is slightly better at creative naming but weaker on code-heavy analysis. For pure coding tasks, Sonnet wins. For docs or explanations, Pro is competitive and cheaper.</p>
 
     <h3>Bucket 3: Complex Reasoning or Debugging</h3>
     <p><strong>Examples:</strong> tracing a subtle bug through multiple files, understanding why a complex algorithm fails, reviewing architecture for hidden issues, refactoring tangled legacy code.</p>
-    <p><strong>Model:</strong> Claude Opus 4.8, ChatGPT o1, or Gemini Thinking.</p>
+    <p><strong>Model:</strong> Top-tier models (the most capable, expensive options).</p>
     <p><strong>Effort:</strong> <code>high</code> to <code>max</code>.</p>
     <p><strong>Why:</strong> These are the tasks where a cheap model will confidently give you wrong answers. Opus is the most reliable here - it's slower and costs more, but it catches edge cases the others miss. o1 is great for algorithmic problems but occasionally overthinks simple bugs. Gemini Thinking is underrated for deep debugging but has a smaller context window.</p>
 
@@ -509,7 +495,7 @@ Use Vitest syntax. Include describe blocks grouped by function.</pre>
 
     <h3>Bucket 4: Long Context or Document Analysis</h3>
     <p><strong>Examples:</strong> summarising long transcripts, finding patterns across 10+ files, analysing full git diffs, processing documentation sites.</p>
-    <p><strong>Model:</strong> Kimi, Claude Opus, or Gemini Pro 2.0.</p>
+    <p><strong>Model:</strong> Models with large context windows or strong document analysis capabilities.</p>
     <p><strong>Effort:</strong> <code>medium</code>.</p>
     <p><strong>Why:</strong> Kimi has a 200k+ token context window and handles massive inputs without choking. Opus is better at synthesis but more expensive. Pro sits between them - decent context, good summarisation, cheaper than Opus. Pick based on input size: under 50k tokens, use Pro. Over 100k, use Kimi.</p>
   </section>
@@ -547,27 +533,26 @@ Use Vitest syntax. Include describe blocks grouped by function.</pre>
 
   <!-- ── 6. WHAT EACH MODEL IS ACTUALLY GOOD AT ── -->
   <section>
-    <div class="section-num">06 · Model Strengths</div>
-    <h2>What Each Model Actually Excels At</h2>
-    <p>Beyond the buckets, here are the specific tasks where each model genuinely outperforms the others:</p>
+    <div class="section-num">06 · Testing Your Models</div>
+    <h2>Building Your Own Model Profile</h2>
+    <p>The tier system gives you a starting point, but every model has quirks. Some are conservative and won't suggest risky refactors. Others are aggressive and will confidently propose solutions that don't compile. Some handle ambiguity well. Others need crystal-clear prompts.</p>
 
-    <h3>Claude Sonnet: Code That Needs to Be Right</h3>
-    <p>Sonnet is conservative. It won't hallucinate a library that doesn't exist or invent an API method. When I ask it to refactor, it preserves behaviour obsessively. The downside is it's occasionally too cautious - it won't suggest a clever trick because it's not 100% sure it'll work. But for production code, cautious is good.</p>
+    <p>You need to profile your available models yourself. Here's the fast way:</p>
 
-    <h3>Claude Opus: The Bug You Can't Find</h3>
-    <p>Opus has caught bugs in my code that I'd stared at for an hour and missed. It's expensive, but when you're stuck, it's worth it. I've also used it for architectural review - it'll spot patterns like "this function does three unrelated things" that cheaper models miss.</p>
+    <h3>Week One: Baseline Testing</h3>
+    <p>Pick five representative tasks from your actual work. One mechanical, two balanced, two complex. Run each through every model in your toolkit at medium effort. Log the results: which succeeded, which failed, which were close but needed tweaking.</p>
 
-    <h3>Gemini Flash: The One You're Underestimating</h3>
-    <p>Flash is absurdly underrated. It's faster than Fable, cheaper than Sonnet, and for structured tasks - JSON parsing, config generation, test stubs - it's as accurate as models 10x the price. The catch: it struggles with ambiguity. Ask it "should I use X or Y?" and it'll confidently pick one without explaining tradeoffs. But ask it "generate X" and it's flawless.</p>
+    <p>This gives you a rough map. You'll spot the models that consistently nail certain task types and the ones that consistently miss.</p>
 
-    <h3>Gemini Thinking: Deep Debugging Only</h3>
-    <p>Thinking is slow. Like, 30-second response times for a medium prompt. But when you're debugging a gnarly algorithmic issue - "why does this sorting function produce wrong output on arrays with duplicates?" - it's shockingly good. It genuinely reasons through edge cases step by step. Don't use it for normal coding. Save it for the problems that make you question your career choices.</p>
+    <h3>Week Two: Effort Calibration</h3>
+    <p>Take the models that did well on complex tasks. Run the same tasks again at low, medium, high, and max effort. Log cost and quality. Find the inflection point - where does more effort stop improving output?</p>
 
-    <h3>ChatGPT o1: Algorithmic Interviews and Logic Puzzles</h3>
-    <p>o1 is the model you want if you're grinding LeetCode or implementing a non-trivial algorithm from a paper. It's excellent at formal reasoning. The downside: it sometimes over-engineers. Ask it for a simple function and you'll get a beautifully optimised O(n log n) solution when O(n²) was fine for your 10-element array.</p>
+    <p>For most models, there's a sweet spot. Below it, quality drops fast. Above it, you're burning credits for marginal gains.</p>
 
-    <h3>Kimi: The Document Analyst</h3>
-    <p>Kimi's party trick is handling huge inputs. I've thrown 100k-token git diffs at it and asked "what changed in the auth layer?" and it finds it. Opus can do this too, but Kimi is cheaper. The catch: it's not as good at synthesis. It'll tell you <em>what</em> changed but struggle to explain <em>why</em> it matters.</p>
+    <h3>Month One: Pattern Recognition</h3>
+    <p>By the end of the first month, you'll have a personal dataset. Some fast-tier models will surprise you - handling tasks you assumed needed balanced-tier. Some expensive models will disappoint - costing 5x more for identical output.</p>
+
+    <p>This data is worth more than any article or benchmark. It's based on your actual workload, your prompting style, your code patterns. Trust it over marketing claims.</p>
   </section>
 
   <!-- ── 7. COMMON MISTAKES ── -->
@@ -577,20 +562,20 @@ Use Vitest syntax. Include describe blocks grouped by function.</pre>
     <p>I've made every one of these. You probably will too. Here's how to avoid them:</p>
 
     <h3>Mistake 1: Using One Model for Everything</h3>
-    <p>Defaulting to Sonnet for every task because it's "the good one" is like using a sledgehammer for every nail. You'll burn budget on tasks that didn't need it. Diversify.</p>
+    <p>Defaulting to your "favourite" model for every task is like using a sledgehammer for every nail. You'll burn budget on tasks that didn't need it. Diversify.</p>
 
     <h3>Mistake 2: Penny-Pinching on Critical Tasks</h3>
-    <p>The opposite mistake: using Flash to debug a race condition because "it's just a quick question". Cheap models give you plausible-sounding nonsense on hard problems. I've wasted hours following Flash's confident-but-wrong debugging advice. The API call cost $0.02; the wasted time cost $50 in opportunity cost.</p>
+    <p>The opposite mistake: using a fast-tier model to debug a race condition because "it's just a quick question". Cheap models give you plausible-sounding nonsense on hard problems. I've wasted hours following confident-but-wrong debugging advice from the wrong tier. The API call saved 20 cents; the wasted time cost $50 in opportunity cost.</p>
 
     <h3>Mistake 3: Ignoring Effort Levels</h3>
-    <p>Most devs don't even know effort levels exist. They use default for everything. But a Sonnet call at <code>high</code> effort is often better than an Opus call at <code>low</code> - and cheaper. Experiment with effort before jumping to a bigger model.</p>
+    <p>Most devs don't even know effort levels exist. They use default for everything. But a balanced-tier call at <code>high</code> effort is often better than a top-tier call at <code>low</code> - and cheaper. Experiment with effort before jumping to a bigger model.</p>
 
     <h3>Mistake 4: Not Logging What Works</h3>
     <p>You'll forget which model you used for that task that worked perfectly three weeks ago. I keep a plaintext log: date, task, model, effort, outcome. Takes 10 seconds per call. After a month you'll have a personal dataset of what works for you.</p>
 
     <div class="callout">
       <div class="callout-label">The Log That Changed My Workflow</div>
-      <p>My log has 200+ entries now. The patterns were surprising: Flash handled 40% of tasks I'd been using Sonnet for, with identical results. Opus was worth it for debugging but overkill for architecture discussion. Gemini Thinking never justified its cost - I'd get better results from Opus at medium effort.</p>
+      <p>My log has 200+ entries now. The patterns were surprising: fast-tier models handled 40% of tasks I'd been using balanced-tier for, with identical results. Top-tier was worth it for debugging but overkill for architecture discussion. Effort level often mattered more than model choice.</p>
       <p>The log takes 5 minutes a week to maintain. It's saved me probably $400 in wasted API calls.</p>
     </div>
   </section>
@@ -602,11 +587,11 @@ Use Vitest syntax. Include describe blocks grouped by function.</pre>
     <p>When you're about to make an AI call and don't want to think about it:</p>
 
     <ul class="bullet-list">
-      <li><span><strong>Is there a clear right answer?</strong> (Boilerplate, tests, formatting) → Flash or Fable, low effort.</span></li>
-      <li><span><strong>Is it ambiguous or creative?</strong> (API design, naming, docs) → Sonnet or Pro, medium effort.</span></li>
-      <li><span><strong>Are you stuck on a hard problem?</strong> (Deep bug, complex refactor) → Opus or o1, high effort.</span></li>
-      <li><span><strong>Is the input huge?</strong> (Long diffs, documentation) → Kimi or Opus, medium effort.</span></li>
-      <li><span><strong>Does it touch money, auth, or user data?</strong> → Opus, max effort, no exceptions.</span></li>
+      <li><span><strong>Is there a clear right answer?</strong> (Boilerplate, tests, formatting) → Fast tier, low effort.</span></li>
+      <li><span><strong>Is it ambiguous or creative?</strong> (API design, naming, docs) → Balanced tier, medium effort.</span></li>
+      <li><span><strong>Are you stuck on a hard problem?</strong> (Deep bug, complex refactor) → Top tier, high effort.</span></li>
+      <li><span><strong>Is the input huge?</strong> (Long diffs, documentation) → Long-context model, medium effort.</span></li>
+      <li><span><strong>Does it touch money, auth, or user data?</strong> → Top tier, max effort, no exceptions.</span></li>
     </ul>
 
     <p>That covers 90% of tasks. For the other 10%, use your log.</p>
@@ -618,7 +603,7 @@ Use Vitest syntax. Include describe blocks grouped by function.</pre>
     <h2>The Real Problem: This Will Get Worse</h2>
     <p>The model landscape is accelerating. In six months there will be 20 major models, each with new capabilities we'll have to evaluate. The framework above won't scale forever.</p>
     <p>What will scale: <strong>task-based classification</strong>. New models will come and go, but tasks stay the same. Mechanical tasks will still be mechanical. Ambiguous tasks will still be ambiguous. When a new model drops, you don't need to re-learn your entire workflow - you just test it on your four buckets and see where it fits.</p>
-    <p>The companies that figure out model routing for developers will win. Imagine a tool that auto-selects the right model based on your prompt and your budget cap. You write "debug this race condition" and it routes to Opus at high. You write "generate test stubs" and it routes to Flash at low. Zero decision overhead.</p>
+    <p>The companies that figure out model routing for developers will win. Imagine a tool that auto-selects the right model based on your prompt and your budget cap. You write "debug this race condition" and it routes to top-tier at high effort. You write "generate test stubs" and it routes to fast-tier at low. Zero decision overhead.</p>
     <p>That tool doesn't exist yet. Until it does, frameworks like this are the best we have.</p>
 
     <div class="pull-quote">
