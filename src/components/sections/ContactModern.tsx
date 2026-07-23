@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaPhone, FaWhatsapp, FaPaperPlane } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaTwitter, FaYoutube, FaEnvelope, FaPhone, FaWhatsapp, FaPaperPlane } from "react-icons/fa";
 import { useRef } from "react";
 
 const contactMethods = [
@@ -47,6 +47,12 @@ const socialLinks = [
     href: "https://twitter.com/rgndunes",
     color: "hover:bg-[#1DA1F2]",
   },
+  {
+    icon: FaYoutube,
+    label: "YouTube",
+    href: "https://www.youtube.com/@rgndunes",
+    color: "hover:bg-[#FF0000]",
+  },
 ];
 
 export default function ContactModern() {
@@ -69,7 +75,7 @@ export default function ContactModern() {
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-6 py-2">
           <FaPaperPlane className="h-3 w-3 text-accent" />
           <span className="text-xs font-semibold uppercase tracking-wider text-accent">
-            09 · Get in Touch
+            10 · Get in Touch
           </span>
         </div>
         <h2 className="font-serif text-5xl font-bold tracking-tight text-ink sm:text-6xl">

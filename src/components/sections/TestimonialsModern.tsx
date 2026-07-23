@@ -43,7 +43,7 @@ export default function TestimonialsModern() {
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-6 py-2">
           <FaQuoteLeft className="h-3 w-3 text-accent" />
           <span className="text-xs font-semibold uppercase tracking-wider text-accent">
-            08 · Testimonials
+            09 · Testimonials
           </span>
         </div>
         <h2 className="font-serif text-5xl font-bold tracking-tight text-ink sm:text-6xl">
