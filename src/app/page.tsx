@@ -42,12 +42,6 @@ const LatestBlogPosts = dynamic(
     loading: () => <div className="min-h-screen" />,
   }
 );
-const SeriesSection = dynamic(
-  () => import("@/components/sections/SeriesModern"),
-  {
-    loading: () => <div className="min-h-screen" />,
-  }
-);
 
 export default function Home() {
   const [gameMode, setGameMode] = useState(false);
@@ -75,7 +69,6 @@ export default function Home() {
           <DigitalProducts />
           <ArticlesAndProducts />
           <LatestBlogPosts />
-          <SeriesSection />
           <Testimonials />
           <Contact />
         </motion.main>
