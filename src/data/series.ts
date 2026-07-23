@@ -100,7 +100,22 @@ export const seriesList: Series[] = [
           "Supply chain, isolation, rollouts, feature flags, and the platform layer that lets one team support hundreds of engineers.",
       },
     ],
-    chapters: [],
+    chapters: [
+      {
+        slug: "chapter-1-what-is-frontend-infrastructure",
+        number: 1,
+        part: "Part I · Foundations",
+        title: "What Is Frontend Infrastructure?",
+        description:
+          "A cited, primary-source definition of the discipline. Borrows CNCF and Team Topologies vocabulary, grounds the scale of the problem in HTTP Archive Web Almanac numbers, and cites Google web.dev case studies as the evidence base for runtime performance work.",
+        contentPath:
+          "/blog/frontend-infra-chapter-1-what-is-frontend-infrastructure.html",
+        contentType: "html",
+        status: "published",
+        publishedAt: "2026-07-24",
+        readingTime: "~18 min read",
+      },
+    ],
   },
 ];
 
